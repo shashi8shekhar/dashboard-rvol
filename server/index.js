@@ -1,11 +1,10 @@
 const cors = require('cors');
 const express = require('express');
 const mysql = require('mysql');
+const logger = require("./logger");
 
 const axios = require('axios');
 const cron = require('node-cron');
-
-const app = express();
 
 const pool = mysql.createPool({
   host: process.env.MYSQL_HOST_IP,
@@ -14,12 +13,20 @@ const pool = mysql.createPool({
   database: process.env.MYSQL_DATABASE,
 });
 
+
+// Instantiating express app
+const app = express();
 app.use(cors());
+
+const router = require('./routes/data')
+const getConfig = require('./controllers/getConfig');
+const getTableData = require('./controllers/getTableData');
+
 
 const params = {
     access_key: 'cefba5a5bd1ad57b20267680c6ef8d99',
     symbols: 'arkk',
-    date_from: '2021-03-25',
+    date_from: '2021-04-01',
     date_to: '2021-04-04',
 };
 
@@ -79,12 +86,9 @@ axios.get('http://api.marketstack.com/v1/eod', {params})
   });
 
 
-app.listen(process.env.REACT_APP_SERVER_PORT, () => {
-  console.log(`App server now listening on port ${process.env.REACT_APP_SERVER_PORT}`);
-});
-
 app.get('/test', (req, res) => {
   const { table } = req.query;
+    console.log('inside /test', table);
 
   pool.query(`select * from ${table}`, (err, results) => {
     if (err) {
@@ -94,3 +98,35 @@ app.get('/test', (req, res) => {
     }
   });
 });
+
+app.get('/loadConfig', (req, res) => {
+    getConfig.getPageConfig(req, res);
+});
+
+app.post('/loadRvolData', function (req, res) {
+        const { products } = req.query;
+        logger.info("/loadRvolData being called ", products);
+
+        const params = {
+            products: products || [],
+        };
+
+        const query = getTableData.getQuery(params);
+
+        getTableData.getRvolData(query, req, res);
+});
+
+app.use(function (err, req, res, next) {
+    var errorObj = {};
+    errorObj.err_name = "APP_FAILURE";
+    errorObj.err_stk = err.stack;
+    logger.error(JSON.stringify(errorObj));
+    res.end("Internal Server Error");
+});
+
+
+app.listen(process.env.REACT_APP_SERVER_PORT, () => {
+    console.log(`App server now listening on port ${process.env.REACT_APP_SERVER_PORT}`);
+});
+
+module.exports = app;
