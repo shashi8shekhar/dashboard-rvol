@@ -9,7 +9,9 @@ https://docs.docker.com/compose/install/
 The following set of commands will download and install the dashboard along with all its dependencies:
 
 git clone https://github.com/shashi8shekhar/dashboard-rvol.git
+
 cd dashboard-rvol
+
 docker-compose build
 
 docker-compose up -d
