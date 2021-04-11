@@ -147,9 +147,10 @@ class Winddown:
             wind_down.append(mean / cum_winddown)
 
         wind_down_updated = [self.min_winddown if x < 0.00000000001 else x for x in wind_down] #add Min. Winddown for the 1st window
+        winddownKey = str(self.sliding_window) + 'min'
 
-        data = {'range':windDownTime,
-            'winddown': wind_down}
+        data = {'range':windDownTime}
+        data.update({winddownKey: wind_down})
 
         # Create DataFrame
         df = pd.DataFrame(data)

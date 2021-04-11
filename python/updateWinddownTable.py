@@ -4,6 +4,9 @@ from sql.configDetails import configurationObj
 from Winddown import Winddown
 import constants
 import pandas as pd
+from functools import reduce
+
+nan_value = 0
 
 class PopulateWinddownData:
     #Gets historical data from Kite Connect
@@ -22,14 +25,18 @@ def runWinddownOnConfig():
     windDownData = {}
     for config in configurationObj:
         windDownData[config['instrument_token']] = {}
+        dfs = []
         for window in constants.slidingWindow:
             populateWinddownDataObj = PopulateWinddownData()
             print(config['tradingsymbol'], window, 'min winddown')
             windDownData[config['instrument_token']][window] = populateWinddownDataObj.getWinddown(config['instrument_token'], config['t_start'], config['t_end'], constants.from_date, constants.to_date, constants.interval, window, constants.min_winddown)
-            print( windDownData[config['instrument_token']][window] )
+            dfs.append(windDownData[config['instrument_token']][window])
+        windDownData[config['instrument_token']] = reduce(lambda left,right: pd.merge(left,right,on='range', how='outer'), dfs)
+        print(windDownData[config['instrument_token']])
+
+        tableKey = 'winddown-' + config['instrument_token']
+        #winddown_data[slidingWindow].to_sql(tableKey, engine)
+
     return windDownData
 
 windDownData = runWinddownOnConfig()
-
-#print(windDownData)
-#winddown_data[slidingWindow].to_sql('winddown_5', engine)

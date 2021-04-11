@@ -10,7 +10,6 @@ config_table_stmt = select([ config_table ])
 connection = engine.connect()
 configuration = connection.execute(config_table_stmt).fetchall()
 configurationKey = connection.execute(config_table_stmt).keys()
-#print(configurationKey)
 
 
 def index(configurationKey, configuration):
@@ -20,5 +19,3 @@ def index(configurationKey, configuration):
     return json_data
 
 configurationObj = index(configurationKey, configuration)
-
-#print(configurationObj[0]['instrument_token'], configurationObj[0]['tradingsymbol'])
