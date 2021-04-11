@@ -1,4 +1,3 @@
-
 #Realised Volatility Calculations
 
 realised_vol_list = [0] #set realised Vol to 0 at trade start time

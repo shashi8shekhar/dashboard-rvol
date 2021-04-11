@@ -17,59 +17,11 @@ class Winddown:
     def exp_pdf( x, lam ):
         return lam * np.exp(-lam * x)
 
-    def get_total_seconds_in_period(tStart, tEnd):
-        tEnd_dateTime = datetime.datetime.strptime(tEnd, '%H:%M')
-        tStart_dateTime = datetime.datetime.strptime(tStart, '%H:%M')
-
-        difference = (tEnd_dateTime - tStart_dateTime)
-        # difference = datetime.datetime.strptime(tEnd, '%H:%M') - datetime.datetime.strptime(tStart, '%H:%M')
-        # (b-a).total_seconds()
-
-        return difference.total_seconds()
-
-    def get_total_minutes_in_period(tStart, tEnd):
-        return int(get_total_seconds_in_period(tStart, tEnd) / 60)
-
-    def generate_random_hedge_point( avgNoOfHedgePerDay, winddown, tStart, tEnd ):
-        expected_hedges_in_period = avgNoOfHedgePerDay * winddown
-        total_seconds_in_period = get_total_seconds_in_period(tStart, tEnd)
-        expected_hedges_per_second = expected_hedges_in_period / total_seconds_in_period
-
-        hedge_points = []
-        current_second = 0
-        # print(expected_hedges_in_period, total_seconds_in_period, expected_hedges_per_second)
-
-        while current_second < total_seconds_in_period:
-            hedge_points.append(current_second)
-            current_second = current_second + exp_pdf(expected_hedges_per_second, 1)
-
-        # print(hedge_points)
-        return hedge_points
-
-    def generate_random_hedge_point_adhoc( avgNoOfHedgePerDay, winddown, tStart, tEnd ):
-        expected_hedges_in_period = avgNoOfHedgePerDay * winddown
-        total_minutes_in_period = get_total_minutes_in_period(tStart, tEnd)
-        expected_hedges_per_minute = expected_hedges_in_period / total_minutes_in_period
-
-        hedge_points = []
-        current_minute = 0
-        # print(expected_hedges_in_period, total_minutes_in_period, expected_hedges_per_minute)
-
-        while current_minute < total_minutes_in_period:
-            hedge_points.append(int(current_minute))
-            current_minute = current_minute + exp_pdf(expected_hedges_per_minute, 1)
-
-        # print(hedge_points)
-        return hedge_points
-
     def get_returns(self, current, previous ):
         return np.log( current / previous )
 
     def get_gamma_pnl(self, base_price_current, base_price_previous ):
         return - (np.log( base_price_current / base_price_previous )) + base_price_current / base_price_previous - 1
-
-    def get_realised_vol( avg_gamma_pnl, winddown ):
-        return np.sqrt( 2 * avg_gamma_pnl ) / np.sqrt( winddown / 256 )
 
     def get_window_list(self):
         time_window = []
@@ -86,23 +38,6 @@ class Winddown:
 
     def get_unique_days(self, date ):
         return np.unique(date)
-
-    def date_convert(date_to_convert):
-        return str( date_to_convert.time() )[0:5]
-        # return datetime.datetime.strptime(date_to_convert, '%H:%M')
-
-    def sub_minute_from_time(time, delta):
-        time_obj = datetime.datetime.strptime(time, '%H:%M')
-        return date_convert(time_obj - datetime.timedelta(minutes = delta))
-
-    def date_convert_to_obj(date_to_convert):
-        return datetime.datetime.strptime(date_to_convert, '%H:%M')
-
-    def _getDay(date):
-        return datetime.datetime.strptime(date_to_convert, '%H:%M')
-
-    def _getTime(date):
-        return datetime.datetime.strptime(date_to_convert, '%H:%M')
 
     def get_mean_each_interval(self, window_list, date_list, data_frame):
         mean_list = []

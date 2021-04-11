@@ -32,10 +32,13 @@ def runWinddownOnConfig():
             windDownData[config['instrument_token']][window] = populateWinddownDataObj.getWinddown(config['instrument_token'], config['t_start'], config['t_end'], constants.from_date, constants.to_date, constants.interval, window, constants.min_winddown)
             dfs.append(windDownData[config['instrument_token']][window])
         windDownData[config['instrument_token']] = reduce(lambda left,right: pd.merge(left,right,on='range', how='outer'), dfs)
-        print(windDownData[config['instrument_token']])
+        #print(windDownData[config['instrument_token']])
 
         tableKey = 'winddown-' + str(config['instrument_token'])
-        windDownData[config['instrument_token']].to_sql(tableKey, engine)
+        try:
+            windDownData[config['instrument_token']].to_sql(tableKey, engine, if_exists='fail')
+        except Exception:
+            pass
 
     return windDownData
 
