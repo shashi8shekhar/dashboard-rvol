@@ -107,6 +107,20 @@ module.exports = {
             "t_start":"09:16:00",
             "t_end":"15:30:00",
             "avg_hedge_per_day":50
+        },
+        {
+            expiry: "",
+            id: 1492652190,
+            instrument_token: 341249,
+            last_price: 0,
+            lot_size: 1,
+            segment: "NSE",
+            strike: 0,
+            tradingsymbol: "HDFCBANK",
+            weight: 3,
+            "t_start":"09:16:00",
+            "t_end":"15:30:00",
+            "avg_hedge_per_day":50
         }
     ],
 } 

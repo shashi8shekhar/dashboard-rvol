@@ -60,16 +60,16 @@ app.get('/loadConfig', (req, res) => {
 });
 
 app.post('/loadRvolData', function (req, res) {
-        const { products } = req.query;
-        logger.info("/loadRvolData being called ", products);
+    const { products } = req.query;
+    logger.info("/loadRvolData being called ", products);
 
-        const params = {
-            products: products || [],
-        };
+    const params = {
+        products: products || [],
+    };
 
-        const query = getTableData.getQuery(params);
+    const query = getTableData.getQuery(params);
 
-        getTableData.getRvolData(query, req, res);
+    getTableData.getRvolData(query, req, res);
 });
 
 app.use(function (err, req, res, next) {

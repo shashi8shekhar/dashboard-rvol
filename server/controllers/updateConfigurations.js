@@ -9,16 +9,17 @@ const createConfigTable = function () {
     let createConfig = `create table if not exists config(
                           expiry varchar(255), 
                           id int,
-                          instrument_token int primary key,
+                          instrument_token int NOT NULL primary key,
                           last_price int,
                           lot_size int,
                           segment varchar(255) ,
                           strike int,
-                          tradingsymbol varchar(255) ,
+                          tradingsymbol varchar(255) NOT NULL,
                           weight int,
                           t_start time,
                           t_end time,
                           avg_hedge_per_day int
+                          UNIQUE (id, instrument_token)
                       )`;
 
     database.query(createConfig, function(err, results, fields) {
@@ -35,6 +36,7 @@ exports.checkTableExists = function (table) {
             modifyConfig('insert')
         } else {
             console.log('exist ', table);
+            modifyConfig('insert')
         }
     });
     return query;
@@ -52,7 +54,7 @@ const modifyConfig = function (param) {
         });
 
         if (param === 'insert') {
-            var sql = "INSERT INTO config (" + columnsList.join(",") +") VALUES ?";
+            var sql = "INSERT IGNORE INTO config (" + columnsList.join(",") +") VALUES ?";
             var query = database.query(sql, [valuesList], function(err, result) {
                 if(err) throw err;
             });
