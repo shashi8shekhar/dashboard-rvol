@@ -1,5 +1,6 @@
 from dataPipeline.login.kite import kite
 from sql.engine import engine
+from sql.fetchScriptDetails import results
 
 import datetime
 import pandas as pd
@@ -41,5 +42,6 @@ winddown_data[10] = start(instrument_token, from_date, to_date, interval, tStart
 winddown_data[15] = start(instrument_token, from_date, to_date, interval, tStart, tEnd, 15, min_winddown)
 winddown_data[30] = start(instrument_token, from_date, to_date, interval, tStart, tEnd, 30, min_winddown)
 
-print(winddown_data)
+print(results)
+#print(winddown_data)
 winddown_data[10].to_sql('winddown_10', engine)

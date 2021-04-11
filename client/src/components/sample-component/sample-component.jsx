@@ -6,7 +6,7 @@ import { Button } from '@material-ui/core';
 function callServer() {
   axios.get(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/test`, {
     params: {
-      table: 'sample',
+      table: 'config',
     },
   }).then((response) => {
     console.log('test', response.data);
