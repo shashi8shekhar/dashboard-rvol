@@ -2,9 +2,9 @@ from sql.engine import engine
 from sqlalchemy import select, MetaData, Table, and_
 
 metadata = MetaData(bind=None)
-table = Table('winddown_10', metadata, autoload=True, autoload_with=engine)
+winddown_5_table = Table('winddown_5', metadata, autoload=True, autoload_with=engine)
 
-stmt = select([ table.columns.range, table.columns.winddown])
+winddown_5_table_stmt = select([ winddown_5_table.columns.range, winddown_5_table.columns.winddown])
 
 connection = engine.connect()
-results = connection.execute(stmt).fetchall()
+winddown5min = connection.execute(winddown_5_table_stmt).fetchall()
