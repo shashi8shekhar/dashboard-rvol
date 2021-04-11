@@ -1,7 +1,7 @@
 import datetime
 
 # Dates between which we need historical data
-diff = 6
+diff = 60
 to_date = datetime.datetime.now()
 from_date = (to_date - datetime.timedelta(days=diff))
 

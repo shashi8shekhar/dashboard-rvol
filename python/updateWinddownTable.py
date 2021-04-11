@@ -34,8 +34,8 @@ def runWinddownOnConfig():
         windDownData[config['instrument_token']] = reduce(lambda left,right: pd.merge(left,right,on='range', how='outer'), dfs)
         print(windDownData[config['instrument_token']])
 
-        tableKey = 'winddown-' + config['instrument_token']
-        #winddown_data[slidingWindow].to_sql(tableKey, engine)
+        tableKey = 'winddown-' + str(config['instrument_token'])
+        windDownData[config['instrument_token']].to_sql(tableKey, engine)
 
     return windDownData
 
