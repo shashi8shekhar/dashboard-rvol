@@ -4,10 +4,8 @@ import datetime
 import math
 
 class Winddown:
-    def __init__(self, data, tStart, tEnd, sliding_window=5, minWinddown=0.1, avg_hedge_per_day=6, iterations=100):
+    def __init__(self, data, tStart, tEnd, sliding_window=5, minWinddown=0.04):
         self.min_winddown = minWinddown #used for 1st window where difference is close to zero.
-        self.avg_hedge_per_day = avg_hedge_per_day
-        self.iterations = iterations
         self.sliding_window = sliding_window # n minutes sliding window
         self.min_rolling_periods = sliding_window #(0, sliding_window]
         self.tStart = tStart #market start time
@@ -65,7 +63,7 @@ class Winddown:
         date_column = self.data['day']
         date_unique = self.get_unique_days(date_column)
 
-        windDownTime = self.get_window_list() #10 minute default window
+        windDownTime = self.get_window_list() #time window (09:16, 09:21, 09:26....,15:30)
 
         filter_sliding_window_time = self.data["time"].isin(windDownTime)
         filter_date_unique = self.data["day"].isin(date_unique)
@@ -84,15 +82,11 @@ class Winddown:
         wind_down_updated = [self.min_winddown if x < 0.00000000001 else x for x in wind_down] #add Min. Winddown for the 1st window
         winddownKey = str(self.sliding_window) + 'min'
 
-        data = {'range':windDownTime}
-        data.update({winddownKey: wind_down})
+        data = {'range': windDownTime}
+        data.update({winddownKey: wind_down_updated})
 
         # Create DataFrame
         df = pd.DataFrame(data)
-        df = df.iloc[1:]
-
-        #print(self.sliding_window)
-        #print(df)
 
         return df;
 

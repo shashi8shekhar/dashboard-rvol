@@ -1,6 +1,7 @@
 from dataPipeline.login.kite import kite
 from sql.engine import engine
 from sql.configDetails import configurationObj
+from sql.winddownDetails import windDownDataObj
 from Winddown import Winddown
 import constants
 import pandas as pd
@@ -21,7 +22,7 @@ class PopulateWinddownData:
         return winddownObj._calculate_winddown()
 
 
-def runWinddownOnConfig():
+def runWinddownOnConfig(configurationObj, constants):
     windDownData = {}
     for config in configurationObj:
         windDownData[config['instrument_token']] = {}
@@ -32,14 +33,23 @@ def runWinddownOnConfig():
             windDownData[config['instrument_token']][window] = populateWinddownDataObj.getWinddown(config['instrument_token'], config['t_start'], config['t_end'], constants.from_date, constants.to_date, constants.interval, window, constants.min_winddown)
             dfs.append(windDownData[config['instrument_token']][window])
         windDownData[config['instrument_token']] = reduce(lambda left,right: pd.merge(left,right,on='range', how='outer'), dfs)
-        #print(windDownData[config['instrument_token']])
 
         tableKey = 'winddown-' + str(config['instrument_token'])
         try:
-            windDownData[config['instrument_token']].to_sql(tableKey, engine, if_exists='fail')
+            windDownData[config['instrument_token']].to_sql(tableKey, engine, if_exists='replace')
         except Exception:
             pass
 
     return windDownData
 
-windDownData = runWinddownOnConfig()
+def isWinddownPopulated(configurationObj, windDownDataObj, constants):
+    for config in configurationObj:
+        tableKey = 'winddown-' + str(config['instrument_token'])
+
+        if len(windDownDataObj[tableKey]) > 0 :
+            pass
+        else:
+            return runWinddownOnConfig(configurationObj, constants)
+    return windDownDataObj
+
+windDownData = isWinddownPopulated(configurationObj, windDownDataObj, constants)

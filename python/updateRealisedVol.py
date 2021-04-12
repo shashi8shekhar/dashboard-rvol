@@ -19,12 +19,12 @@ class PopulateRealisedVolData:
     def get_historical_data(self, instrument_token, from_date, to_date, interval):
 	    return kite.historical_data(instrument_token, from_date, to_date, interval)
 
-    def getRvol(self):
-        records = self.get_historical_data(instrument_token, from_date, to_date, interval)
+    def rvolBackPopulate(self, window):
+        records = self.get_historical_data(self.config['instrument_token'], constants.from_date_rvol, constants.to_date, constants.interval_rvol)
         records_df = pd.DataFrame(records)
-        #print(records_df.head())
-        rVolObj = RealisedVol(records_df, tStart.strftime("%H:%M:%S"), tEnd.strftime("%H:%M:%S"), slidingWindow, min_winddown)
-        print(rVolObj._calculate_realised_vol());
+        print(records_df.head())
+        print(self.winddown)
+        rVolObj = RealisedVol(records_df, self.config.t_start.strftime("%H:%M:%S"), self.config.t_end.strftime("%H:%M:%S"), window, self.config.avg_hedge_per_day, constants.iterations)
         return rVolObj._calculate_realised_vol()
 
 
@@ -37,13 +37,8 @@ def runRvolOnConfig():
         for window in constants.slidingWindow:
             populateRealisedVolDataObj = PopulateRealisedVolData(winddown, config)
 
-            windDownData[config['instrument_token']][window] = populateRealisedVolDataObj.getRvol()
+            windDownData[config['instrument_token']][window] = populateRealisedVolDataObj.rvolBackPopulate(window)
+
     return rVol
 
 realisedVolData = runRvolOnConfig()
-
-
-#config['instrument_token'], config['t_start'], config['t_end'], constants.from_date,
-#constants.to_date, constants.interval, window, constants.min_winddown
-
-#, instrument_token, tStart, tEnd, from_date, to_date, interval, slidingWindow, min_winddown

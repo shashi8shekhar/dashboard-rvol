@@ -46,7 +46,6 @@ driver.close()
 # Parse the url here
 parsed_url = urlparse(url)
 x = parse_qs(parsed_url.query)
-print(x['request_token'][0])
 
 # Initialize all the variables we need
 api_key = "kejb8tewdr6kk1bn"
@@ -54,8 +53,8 @@ request_token = x['request_token'][0]
 api_secret="fdcl73by8psacinfxszkfhanv7t9ogb7"
 
 kite = KiteConnect(api_key=api_key)
-login_url = kite.login_url()
 
 data = kite.generate_session(request_token, api_secret=api_secret)
 access_token = data["access_token"]
 kite.set_access_token(access_token)
+print('CONNECTED TO KITE')

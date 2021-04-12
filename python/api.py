@@ -1,3 +1,2 @@
-from sql.engine import engine
 from updateWinddownTable import windDownData
 from updateRealisedVol import realisedVolData
