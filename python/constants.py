@@ -11,3 +11,4 @@ interval = "minute"
 slidingWindow = [5, 10, 15, 30, 60]
 min_winddown = 0.01
 dbDateRange = 10
+iterations = 20
