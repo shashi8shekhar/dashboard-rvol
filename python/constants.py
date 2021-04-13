@@ -2,7 +2,7 @@ import datetime
 
 # Dates between which we need historical data
 diff = 60
-diff_rvol = 10
+diff_rvol = 12
 to_date = datetime.datetime.now()
 from_date = (to_date - datetime.timedelta(days=diff))
 from_date_rvol = (to_date - datetime.timedelta(days=diff_rvol))

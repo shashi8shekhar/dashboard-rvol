@@ -57,13 +57,34 @@ class RealisedVol:
 
     def sub_minute_from_time(self, time, delta):
         time_obj = datetime.datetime.strptime(time, '%H:%M:%S')
-        updated_time = timeobj - datetime.timedelta(minutes = delta)
+        updated_time = time_obj - datetime.timedelta(minutes = delta)
         return updated_time.time()
 
-    def _calculate_rvol(wind_down_window, wind_down):
+    def get_window_list(self):
+        time_window = []
+        tStart_time_obj = datetime.datetime.strptime(self.tStart, '%H:%M:%S')
+        tEnd_time_obj = datetime.datetime.strptime(self.tEnd, '%H:%M:%S')
+        sliding_time = tStart_time_obj
+
+        while sliding_time < tEnd_time_obj:
+            time_window.append( sliding_time.time() )
+            sliding_time = sliding_time + datetime.timedelta(seconds = self.sliding_window * 60)
+
+        time_window.append( tEnd_time_obj.time() )
+        return time_window
+
+    def _calculate_rvol(self, wind_down):
+        self._updateData()
+        rvolKey = str(self.sliding_window) + 'min'
         realised_vol_list = [0]
+        wind_down_window = self.get_window_list()
+        #print(wind_down, wind_down_window)
 
         for (i, range) in enumerate(wind_down_window):
+            curr_winddown_dict = [wind_down for wind_down in wind_down if wind_down['range'] == range][0]
+            curr_winddown = float(curr_winddown_dict[rvolKey])
+            #print(curr_winddown)
+
             if i > 0:
                 avg_gamma_pnl_list = []
                 total_iterations = self.iterations
@@ -72,12 +93,12 @@ class RealisedVol:
                 while total_iterations > 0:
                     total_iterations = total_iterations - 1
                     gamma_pnl = 0
-                    hedge_points = self.generate_random_hedge_point_adhoc(self.avg_hedge_per_day, wind_down[i], wind_down_window[i - 1], range)
+                    hedge_points = self.generate_random_hedge_point_adhoc(self.avg_hedge_per_day, curr_winddown, wind_down_window[i - 1].strftime("%H:%M:%S"), range.strftime("%H:%M:%S"))
 
                     for (j, hp) in enumerate(hedge_points):
                         base_price_current = 1
                         base_price_previous = 1
-                        previous_hedge_time = self.sub_minute_from_time(range, hp)
+                        previous_hedge_time = self.sub_minute_from_time(range.strftime("%H:%M:%S"), hp)
 
                         # print(range, previous_hedge_time)
 
@@ -88,7 +109,7 @@ class RealisedVol:
                             base_price_current = filter_row_curr.iloc[0]['close']
                             base_price_previous = filter_row_prev.iloc[0]['close']
 
-                            # print(base_price_current, base_price_previous, range, hp, self.sub_minute_from_time(range, hp) )
+                            # print(base_price_current, base_price_previous, range, hp, self.sub_minute_from_time(range.strftime("%H:%M:%S"), hp) )
 
                         gamma_pnl = gamma_pnl + self.get_gamma_pnl(base_price_current, base_price_previous)
                     gamma_pnl_list.append(gamma_pnl)
@@ -99,18 +120,16 @@ class RealisedVol:
 
                 # print(range, avg_gamma_pnl)
 
-                realised_vol = self.get_realised_vol(avg_gamma_pnl, wind_down[i])
+                realised_vol = self.get_realised_vol(avg_gamma_pnl, curr_winddown)
                 realised_vol_list.append(realised_vol)
 
-                # print(range, avg_gamma_pnl, wind_down[i], realised_vol)
+                # print(range, avg_gamma_pnl, curr_winddown, realised_vol)
                 # print(hedge_points)
-
-        rvolKey = str(self.sliding_window) + 'min'
 
         data = { 'range': wind_down_window }
         data.update({rvolKey: realised_vol_list})
 
         # Create DataFrame
         df = pd.DataFrame(data)
-        print(df)
+        #print(df)
         return df
