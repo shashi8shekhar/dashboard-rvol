@@ -47,8 +47,8 @@ def isWinddownPopulated(configurationObj, windDownDataObj, constants):
         tableKey = 'winddown-' + str(config['instrument_token'])
 
         if len(windDownDataObj[tableKey]) > 0 :
-            return runWinddownOnConfig(configurationObj, constants)
-            #pass
+            #return runWinddownOnConfig(configurationObj, constants)
+            pass
         else:
             return runWinddownOnConfig(configurationObj, constants)
     return windDownDataObj

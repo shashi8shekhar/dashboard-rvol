@@ -97,8 +97,8 @@ def isRvolPopulated(configurationObj, windDownDataObj, rVolDataObj, constants):
         tableKey = 'rvol-' + str(config['instrument_token'])
 
         if len(rVolDataObj[tableKey]) > 0 :
-            return runRvolOnConfig(configurationObj, windDownDataObj, constants)
-            #pass
+            #return runRvolOnConfig(configurationObj, windDownDataObj, constants)
+            pass
         else:
             return runRvolOnConfig(configurationObj, windDownDataObj, constants)
     return rVolDataObj
