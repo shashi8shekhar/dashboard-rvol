@@ -5,6 +5,7 @@ import math
 
 class RealisedVol:
     def __init__(self, data, tStart, tEnd, sliding_window=5, avg_hedge_per_day=6, iterations=100):
+        #print(data, tStart, tEnd, sliding_window, avg_hedge_per_day, iterations)
         self.data = data
         self.avg_hedge_per_day = avg_hedge_per_day
         self.iterations = iterations
@@ -78,7 +79,7 @@ class RealisedVol:
         rvolKey = str(self.sliding_window) + 'min'
         realised_vol_list = [0]
         wind_down_window = self.get_window_list()
-        #print(wind_down, wind_down_window)
+        #print('inside _calculate_rvol', wind_down_window)
 
         for (i, range) in enumerate(wind_down_window):
             curr_winddown_dict = [wind_down for wind_down in wind_down if wind_down['range'] == range][0]
@@ -131,5 +132,10 @@ class RealisedVol:
 
         # Create DataFrame
         df = pd.DataFrame(data)
+
+        #filter 0 values
+        rslt_df = df.loc[df[rvolKey] > 0]
+        #print(rslt_df)
+
         #print(df)
-        return df
+        return rslt_df

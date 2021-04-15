@@ -26,5 +26,4 @@ def runWinddownSelectOnConfig():
     return windDownData
 
 windDownDataObj = runWinddownSelectOnConfig()
-
-#print(windDownDataObj)
+print ('Got Winddown')

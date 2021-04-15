@@ -27,5 +27,4 @@ def runRvolSelectOnConfig():
     return rVolData
 
 rVolDataObj = runRvolSelectOnConfig()
-
-#print(rVolDataObj)
+print ('Got Realised Volatility')

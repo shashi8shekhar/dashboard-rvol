@@ -26,9 +26,16 @@ ENV DISPLAY=:99
 # install selenium
 RUN pip3 install selenium
 
-
-
-
 COPY . .
 
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+RUN apt-get update && apt-get -y install cron vim
+COPY crontab /etc/cron.d/crontab
+RUN chmod 0644 /etc/cron.d/crontab
+RUN /usr/bin/crontab /etc/cron.d/crontab
+
+# run crond as main process of container
+#CMD ["cron", "-f"]
+
+CMD ["sh","-c", "cron -f && python api.py"]
+
+#CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]

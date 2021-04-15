@@ -29,7 +29,7 @@ def runWinddownOnConfig(configurationObj, constants):
         dfs = []
         for window in constants.slidingWindow:
             populateWinddownDataObj = PopulateWinddownData()
-            print(config['tradingsymbol'], window, 'min winddown')
+            #print(config['tradingsymbol'], window, 'min winddown')
             windDownData[config['instrument_token']][window] = populateWinddownDataObj.getWinddown(config['instrument_token'], config['t_start'], config['t_end'], constants.from_date, constants.to_date, constants.interval, window, constants.min_winddown)
             dfs.append(windDownData[config['instrument_token']][window])
         windDownData[config['instrument_token']] = reduce(lambda left,right: pd.merge(left,right,on='range', how='outer'), dfs)
@@ -47,7 +47,8 @@ def isWinddownPopulated(configurationObj, windDownDataObj, constants):
         tableKey = 'winddown-' + str(config['instrument_token'])
 
         if len(windDownDataObj[tableKey]) > 0 :
-            pass
+            return runWinddownOnConfig(configurationObj, constants)
+            #pass
         else:
             return runWinddownOnConfig(configurationObj, constants)
     return windDownDataObj

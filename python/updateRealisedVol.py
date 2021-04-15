@@ -8,73 +8,82 @@ import constants
 import pandas as pd
 import datetime
 from functools import reduce
+from pandas.errors import MergeError
 
 nan_value = 0
 
 class PopulateRealisedVolData:
-    def __init__(self, config, winddown, start_date, end_date):
+    def __init__(self, config, winddown):
         self.winddown = winddown
         self.config = config
         self.iterations = constants.iterations
-        self.start_date = start_date
-        self.end_date = end_date
 
     def get_historical_data(self, instrument_token, from_date, to_date, interval):
-        print(instrument_token, from_date, to_date, interval)
         return kite.historical_data(instrument_token, from_date, to_date, interval)
 
-    def rvolBackPopulate(self, window):
-        print(self.config['tradingsymbol'])
-        records = self.get_historical_data(self.config['instrument_token'], self.start_date, self.end_date, constants.interval_rvol)
+    def rvolBackPopulate(self, window, start_date, end_date):
+        #print(self.config['instrument_token'], start_date, end_date, constants.interval_rvol, window)
+        records = self.get_historical_data(self.config['instrument_token'], start_date, end_date, constants.interval_rvol)
         records_df = pd.DataFrame(records)
 
-        if ( len(records_df.index) == 0 ):
-            return
+        print('is Holiday: ', start_date)
+        if len(records_df.index) == 0 :
+            rvolKey = str(window) + 'min'
+            dataEmp = { 'range': [] }
+            dataEmp.update({ rvolKey: [] })
+
+            emptyDf = pd.DataFrame(dataEmp)
+            #print('empty Data Frame', emptyDf)
+            return emptyDf
 
         rVolObj = RealisedVol(records_df, self.config['t_start'].strftime("%H:%M:%S"), self.config['t_end'].strftime("%H:%M:%S"), window, self.config['avg_hedge_per_day'], constants.iterations)
         return rVolObj._calculate_rvol(self.winddown)
 
 
-def runRvolOnEachWindow( rVolObj ):
+def runRvolOnEachWindow( rVolObj, start_date, end_date ):
     dfs = []
     try:
         for window in constants.slidingWindow:
-            rVolDf = rVolObj.rvolBackPopulate(window)
-            print('runRvolOnEachWindow ', rVolDf)
+            rVolDf = rVolObj.rvolBackPopulate(window, start_date, end_date)
+            #print('rvolBackPopulate', rVolDf);
             if rVolDf is not None:
                 dfs.append(rVolDf)
 
         return reduce(lambda left,right: pd.merge(left,right,on='range', how='outer'), dfs)
     except:
-        return;
+        print('inside except')
+        return
 
-def runRvolOnEachDay( config, winddown ):
-    end_date = constants.from_date_rvol
+def runRvolOnEachDay( config, winddown, from_date, to_date ):
+    end_date = from_date
     dfs = []
-    while end_date <= constants.to_date :
+    df = []
+
+    while end_date < to_date :
         start_date = end_date
         end_date += datetime.timedelta(days=1)
-        populateRealisedVolDataObj = PopulateRealisedVolData(config, winddown, start_date, end_date)
-        window_data = runRvolOnEachWindow(populateRealisedVolDataObj)
+        populateRealisedVolDataObj = PopulateRealisedVolData(config, winddown)
+        window_data = runRvolOnEachWindow(populateRealisedVolDataObj, start_date, end_date)
         if window_data is not None:
+            #print('if window_data is not None:', config['tradingsymbol'], start_date, end_date, window_data)
             window_data.insert(0, 'date', start_date)
             window_data.transpose().reset_index(drop=True).transpose()
             dfs.append(window_data)
-            #print('runRvolOnEachDay ', dfs)
 
-    df = pd.concat( dfs,axis=0,ignore_index=True)
-    print('runRvolOnEachDay ', df)
-    return df
+    try:
+        df = pd.concat( dfs,axis=0,ignore_index=True)
+        return df
+    except ValueError:
+        return df
 
-def runRvolOnConfig():
+def runRvolOnConfig(configurationObj, windDownDataObj, constants):
     rVolData = {}
     for config in configurationObj:
         rVolTableKey = 'rvol-' + str(config['instrument_token'])
         winddownTableKey = 'winddown-' + str(config['instrument_token'])
         winddown = windDownDataObj[winddownTableKey]
 
-        rVolData[rVolTableKey] = runRvolOnEachDay(config, winddown)
-        print('runRvolOnConfig ', rVolData[rVolTableKey])
+        rVolData[rVolTableKey] = runRvolOnEachDay(config, winddown, constants.from_date_rvol, constants.to_date)
 
         try:
             rVolData[rVolTableKey].to_sql(rVolTableKey, engine, if_exists='replace')
@@ -83,16 +92,16 @@ def runRvolOnConfig():
 
     return rVolData
 
-def isRvolPopulated(configurationObj, rVolDataObj, constants):
+def isRvolPopulated(configurationObj, windDownDataObj, rVolDataObj, constants):
     for config in configurationObj:
         tableKey = 'rvol-' + str(config['instrument_token'])
 
         if len(rVolDataObj[tableKey]) > 0 :
-            return runRvolOnConfig()
-            pass
+            return runRvolOnConfig(configurationObj, windDownDataObj, constants)
+            #pass
         else:
-            return runRvolOnConfig()
+            return runRvolOnConfig(configurationObj, windDownDataObj, constants)
     return rVolDataObj
 
 
-realisedVolData = isRvolPopulated(configurationObj, rVolDataObj, constants)
+realisedVolData = isRvolPopulated(configurationObj, windDownDataObj, rVolDataObj, constants)
