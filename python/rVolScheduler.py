@@ -1,8 +1,8 @@
-from dataPipeline.login.kite import kite
-from sql.engine import engine
-from sql.configDetails import configurationObj
-from sql.winddownDetails import windDownDataObj
-from sql.rVolDetails import rVolDataObj
+from kite import kite
+from engine import engine
+from configDetails import configurationObj
+from winddownDetails import windDownDataObj
+from rVolDetails import rVolDataObj
 from RealisedVol import RealisedVol
 import constants
 import pandas as pd
@@ -25,11 +25,14 @@ class RealTimePopulateRealisedVolData:
 
     def main(self):
         rVolData = {}
+        print("inside main")
         for config in configurationObj:
             rVolTableKey = 'rvol-' + str(config['instrument_token'])
             winddownTableKey = 'winddown-' + str(config['instrument_token'])
             winddown = windDownDataObj[winddownTableKey]
             rVolData = rVolDataObj[rVolTableKey]
+
+            print("test", config)
 
             last_updated_time, rVolTrimmedData = self.getLastUpdatedRow( config, rVolData )
 

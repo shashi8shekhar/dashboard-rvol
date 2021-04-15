@@ -4,7 +4,7 @@ const logger = require("./logger");
 const database = require('./sqlConnection');
 
 const axios = require('axios');
-const cron = require('node-cron');
+// const cron = require('node-cron');
 
 // Instantiating express app
 const app = express();
@@ -16,9 +16,9 @@ const getTableData = require('./controllers/getTableData');
 const checkTableExists = require('./controllers/updateConfigurations').checkTableExists;
 
 // Schedule tasks to be run on the server.
-cron.schedule('* * * * *', function() {
-    console.log('running a task every minute 2');
-});
+// cron.schedule('* * * * *', function() {
+//     console.log('running a task every minute 2');
+// });
 
 const params = {
     access_key: 'cefba5a5bd1ad57b20267680c6ef8d99',

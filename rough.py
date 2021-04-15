@@ -1,45 +1,48 @@
-realised_vol_list = []
+chrome_options = Options()
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--window-size=1420,1080')
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--disable-gpu')
+chrome_options.add_argument('--disable-dev-shm-usage')
 
-for (i, range) in enumerate(wind_down_window_updated):
-    if i > 0:
-        avg_gamma_pnl_list = []
-        total_iterations = n_iterations
-        gamma_pnl_list = []
+driver = webdriver.Chrome(options=chrome_options)
+driver.get(constants.url)
 
-        # print(wind_down_updated[i], wind_down_window_updated[i-1], range)
+time.sleep(2)
+user_id_elem = driver.find_element_by_xpath(constants.user_id_xpath)
+user_id_elem.send_keys(constants.userId)
 
-        while total_iterations > 0:
-            total_iterations = total_iterations - 1
-            gamma_pnl = 0
-            hedge_points = generate_random_hedge_point_adhoc(avg_hedge_per_day, wind_down_updated[i], wind_down_window_updated[i - 1], range)
+password_elem = driver.find_element_by_xpath(constants.password_xpath)
+password_elem.send_keys(constants.password)
 
-            for (j, hp) in enumerate(hedge_points):
-                base_price_current = 1
-                base_price_previous = 1
-                previous_hedge_time = sub_minute_from_time(range, hp)
+time.sleep(2)
+submit_elem = driver.find_element_by_xpath(constants.submit_xpath)
+submit_elem.click()
 
-                # print(range, previous_hedge_time)
+time.sleep(2)
+pin_elem = driver.find_element_by_xpath(constants.pin_xpath)
+pin_elem.send_keys(constants.pin)
 
-                filter_row_curr = full_data.loc[full_data['time'] == date_convert_to_obj(range)]
-                filter_row_prev = full_data.loc[full_data['time'] == date_convert_to_obj(previous_hedge_time)]
+time.sleep(2)
+continue_elem = driver.find_element_by_xpath(constants.continue_xpath)
+continue_elem.click()
 
-                if not filter_row_curr.empty:
-                    base_price_current = filter_row_curr.iloc[0]['close']
-                    base_price_previous = filter_row_prev.iloc[0]['close']
+time.sleep(2)
+url = driver.current_url
+driver.close()
 
-                    # print(base_price_current, base_price_previous, range, hp, sub_minute_from_time(range, hp) )
+# Parse the url here
+parsed_url = urlparse(url)
+x = parse_qs(parsed_url.query)
 
-                gamma_pnl = gamma_pnl + get_gamma_pnl(base_price_current, base_price_previous)
-            gamma_pnl_list.append(gamma_pnl)
+# Initialize all the variables we need
+api_key = "kejb8tewdr6kk1bn"
+request_token = x['request_token'][0]
+api_secret="fdcl73by8psacinfxszkfhanv7t9ogb7"
 
-        # print(gamma_pnl_list)
+kite = KiteConnect(api_key=api_key)
 
-        avg_gamma_pnl = sum(gamma_pnl_list) / len(gamma_pnl_list)
-
-        # print(range, avg_gamma_pnl)
-
-        realised_vol = get_realised_vol(avg_gamma_pnl, wind_down_updated[i])
-        realised_vol_list.append(realised_vol)
-
-        # print(range, avg_gamma_pnl, wind_down_updated[i], realised_vol)
-        # print(hedge_points)
+data = kite.generate_session(request_token, api_secret=api_secret)
+access_token = data["access_token"]
+kite.set_access_token(access_token)
