@@ -1,8 +1,8 @@
-from dataPipeline.login.kite import kite
-from sql.engine import engine
-from sql.configDetails import configurationObj
-from sql.winddownDetails import windDownDataObj
-from Winddown import Winddown
+import kite
+import engine
+from configDetails import configurationObj
+from winddownDetails import windDownDataObj
+import Winddown
 import constants
 import pandas as pd
 from functools import reduce
@@ -12,7 +12,8 @@ nan_value = 0
 class PopulateWinddownData:
     #Gets historical data from Kite Connect
     def get_historical_data(self, instrument_token, from_date, to_date, interval):
-	    return kite.historical_data(instrument_token, from_date, to_date, interval)
+        kiteObj = kite.Kite()
+        return kiteObj.historical_data(instrument_token, from_date, to_date, interval)
 
     def getWinddown(self, instrument_token, tStart, tEnd, from_date, to_date, interval, slidingWindow, min_winddown):
         records = self.get_historical_data(instrument_token, from_date, to_date, interval)
@@ -36,7 +37,7 @@ def runWinddownOnConfig(configurationObj, constants):
 
         tableKey = 'winddown-' + str(config['instrument_token'])
         try:
-            windDownData[config['instrument_token']].to_sql(tableKey, engine, if_exists='replace')
+            windDownData[config['instrument_token']].to_sql(tableKey, engine.Engine.getInstance().getEngine(), if_exists='replace')
         except Exception:
             pass
 

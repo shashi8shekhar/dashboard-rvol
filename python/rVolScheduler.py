@@ -1,6 +1,6 @@
-from kite import kite
-from engine import engine
-from configDetails import configurationObj
+print('rVolScheduler')
+import engine
+import configDetails
 from winddownDetails import windDownDataObj
 from rVolDetails import rVolDataObj
 from RealisedVol import RealisedVol
@@ -9,6 +9,8 @@ import pandas as pd
 import datetime
 from functools import reduce
 from updateRealisedVol import runRvolOnEachDay
+
+print('all imported')
 
 class RealTimePopulateRealisedVolData:
     def getLastUpdatedRow(self, config, rVolData):
@@ -23,10 +25,12 @@ class RealTimePopulateRealisedVolData:
 
                 return date_time_obj, rVolData
 
-    def main(self):
+    def main_d(self):
         rVolData = {}
         print("inside main")
-        for config in configurationObj:
+        configDetailsObj = configDetails.ConfigDetails()
+
+        for config in configDetailsObj.getConfig():
             rVolTableKey = 'rvol-' + str(config['instrument_token'])
             winddownTableKey = 'winddown-' + str(config['instrument_token'])
             winddown = windDownDataObj[winddownTableKey]
@@ -50,7 +54,7 @@ class RealTimePopulateRealisedVolData:
 
             rVolForEachInterval = runRvolOnEachDay(config, winddown, last_updated_time, curr_time)
 
-            print('rVolForEachInterval', rVolForEachInterval)
+            #print('rVolForEachInterval', rVolForEachInterval)
 
             if ( len(rVolForEachInterval) > 0 ):
                 rVolForEachInterval.transpose().reset_index(drop=True).transpose()
@@ -60,11 +64,11 @@ class RealTimePopulateRealisedVolData:
             #print('rVolMergedDf ', rVolMergedDf)
 
             try:
-                rVolMergedDf.to_sql(rVolTableKey, engine, if_exists='replace')
+                rVolMergedDf.to_sql(rVolTableKey, engine.Engine.getInstance().getEngine(), if_exists='replace')
             except Exception:
                 pass
 
         return rVolMergedDf
 
 runRvolScheduler = RealTimePopulateRealisedVolData()
-runRvolScheduler.main()
+runRvolScheduler.main_d()

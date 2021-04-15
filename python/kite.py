@@ -1,4 +1,4 @@
-print('constants')
+print('kite')
 
 from kiteconnect import KiteConnect
 
@@ -10,60 +10,63 @@ import constants
 import time
 import os
 
-constants = constants
+class Kite:
+    def __init__(self):
+        print('init kite')
+        chrome_options = Options()
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--no-sandbox')
+        #chrome_options.add_argument('--window-size=1420,1080')
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--disable-dev-shm-usage')
 
-try:
-    chrome_options = Options()
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--no-sandbox')
-    #chrome_options.add_argument('--window-size=1420,1080')
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--disable-dev-shm-usage')
+        #chromedriver = "/usr/local/bin/chromedriver"
+        #os.environ["webdriver.chrome.driver"] = chromedriver
 
-    chromedriver = "/usr/local/bin/chromedriver"
-    os.environ["webdriver.chrome.driver"] = chromedriver
+        driver = webdriver.Chrome(options=chrome_options)
+        driver.get(constants.url)
 
-    driver = webdriver.Chrome(chromedriver, options=chrome_options)
-    driver.get(constants.url)
+        waitTime = 1
 
-    time.sleep(2)
-    user_id_elem = driver.find_element_by_xpath(constants.user_id_xpath)
-    user_id_elem.send_keys(constants.userId)
+        time.sleep(waitTime)
+        user_id_elem = driver.find_element_by_xpath(constants.user_id_xpath)
+        user_id_elem.send_keys(constants.userId)
 
-    password_elem = driver.find_element_by_xpath(constants.password_xpath)
-    password_elem.send_keys(constants.password)
+        password_elem = driver.find_element_by_xpath(constants.password_xpath)
+        password_elem.send_keys(constants.password)
 
-    time.sleep(2)
-    submit_elem = driver.find_element_by_xpath(constants.submit_xpath)
-    submit_elem.click()
+        time.sleep(waitTime)
+        submit_elem = driver.find_element_by_xpath(constants.submit_xpath)
+        submit_elem.click()
 
-    time.sleep(2)
-    pin_elem = driver.find_element_by_xpath(constants.pin_xpath)
-    pin_elem.send_keys(constants.pin)
+        time.sleep(waitTime)
+        pin_elem = driver.find_element_by_xpath(constants.pin_xpath)
+        pin_elem.send_keys(constants.pin)
 
-    time.sleep(2)
-    continue_elem = driver.find_element_by_xpath(constants.continue_xpath)
-    continue_elem.click()
+        time.sleep(waitTime)
+        continue_elem = driver.find_element_by_xpath(constants.continue_xpath)
+        continue_elem.click()
 
-    time.sleep(2)
-    url = driver.current_url
-    driver.close()
-except :
- pass
+        time.sleep(waitTime)
+        url = driver.current_url
+        driver.close()
 
-# Parse the url here
-parsed_url = urlparse(url)
-x = parse_qs(parsed_url.query)
+        # Parse the url here
+        parsed_url = urlparse(url)
+        x = parse_qs(parsed_url.query)
 
-# Initialize all the variables we need
-api_key = "kejb8tewdr6kk1bn"
-request_token = x['request_token'][0]
-api_secret="fdcl73by8psacinfxszkfhanv7t9ogb7"
+        # Initialize all the variables we need
+        api_key = "kejb8tewdr6kk1bn"
+        request_token = x['request_token'][0]
+        api_secret="fdcl73by8psacinfxszkfhanv7t9ogb7"
 
-kite = KiteConnect(api_key=api_key)
+        self.kite = KiteConnect(api_key=api_key)
 
-data = kite.generate_session(request_token, api_secret=api_secret)
-access_token = data["access_token"]
-kite.set_access_token(access_token)
-print('CONNECTED TO KITE')
+        data = self.kite.generate_session(request_token, api_secret=api_secret)
+        access_token = data["access_token"]
+        self.kite.set_access_token(access_token)
+        print('CONNECTED TO KITE')
+
+    def get_historical_data(self, instrument_token, from_date, to_date, interval):
+	    return self.kite.historical_data(instrument_token, from_date, to_date, interval)
