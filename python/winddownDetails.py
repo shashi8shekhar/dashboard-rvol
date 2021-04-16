@@ -13,7 +13,7 @@ class WinddownDetails:
 
         for config in configDetailsObj.getConfig():
             tableKey = 'winddown-' + str(config['instrument_token'])
-            windDownData[tableKey] = {}
+            self.windDownData[tableKey] = {}
 
             config_table = Table(tableKey, metadata, autoload=True, autoload_with=engine.Engine.getInstance().getEngine())
             config_table_stmt = select([ config_table ])
