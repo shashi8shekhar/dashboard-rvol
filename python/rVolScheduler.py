@@ -2,8 +2,7 @@ print('inside rVolScheduler')
 import engine
 import configDetails
 import winddownDetails
-from rVolDetails import rVolDataObj
-from RealisedVol import RealisedVol
+import rVolDetails
 import constants
 import pandas as pd
 import datetime
@@ -25,21 +24,24 @@ class RealTimePopulateRealisedVolData:
 
                 return date_time_obj, rVolData
 
-    def main_d(self):
+    def runSchedulerOnConfig(self):
         rVolData = {}
-        print("inside main")
+        print("inside runSchedulerOnConfig")
         configDetailsObj = configDetails.ConfigDetails()
 
         winddownDetailsObj = winddownDetails.WinddownDetails()
         windDownDataObj = winddownDetailsObj.getWinddown()
 
+        rVolDetailsObj = rVolDetails.RealisedVolDetails()
+        rVolDetailsObjData = rVolDetailsObj.getRealisedVol()
+
         for config in configDetailsObj.getConfig():
             rVolTableKey = 'rvol-' + str(config['instrument_token'])
             winddownTableKey = 'winddown-' + str(config['instrument_token'])
             winddown = windDownDataObj[winddownTableKey]
-            rVolData = rVolDataObj[rVolTableKey]
+            rVolData = rVolDetailsObjData[rVolTableKey]
 
-            print("test", config)
+            #print("test", config)
 
             last_updated_time, rVolTrimmedData = self.getLastUpdatedRow( config, rVolData )
 
@@ -53,7 +55,7 @@ class RealTimePopulateRealisedVolData:
             rVolMergedDfs.append(rVolTrimmedDataFrame)
 
             #print('rVolTrimmedDataFrame', rVolTrimmedDataFrame)
-            print(config['tradingsymbol'], 'last_updated_time', last_updated_time, 'curr_time', curr_time )
+            print( config['tradingsymbol'], 'last_updated_time', last_updated_time, 'curr_time', curr_time )
 
             rVolForEachInterval = runRvolOnEachDay(config, winddown, last_updated_time, curr_time)
 
@@ -68,10 +70,15 @@ class RealTimePopulateRealisedVolData:
 
             try:
                 rVolMergedDf.to_sql(rVolTableKey, engine.Engine.getInstance().getEngine(), if_exists='replace')
+                print(config['tradingsymbol'], ' Table Updated')
             except Exception:
+                print('inside exception')
                 pass
+        return rVolData
 
-        return rVolMergedDf
 
-runRvolScheduler = RealTimePopulateRealisedVolData()
-runRvolScheduler.main_d()
+if __name__ == "__main__":
+    obj = RealTimePopulateRealisedVolData()
+    obj.runSchedulerOnConfig()
+
+

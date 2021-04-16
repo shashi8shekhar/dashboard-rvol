@@ -3,8 +3,8 @@ import kite
 import engine
 import configDetails
 import winddownDetails
-from rVolDetails import rVolDataObj
-from RealisedVol import RealisedVol
+import rVolDetails
+import RealisedVol
 import constants
 import pandas as pd
 import datetime
@@ -20,16 +20,16 @@ class PopulateRealisedVolData:
         self.iterations = constants.iterations
 
     def get_historical_data(self, instrument_token, from_date, to_date, interval):
-        print('inside get_historical_data', instrument_token, from_date, to_date, interval)
+        #print('inside get_historical_data', instrument_token, from_date, to_date, interval)
         kiteObj = kite.Kite()
         return kiteObj.get_historical_data(instrument_token, from_date, to_date, interval)
 
     def rvolBackPopulate(self, window, start_date, end_date):
-        print(self.config['tradingsymbol'], start_date, end_date, constants.interval_rvol, window)
+        #print(self.config['tradingsymbol'], start_date, end_date, constants.interval_rvol, window)
         records = self.get_historical_data(self.config['instrument_token'], start_date, end_date, constants.interval_rvol)
         records_df = pd.DataFrame(records)
 
-        print('is Holiday: ', (len(records_df.index) == 0), 'Date: ', start_date, 'data len:', len(records_df.index) )
+        print(self.config['tradingsymbol'], 'is Holiday: ', (len(records_df.index) == 0), 'Date: ', start_date, 'data len:', len(records_df.index) )
         if len(records_df.index) == 0 :
             rvolKey = str(window) + 'min'
             dataEmp = { 'range': [] }
@@ -48,7 +48,7 @@ def runRvolOnEachWindow( rVolObj, start_date, end_date ):
     try:
         for window in constants.slidingWindow:
             rVolDf = rVolObj.rvolBackPopulate(window, start_date, end_date)
-            print('rvolBackPopulate', rVolDf);
+            #print('rvolBackPopulate', rVolDf);
             if rVolDf is not None:
                 dfs.append(rVolDf)
 
@@ -68,7 +68,7 @@ def runRvolOnEachDay( config, winddown, from_date, to_date ):
         populateRealisedVolDataObj = PopulateRealisedVolData(config, winddown)
         window_data = runRvolOnEachWindow(populateRealisedVolDataObj, start_date, end_date)
         if window_data is not None:
-            print('if window_data is not None:', config['tradingsymbol'], start_date, end_date, window_data)
+            #print('if window_data is not None:', config['tradingsymbol'], start_date, end_date, window_data)
             window_data.insert(0, 'date', start_date)
             window_data.transpose().reset_index(drop=True).transpose()
             dfs.append(window_data)
@@ -90,6 +90,7 @@ def runRvolOnConfig(configurationObj, windDownDataObj, constants):
 
         try:
             rVolData[rVolTableKey].to_sql(rVolTableKey, engine.Engine.getInstance().getEngine(), if_exists='replace')
+            print(config['tradingsymbol'], ' Table Updated')
         except Exception:
             pass
 
@@ -98,10 +99,10 @@ def runRvolOnConfig(configurationObj, windDownDataObj, constants):
 def isRvolPopulated(configurationObj, windDownDataObj, rVolDataObj, constants):
     for config in configurationObj:
         tableKey = 'rvol-' + str(config['instrument_token'])
-        print(config['tradingsymbol'])
+        #print(config['tradingsymbol'])
         if len(rVolDataObj[tableKey]) > 0 :
-            return runRvolOnConfig(configurationObj, windDownDataObj, constants)
-            #pass
+            #return runRvolOnConfig(configurationObj, windDownDataObj, constants)
+            pass
         else:
             return runRvolOnConfig(configurationObj, windDownDataObj, constants)
     return rVolDataObj
@@ -113,4 +114,7 @@ configurationObjData = configDetailsObj.getConfig()
 winddownDetailsObj = winddownDetails.WinddownDetails()
 winddownDetailsObjData = winddownDetailsObj.getWinddown()
 
-realisedVolData = isRvolPopulated(configurationObjData, winddownDetailsObjData, rVolDataObj, constants)
+rVolDetailsObj = rVolDetails.RealisedVolDetails()
+rVolDetailsObjData = rVolDetailsObj.getRealisedVol()
+
+realisedVolData = isRvolPopulated(configurationObjData, winddownDetailsObjData, rVolDetailsObjData, constants)

@@ -38,6 +38,7 @@ def runWinddownOnConfig(configurationObj, constants):
         tableKey = 'winddown-' + str(config['instrument_token'])
         try:
             windDownData[config['instrument_token']].to_sql(tableKey, engine.Engine.getInstance().getEngine(), if_exists='replace')
+            print(config['tradingsymbol'], ' Table Updated')
         except Exception:
             pass
 

@@ -10,6 +10,7 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #echo $HOME
 echo $(python --version)
 echo $(python3 --version)
+python /app/rVolScheduler.py
 #echo $PATH
 #echo $PYTHONPATH
 #echo $DISPLAY
@@ -17,4 +18,3 @@ echo $(python3 --version)
 #which python
 #which chromedriver
 #ls -lh /app
-python /app/rVolScheduler.py

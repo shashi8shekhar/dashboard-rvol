@@ -1,4 +1,4 @@
-print('configDetails')
+print('inside configDetails')
 import engine
 from sqlalchemy import select, MetaData, Table, and_
 
