@@ -1,7 +1,7 @@
 import kite
 import engine
-from configDetails import configurationObj
-from winddownDetails import windDownDataObj
+import configDetails
+import winddownDetails
 import Winddown
 import constants
 import pandas as pd
@@ -54,4 +54,10 @@ def isWinddownPopulated(configurationObj, windDownDataObj, constants):
             return runWinddownOnConfig(configurationObj, constants)
     return windDownDataObj
 
-windDownData = isWinddownPopulated(configurationObj, windDownDataObj, constants)
+configDetailsObj = configDetails.ConfigDetails()
+configurationObjData = configDetailsObj.getConfig()
+
+winddownDetailsObj = winddownDetails.WinddownDetails()
+windDownDataObj = winddownDetailsObj.getWinddown()
+
+windDownData = isWinddownPopulated(configurationObjData, windDownDataObj, constants)

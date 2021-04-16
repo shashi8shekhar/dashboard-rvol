@@ -1,7 +1,7 @@
-print('rVolScheduler')
+print('inside rVolScheduler')
 import engine
 import configDetails
-from winddownDetails import windDownDataObj
+import winddownDetails
 from rVolDetails import rVolDataObj
 from RealisedVol import RealisedVol
 import constants
@@ -29,6 +29,9 @@ class RealTimePopulateRealisedVolData:
         rVolData = {}
         print("inside main")
         configDetailsObj = configDetails.ConfigDetails()
+
+        winddownDetailsObj = winddownDetails.WinddownDetails()
+        windDownDataObj = winddownDetailsObj.getWinddown()
 
         for config in configDetailsObj.getConfig():
             rVolTableKey = 'rvol-' + str(config['instrument_token'])

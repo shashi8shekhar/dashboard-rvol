@@ -2,7 +2,7 @@ print('updateRealisedVol')
 import kite
 import engine
 import configDetails
-from winddownDetails import windDownDataObj
+import winddownDetails
 from rVolDetails import rVolDataObj
 from RealisedVol import RealisedVol
 import constants
@@ -29,7 +29,7 @@ class PopulateRealisedVolData:
         records = self.get_historical_data(self.config['instrument_token'], start_date, end_date, constants.interval_rvol)
         records_df = pd.DataFrame(records)
 
-        print('is Holiday: ', start_date, len(records_df.index))
+        print('is Holiday: ', (len(records_df.index) == 0), 'Date: ', start_date, 'data len:', len(records_df.index) )
         if len(records_df.index) == 0 :
             rvolKey = str(window) + 'min'
             dataEmp = { 'range': [] }
@@ -110,4 +110,7 @@ def isRvolPopulated(configurationObj, windDownDataObj, rVolDataObj, constants):
 configDetailsObj = configDetails.ConfigDetails()
 configurationObjData = configDetailsObj.getConfig()
 
-realisedVolData = isRvolPopulated(configurationObjData, windDownDataObj, rVolDataObj, constants)
+winddownDetailsObj = winddownDetails.WinddownDetails()
+winddownDetailsObjData = winddownDetailsObj.getWinddown()
+
+realisedVolData = isRvolPopulated(configurationObjData, winddownDetailsObjData, rVolDataObj, constants)
