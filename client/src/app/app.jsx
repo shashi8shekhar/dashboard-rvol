@@ -1,9 +1,9 @@
 import React from 'react';
-import { SampleComponent } from 'components';
+import { SampleComponent, DashboardView } from 'components';
 
 function App() {
   return (
-    <SampleComponent />
+    <DashboardView />
   );
 }
 

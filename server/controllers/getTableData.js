@@ -2,6 +2,8 @@
  * Created by shashi.sh on 10/04/21.
  */
 
+const database = require('../sqlConnection');
+
 const logger = require('../logger');
 
 exports.getQuery = function (param) {
@@ -16,6 +18,14 @@ exports.getQuery = function (param) {
 
 exports.getRvolData = function (param, req, res) {
     try {
+        database.query(`select * from ${table}`, (err, results) => {
+            if (err) {
+                return res.send(err);
+            } else {
+                return res.send(results);
+            }
+        });
+
         const result = param;
         res.status(200);
         res.send('success');
