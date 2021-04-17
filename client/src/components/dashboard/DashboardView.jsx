@@ -17,8 +17,10 @@ import { useFilterState, useFilterDispatch } from './selector';
 
 export function DashboardView(props) {
     const { dashboard } = useFilterState();
-    console.log('dashboard', dashboard);
-    const configData = dashboard.config.data;
+
+    const mainTableConfig = _.get(dashboard, ['config', 'data', 'mainTableConfig'], []);
+    const defaultProducts = _.get(dashboard, 'config.data.defaultProducts', []);
+    const productCount = _.get(dashboard, 'config.data.defaultProducts.length', 0);
 
     const {
         getRvolData,
@@ -30,8 +32,17 @@ export function DashboardView(props) {
     }, []);
 
     useEffect(() => {
-        // getRvolData();
-    }, [configData]);
+
+        const products = defaultProducts.map( product => {
+            return product.instrument_token;
+        });
+
+        if (productCount) {
+            getRvolData({ type: 'rvol', products});
+        }
+    }, [productCount]);
+
+    console.log(defaultProducts, mainTableConfig);
 
     return (
         <div className={css(styles.DashboardWrapper)}>

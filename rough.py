@@ -1,48 +1,33 @@
-chrome_options = Options()
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument('--no-sandbox')
-chrome_options.add_argument('--window-size=1420,1080')
-chrome_options.add_argument('--headless')
-chrome_options.add_argument('--disable-gpu')
-chrome_options.add_argument('--disable-dev-shm-usage')
+server > index.js
 
-driver = webdriver.Chrome(options=chrome_options)
-driver.get(constants.url)
+// const cron = require('node-cron');
+//const axios = require('axios');
 
-time.sleep(2)
-user_id_elem = driver.find_element_by_xpath(constants.user_id_xpath)
-user_id_elem.send_keys(constants.userId)
+// Schedule tasks to be run on the server.
+// cron.schedule('* * * * *', function() {
+//     console.log('running a task every minute 2');
+// });
 
-password_elem = driver.find_element_by_xpath(constants.password_xpath)
-password_elem.send_keys(constants.password)
 
-time.sleep(2)
-submit_elem = driver.find_element_by_xpath(constants.submit_xpath)
-submit_elem.click()
+const params = {
+    access_key: 'cefba5a5bd1ad57b20267680c6ef8d99',
+    symbols: 'arkk',
+    date_from: '2021-04-01',
+    date_to: '2021-04-04',
+};
+axios.get('http://api.marketstack.com/v1/eod', {params})
+    .then(response => {
+        const apiResponse = response.data;
+        // console.log('apiResponse: ', apiResponse);
 
-time.sleep(2)
-pin_elem = driver.find_element_by_xpath(constants.pin_xpath)
-pin_elem.send_keys(constants.pin)
+        if (Array.isArray(apiResponse['data'])) {
+            apiResponse['data'].forEach(stockData => {
+                console.log(`Ticker ${stockData['symbol']}`,
+                    `has a day high of ${stockData['high']}`,
+                  `on ${stockData['date']}`);
+        });
+    }
+  }).catch(error => {
+    console.log(error);
+  });
 
-time.sleep(2)
-continue_elem = driver.find_element_by_xpath(constants.continue_xpath)
-continue_elem.click()
-
-time.sleep(2)
-url = driver.current_url
-driver.close()
-
-# Parse the url here
-parsed_url = urlparse(url)
-x = parse_qs(parsed_url.query)
-
-# Initialize all the variables we need
-api_key = "kejb8tewdr6kk1bn"
-request_token = x['request_token'][0]
-api_secret="fdcl73by8psacinfxszkfhanv7t9ogb7"
-
-kite = KiteConnect(api_key=api_key)
-
-data = kite.generate_session(request_token, api_secret=api_secret)
-access_token = data["access_token"]
-kite.set_access_token(access_token)

@@ -3,77 +3,56 @@ const express = require('express');
 const logger = require("./logger");
 const database = require('./sqlConnection');
 
-const axios = require('axios');
-// const cron = require('node-cron');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+
+// Response Headers: Crossdomain and credentials
+const getResponseHeaders = function (params) {
+    return {
+        "Access-Control-Allow-Origin": params.origin,
+        "Access-Control-Allow-Methods": "POST, GET, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Credentials": true,
+        "Access-Control-Max-Age": '86400',
+        "Access-Control-Allow-Headers": "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, content-disposition",
+        "Access-Control-Expose-Headers": "Content-Disposition"
+    };
+};
+
+const addResponseHeaders = function(req, res, next) {
+    const responseHeaders = getResponseHeaders({origin: req.headers.origin});
+    Object.keys(responseHeaders).forEach(function(key) {
+        res.header(key, responseHeaders[key]);
+    });
+    next();
+}
+
 
 // Instantiating express app
 const app = express();
 app.use(cors());
+
+app.use(addResponseHeaders);
+
+app.use(cookieParser());
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+
 
 const router = require('./routes/data')
 const getConfig = require('./controllers/getConfig');
 const getTableData = require('./controllers/getTableData');
 const checkTableExists = require('./controllers/updateConfigurations').checkTableExists;
 
-// Schedule tasks to be run on the server.
-// cron.schedule('* * * * *', function() {
-//     console.log('running a task every minute 2');
-// });
-
-const params = {
-    access_key: 'cefba5a5bd1ad57b20267680c6ef8d99',
-    symbols: 'arkk',
-    date_from: '2021-04-01',
-    date_to: '2021-04-04',
-};
-axios.get('http://api.marketstack.com/v1/eod', {params})
-    .then(response => {
-        const apiResponse = response.data;
-        // console.log('apiResponse: ', apiResponse);
-
-        if (Array.isArray(apiResponse['data'])) {
-            apiResponse['data'].forEach(stockData => {
-                console.log(`Ticker ${stockData['symbol']}`,
-                    `has a day high of ${stockData['high']}`,
-                  `on ${stockData['date']}`);
-        });
-    }
-  }).catch(error => {
-    console.log(error);
-  });
-
-app.get('/test', (req, res) => {
-  const { table } = req.query;
-    console.log('inside /test', table);
-
-  database.query(`select * from ${table}`, (err, results) => {
-    if (err) {
-      return res.send(err);
-    } else {
-      return res.send(results);
-    }
-  });
-});
-
 app.get('/loadConfig', (req, res) => {
     getConfig.getPageConfig(req, res);
 });
 
 app.post('/loadRvolData', function (req, res) {
-    const { products } = req.query;
-    logger.info("/loadRvolData being called ", products);
-
-    const params = {
-        products: products || [],
-    };
-
-    const query = getTableData.getQuery(params);
-
-    getTableData.getRvolData(query, req, res);
+    getTableData.getRvolData(req, res);
 });
 
 app.use(function (err, req, res, next) {
-    var errorObj = {};
+    const errorObj = {};
     errorObj.err_name = "APP_FAILURE";
     errorObj.err_stk = err.stack;
     logger.error(JSON.stringify(errorObj));
