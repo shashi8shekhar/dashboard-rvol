@@ -1,7 +1,7 @@
 const cors = require('cors');
 const express = require('express');
 const logger = require("./logger");
-const database = require('./sqlConnection');
+const pool = require('./sqlConnection');
 
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');

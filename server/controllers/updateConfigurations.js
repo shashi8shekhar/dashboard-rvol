@@ -2,7 +2,7 @@
  * Created by shashi.sh on 11/04/21.
  */
 
-const database = require('../sqlConnection');
+const pool = require('../sqlConnection');
 const  defaultProducts = require('./../constants/config').defaultProducts;
 
 const createConfigTable = function () {
@@ -22,24 +22,31 @@ const createConfigTable = function () {
                           UNIQUE (id, instrument_token)
                       )`;
 
-    database.query(createConfig, function(err, results, fields) {
-        if (err) {
-            console.log('inside create', err.message);
-        }
+    pool.getConnection(function(err, connection) {
+        if (err) throw err; // not connected!
+        connection.query(createConfig, function(err, results, fields) {
+            connection.release();
+            if (err) {
+                console.log('inside create', err.message);
+            }
+        });
     });
 };
 
 exports.checkTableExists = function (table) {
-    let query = database.query(`SHOW TABLES LIKE "${table}"`, (error, results) => {
-        if(error) {
-            console.log('not exist ', table);
-            modifyConfig('insert')
-        } else {
-            console.log('exist ', table);
-            modifyConfig('insert')
-        }
+    pool.getConnection(function(err, connection) {
+        if (err) throw err; // not connected!
+        connection.query(`SHOW TABLES LIKE "${table}"`, (error, results) => {
+            connection.release();
+            if(error) {
+                console.log('not exist ', table);
+                modifyConfig('insert')
+            } else {
+                console.log('exist ', table);
+                modifyConfig('insert')
+            }
+        });
     });
-    return query;
 };
 
 const modifyConfig = function (param) {
@@ -55,15 +62,23 @@ const modifyConfig = function (param) {
 
         if (param === 'insert') {
             var sql = "INSERT IGNORE INTO config (" + columnsList.join(",") +") VALUES ?";
-            var query = database.query(sql, [valuesList], function(err, result) {
-                if(err) throw err;
+            pool.getConnection(function(err, connection) {
+                if (err) throw err; // not connected!
+                connection.query(sql, [valuesList], function(err, result) {
+                    connection.release();
+                    if(err) throw err;
+                });
             });
         } else {
             var sql = "UPDATE config SET '" + columns.join("' = ? ,'") +"' = ?";
 
-            database.query(sql, valuesList, (error, result, fields) => {
-                if(err) throw err;
-                console.log('config updated');
+            pool.getConnection(function(err, connection) {
+                if (err) throw err; // not connected!
+                connection.query(sql, valuesList, (error, result, fields) => {
+                    connection.release();
+                    if(err) throw err;
+                    console.log('config updated');
+                });
             });
         }
     }

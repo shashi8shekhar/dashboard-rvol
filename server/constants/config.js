@@ -17,15 +17,15 @@ module.exports = {
             label: '%DAY',
         },
         {
-            key: 'fiveMin',
+            key: '5min',
             label: '5min',
         },
         {
-            key: 'tenMin',
+            key: '10min',
             label: '10min',
         },
         {
-            key: 'thirtyMin',
+            key: '30min',
             label: '30min',
         },
         {

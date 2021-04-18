@@ -4,19 +4,12 @@
 
 const mysql = require('mysql');
 
-const db_con = mysql.createConnection({
+const pool  = mysql.createPool({
+    connectionLimit : 50,
     host: process.env.MYSQL_HOST_IP,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
 });
 
-db_con.connect((err) => {
-    if (err) {
-        console.log("Database Connection Failed !!!", err);
-    } else {
-        console.log("connected to Database");
-    }
-});
-
-module.exports = db_con;
+module.exports = pool;
