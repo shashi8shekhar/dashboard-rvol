@@ -8,13 +8,13 @@ import {
     getConfig,
 } from './Actions';
 
-export const useFilterState = () => {
+export const useDashboardState = () => {
     return {
         dashboard: useSelector(state => state.dashboard.toJS()),
     };
 };
 
-export const useFilterDispatch = () => {
+export const useDashboardDispatch = () => {
     const dispatch = useDispatch();
     return {
         dispatch: dispatch,

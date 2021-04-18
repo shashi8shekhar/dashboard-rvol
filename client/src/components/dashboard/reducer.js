@@ -63,8 +63,8 @@ export default function dashboard(state = initialState, action) {
             });
         case LOAD_RVOL_DATA_SUCCESS:
             return state.withMutations(state => {
-                const error = fromJS(action.result.result) ? '' : 'Oops, Something went wrong!';
-                const { result } = action.result;
+                const error = fromJS(action.err) ? fromJS(action.err.message) : 'Oops, Something went wrong!';
+                const result = action.result;
 
                 state.setIn(['rVolData', 'data'], fromJS(result));
                 state.setIn(['rVolData', 'loading'], false);
