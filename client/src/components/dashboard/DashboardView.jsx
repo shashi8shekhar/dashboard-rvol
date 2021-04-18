@@ -64,7 +64,7 @@ export function DashboardView(props) {
                         className={css(tableStyles.dashboardPivotTableWrapper)}
                         rowsCount={tableData.length}
                         rowHeight={40}
-                        headerHeight={40}
+                        headerHeight={60}
                         width={TABLE_WIDTH}
                         height={TABLE_HEIGHT}
                         overflowY="hidden"
@@ -85,6 +85,7 @@ export function DashboardView(props) {
                                             <>
                                                 <div className={css(tableStyles.tableHeaderInnerWrap)}>
                                                     <div>{column.label}</div>
+                                                    {idx === 0 && <div className={css(tableStyles.lastUpdatedTimeLabel)}>Last time Updated</div>}
                                                 </div>
                                             </>
                                         </Cell>

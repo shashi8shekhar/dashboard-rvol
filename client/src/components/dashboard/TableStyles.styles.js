@@ -11,6 +11,19 @@ const tableStyles = StyleSheet.create({
     alignLeft: {
         textAlign: 'left',
     },
+    symbolCell: {
+        display: 'flex !important',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+    },
+    symbolName: {
+        margin: 0,
+        width: '100%',
+    },
+    lastUpdatedTime: {
+        fontSize: 10,
+        margin: 0,
+    },
     linkTextCell: {
         textDecoration: 'underline',
         cursor: 'pointer',
@@ -43,6 +56,11 @@ const tableStyles = StyleSheet.create({
         display: 'flex',
         'justify-content': 'center',
         width: '100%',
+        flexWrap: 'wrap',
+    },
+    lastUpdatedTimeLabel: {
+        margin: 0,
+        fontSize: 10,
     },
     totalCellWrapper: {
         width: '100%',
