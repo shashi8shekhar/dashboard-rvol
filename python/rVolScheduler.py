@@ -4,12 +4,12 @@ import configDetails
 import winddownDetails
 import rVolDetails
 
+import updateRealisedVol
+
 import constants
 
 import pandas as pd
 import datetime
-
-from updateRealisedVol import runRvolOnEachDay
 
 print('all imported')
 
@@ -26,18 +26,19 @@ class RealTimePopulateRealisedVolData:
 
                 return date_time_obj, rVolData
 
-    def main_d(self):
-        rVolData = {}
-        print("inside main")
+    def runUpdate(self):
+        print("inside runUpdate")
         configDetailsObj = configDetails.ConfigDetails.getInstance()
 
-        winddownDetailsObj = winddownDetails.WinddownDetails()
+        winddownDetailsObj = winddownDetails.WinddownDetails.getInstance()
         windDownDataObj = winddownDetailsObj.getWinddown()
 
-        rVolDetailsObj = rVolDetails.RVolDetails()
+        rVolDetailsObj = rVolDetails.RVolDetails.getInstance()
         rVolDetailsObjData = rVolDetailsObj.getRvol()
 
         engineObj = engine.Engine.getInstance().getEngine()
+
+        updateRealisedVolObj = updateRealisedVol.UpdateRealisedVol()
 
         for config in configDetailsObj.getConfig():
             rVolTableKey = 'rvol-' + str(config['instrument_token'])
@@ -61,7 +62,7 @@ class RealTimePopulateRealisedVolData:
             #print('rVolTrimmedDataFrame', rVolTrimmedDataFrame[-1])
             #print(config['tradingsymbol'], 'last_updated_time', last_updated_time, 'curr_time', curr_time )
 
-            rVolForEachInterval = runRvolOnEachDay(config, winddown, last_updated_time, curr_time)
+            rVolForEachInterval = updateRealisedVolObj.runRvolOnEachDay(config, winddown, last_updated_time, curr_time)
 
             #print('rVolForEachInterval', rVolForEachInterval )
 
@@ -74,13 +75,8 @@ class RealTimePopulateRealisedVolData:
             #print( 'rVolMergedDf ', rVolMergedDf.head())
 
             try:
-                #print('trying to insert into table', rVolTableKey, config['tradingsymbol'])
+                print('trying to insert into table', rVolTableKey, config['tradingsymbol'])
                 rVolMergedDf.to_sql(rVolTableKey, con=engineObj, if_exists='replace', index=False)
             except ValueError as e:
-                #print(e)
+                print(e)
                 pass
-
-        return rVolMergedDf
-
-runRvolScheduler = RealTimePopulateRealisedVolData()
-runRvolScheduler.main_d()

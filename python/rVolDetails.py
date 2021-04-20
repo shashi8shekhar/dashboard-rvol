@@ -6,30 +6,43 @@ from sqlalchemy import select, MetaData, Table, and_
 metadata = MetaData(bind=None)
 
 class RVolDetails:
+    __instance = None
+    @staticmethod
+    def getInstance():
+        if RVolDetails.__instance == None:
+            RVolDetails()
+        return RVolDetails.__instance
+
     def __init__(self):
-        self.rVolData = {}
-        engineObj = engine.Engine.getInstance()
-        connection = engine.Engine.getInstance().getEngine().connect()
-        configDetailsObj = configDetails.ConfigDetails.getInstance()
-        for config in configDetailsObj.getConfig():
-            tableKey = 'rvol-' + str(config['instrument_token'])
-            self.rVolData[tableKey] = []
-            #print(config, tableKey)
+        if RVolDetails.__instance != None:
+            raise Exception("This class is a singleton!")
+        else:
+            self.rVolData = {}
+            engineObj = engine.Engine.getInstance()
+            connection = engine.Engine.getInstance().getEngine().connect()
+            configDetailsObj = configDetails.ConfigDetails.getInstance()
 
-            if engineObj.getEngine().dialect.has_table(engineObj.getEngine(), tableKey):
-                config_table = Table(tableKey, metadata, autoload=True, autoload_with=engineObj.getEngine())
-                config_table_stmt = select([ config_table ])
+            for config in configDetailsObj.getConfig():
+                tableKey = 'rvol-' + str(config['instrument_token'])
+                self.rVolData[tableKey] = []
+                #print(config, tableKey)
 
-                configuration = connection.execute(config_table_stmt).fetchall()
-                configurationKey = connection.execute(config_table_stmt).keys()
+                if engineObj.getEngine().dialect.has_table(engineObj.getEngine(), tableKey):
+                    config_table = Table(tableKey, metadata, autoload=True, autoload_with=engineObj.getEngine())
+                    config_table_stmt = select([ config_table ])
 
-                def index(configurationKey, configuration):
-                    json_data=[]
-                    for result in configuration:
-                        json_data.append(dict(zip(configurationKey, result)))
-                    return json_data
-                self.rVolData[tableKey] = index(configurationKey, configuration)
-        connection.close()
+                    configuration = connection.execute(config_table_stmt).fetchall()
+                    configurationKey = connection.execute(config_table_stmt).keys()
+
+                    def index(configurationKey, configuration):
+                        json_data=[]
+                        for result in configuration:
+                            json_data.append(dict(zip(configurationKey, result)))
+                        return json_data
+                    self.rVolData[tableKey] = index(configurationKey, configuration)
+            connection.close()
+
+            RVolDetails.__instance = self
 
     def getRvol(self):
         return self.rVolData

@@ -7,7 +7,7 @@ IST = pytz.timezone('Asia/Kolkata')
 
 # Dates between which we need historical data
 diff = 60
-diff_rvol = 5
+diff_rvol = 15
 to_date = datetime.datetime.now(IST)
 from_date = (to_date - datetime.timedelta(days=diff)).replace(hour=12)
 from_date_rvol = (to_date - datetime.timedelta(days=diff_rvol)).replace(hour=4)
