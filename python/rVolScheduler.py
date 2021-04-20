@@ -2,12 +2,13 @@ print('inside rVolScheduler')
 import engine
 import configDetails
 import winddownDetails
-from rVolDetails import rVolDataObj
-from RealisedVol import RealisedVol
+import rVolDetails
+
 import constants
+
 import pandas as pd
 import datetime
-from functools import reduce
+
 from updateRealisedVol import runRvolOnEachDay
 
 print('all imported')
@@ -28,17 +29,21 @@ class RealTimePopulateRealisedVolData:
     def main_d(self):
         rVolData = {}
         print("inside main")
-        configDetailsObj = configDetails.ConfigDetails()
+        configDetailsObj = configDetails.ConfigDetails.getInstance()
 
         winddownDetailsObj = winddownDetails.WinddownDetails()
         windDownDataObj = winddownDetailsObj.getWinddown()
+
+        rVolDetailsObj = rVolDetails.RVolDetails()
+        rVolDetailsObjData = rVolDetailsObj.getRvol()
+
         engineObj = engine.Engine.getInstance().getEngine()
 
         for config in configDetailsObj.getConfig():
             rVolTableKey = 'rvol-' + str(config['instrument_token'])
             winddownTableKey = 'winddown-' + str(config['instrument_token'])
             winddown = windDownDataObj[winddownTableKey]
-            rVolData = rVolDataObj[rVolTableKey]
+            rVolData = rVolDetailsObjData[rVolTableKey]
 
             #print("test", config)
 

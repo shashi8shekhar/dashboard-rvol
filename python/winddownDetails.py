@@ -8,7 +8,7 @@ metadata = MetaData(bind=None)
 class WinddownDetails:
     def __init__(self):
         connection = engine.Engine.getInstance().getEngine().connect()
-        configDetailsObj = configDetails.ConfigDetails()
+        configDetailsObj = configDetails.ConfigDetails.getInstance()
         self.windDownData = {}
 
         for config in configDetailsObj.getConfig():

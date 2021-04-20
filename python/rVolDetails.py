@@ -5,31 +5,33 @@ from sqlalchemy import select, MetaData, Table, and_
 
 metadata = MetaData(bind=None)
 
-def runRvolSelectOnConfig():
-    rVolData = {}
-    engineObj = engine.Engine.getInstance()
-    connection = engine.Engine.getInstance().getEngine().connect()
-    configDetailsObj = configDetails.ConfigDetails()
-    for config in configDetailsObj.getConfig():
-        tableKey = 'rvol-' + str(config['instrument_token'])
-        rVolData[tableKey] = []
-        print(config, tableKey)
+class RVolDetails:
+    def __init__(self):
+        self.rVolData = {}
+        engineObj = engine.Engine.getInstance()
+        connection = engine.Engine.getInstance().getEngine().connect()
+        configDetailsObj = configDetails.ConfigDetails.getInstance()
+        for config in configDetailsObj.getConfig():
+            tableKey = 'rvol-' + str(config['instrument_token'])
+            self.rVolData[tableKey] = []
+            #print(config, tableKey)
 
-        if engineObj.getEngine().dialect.has_table(engineObj.getEngine(), tableKey):
-            config_table = Table(tableKey, metadata, autoload=True, autoload_with=engineObj.getEngine())
-            config_table_stmt = select([ config_table ])
+            if engineObj.getEngine().dialect.has_table(engineObj.getEngine(), tableKey):
+                config_table = Table(tableKey, metadata, autoload=True, autoload_with=engineObj.getEngine())
+                config_table_stmt = select([ config_table ])
 
-            configuration = connection.execute(config_table_stmt).fetchall()
-            configurationKey = connection.execute(config_table_stmt).keys()
+                configuration = connection.execute(config_table_stmt).fetchall()
+                configurationKey = connection.execute(config_table_stmt).keys()
 
-            def index(configurationKey, configuration):
-                json_data=[]
-                for result in configuration:
-                    json_data.append(dict(zip(configurationKey, result)))
-                return json_data
-            rVolData[tableKey] = index(configurationKey, configuration)
-    connection.close()
-    return rVolData
+                def index(configurationKey, configuration):
+                    json_data=[]
+                    for result in configuration:
+                        json_data.append(dict(zip(configurationKey, result)))
+                    return json_data
+                self.rVolData[tableKey] = index(configurationKey, configuration)
+        connection.close()
 
-rVolDataObj = runRvolSelectOnConfig()
+    def getRvol(self):
+        return self.rVolData
+
 print ('Got Realised Volatility')

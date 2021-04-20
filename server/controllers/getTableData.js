@@ -8,7 +8,7 @@ const realisedVolatilityModel = ({type, lastNData, token}) => {
     try {
         const collectionName = type + '-' + token;
         const query = 'select * from `' + collectionName + '`';
-        console.log('inside realisedVolatilityModel try', collectionName);
+        // console.log('inside realisedVolatilityModel try', collectionName);
 
         return new Promise((resolve, reject) => {
             pool.getConnection(function(err, connection) {
@@ -34,11 +34,11 @@ const getRVolDataHelper = async (params) => {
         params.products.forEach((token) => {
             results.push( realisedVolatilityModel( {...{token}, ...params} ) );
         });
-        console.log('results', results);
+        // console.log('results', results);
 
         const contents = await Promise.all(results);
 
-        console.log('contents', contents);
+        // console.log('contents', contents);
         return contents;
     }
     catch (ex) {

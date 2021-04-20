@@ -2,7 +2,7 @@ import kite
 import engine
 import configDetails
 import winddownDetails
-import Winddown
+import winddown
 import constants
 import pandas as pd
 from functools import reduce
@@ -13,13 +13,13 @@ class PopulateWinddownData:
     #Gets historical data from Kite Connect
     def get_historical_data(self, instrument_token, from_date, to_date, interval):
         kiteObj = kite.Kite()
-        return kiteObj.historical_data(instrument_token, from_date, to_date, interval)
+        return kiteObj.get_historical_data(instrument_token, from_date, to_date, interval)
 
     def getWinddown(self, instrument_token, tStart, tEnd, from_date, to_date, interval, slidingWindow, min_winddown):
         records = self.get_historical_data(instrument_token, from_date, to_date, interval)
         records_df = pd.DataFrame(records)
         #print(records_df.head())
-        winddownObj = Winddown(records_df, tStart.strftime("%H:%M:%S"), tEnd.strftime("%H:%M:%S"), slidingWindow, min_winddown)
+        winddownObj = winddown.Winddown(records_df, tStart.strftime("%H:%M:%S"), tEnd.strftime("%H:%M:%S"), slidingWindow, min_winddown)
         return winddownObj._calculate_winddown()
 
 
@@ -49,13 +49,13 @@ def isWinddownPopulated(configurationObj, windDownDataObj, constants):
         tableKey = 'winddown-' + str(config['instrument_token'])
 
         if len(windDownDataObj[tableKey]) > 0 :
-            #return runWinddownOnConfig(configurationObj, constants)
+            return runWinddownOnConfig(configurationObj, constants)
             pass
         else:
             return runWinddownOnConfig(configurationObj, constants)
     return windDownDataObj
 
-configDetailsObj = configDetails.ConfigDetails()
+configDetailsObj = configDetails.ConfigDetails.getInstance()
 configurationObjData = configDetailsObj.getConfig()
 
 winddownDetailsObj = winddownDetails.WinddownDetails()

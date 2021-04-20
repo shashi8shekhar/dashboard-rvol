@@ -3,7 +3,7 @@ import kite
 import engine
 import configDetails
 import winddownDetails
-from rVolDetails import rVolDataObj
+import rVolDetails
 from RealisedVol import RealisedVol
 import constants
 import pandas as pd
@@ -102,17 +102,20 @@ def isRvolPopulated(configurationObj, windDownDataObj, rVolDataObj, constants):
         tableKey = 'rvol-' + str(config['instrument_token'])
         print('inside isRvolPopulated', len(rVolDataObj[tableKey]) > 0 , config['tradingsymbol'])
         if len(rVolDataObj[tableKey]) > 0 :
-            #return runRvolOnConfig(configurationObj, windDownDataObj, constants)
+            return runRvolOnConfig(configurationObj, windDownDataObj, constants)
             pass
         else:
             return runRvolOnConfig(configurationObj, windDownDataObj, constants)
     return rVolDataObj
 
 
-configDetailsObj = configDetails.ConfigDetails()
+configDetailsObj = configDetails.ConfigDetails.getInstance()
 configurationObjData = configDetailsObj.getConfig()
 
 winddownDetailsObj = winddownDetails.WinddownDetails()
 winddownDetailsObjData = winddownDetailsObj.getWinddown()
 
-realisedVolData = isRvolPopulated(configurationObjData, winddownDetailsObjData, rVolDataObj, constants)
+rVolDetailsObj = rVolDetails.RVolDetails()
+rVolDetailsObjData = rVolDetailsObj.getRvol()
+
+realisedVolData = isRvolPopulated(configurationObjData, winddownDetailsObjData, rVolDetailsObjData, constants)
