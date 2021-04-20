@@ -30,4 +30,3 @@ axios.get('http://api.marketstack.com/v1/eod', {params})
   }).catch(error => {
     console.log(error);
   });
-

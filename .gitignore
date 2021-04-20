@@ -3,6 +3,6 @@
 /.idea
 
 # Byte-compiled / optimized / DLL files
-__pycache__/
+/python/__pycache__/
 *.py[cod]
 
