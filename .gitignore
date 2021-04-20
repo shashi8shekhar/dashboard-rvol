@@ -1,4 +1,8 @@
 /client/node_modules
 /server/node_modules
 /.idea
-/python/__pycache__
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+

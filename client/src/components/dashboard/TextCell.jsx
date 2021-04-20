@@ -27,16 +27,17 @@ export default function TextCell(props) {
         defaultProducts,
     } = props;
 
-    console.log(colKey, eachCol, data[rowIndex]);
+    // console.log(colKey, eachCol, data[rowIndex]);
 
     if (colIndex === 0) {
         const instrument_token =  data[rowIndex]['instrument_token'];
         const { tradingsymbol } = _.find(defaultProducts, {instrument_token});
 
-        const lastUpdatedDateObj = _.get(data, [rowIndex, 'data', 0, 'date'], '');
-        const lastUpdatedDate = moment(lastUpdatedDateObj).format('DD MMM');
-        const lastUpdatedTimeObj = _.get(data, [rowIndex, 'data', 0, 'range'], '');
-        const lastUpdatedTime =  moment(lastUpdatedTimeObj, 'HH:mm:ss').format("HH:mm");
+        const lastUpdatedDateObj = _.get(data, [rowIndex, 'data', 0, 'dateTime'], '');
+        const newMomentObj = moment(moment(lastUpdatedDateObj).toISOString(), "YYYY-MM-DDTHH:mm:ss.SSSSZ", true).utc();
+
+        const lastUpdatedDate = moment(newMomentObj).format('DD MMM');
+        const lastUpdatedTime =  moment(newMomentObj).format("HH:mm");
 
         return (
             <Cell className={css(tableStyles.eachCell)}>

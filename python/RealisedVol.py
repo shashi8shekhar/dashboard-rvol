@@ -1,4 +1,4 @@
-print('RealisedVol')
+print('inside RealisedVol')
 import pandas as pd
 import numpy as np
 import datetime
@@ -75,7 +75,7 @@ class RealisedVol:
         time_window.append( tEnd_time_obj.time() )
         return time_window
 
-    def _calculate_rvol(self, wind_down):
+    def _calculate_rvol(self, wind_down, running_date):
         self._updateData()
         rvolKey = str(self.sliding_window) + 'min'
         realised_vol_list = [0]
@@ -128,7 +128,10 @@ class RealisedVol:
                 # print(range, avg_gamma_pnl, curr_winddown, realised_vol)
                 # print(hedge_points)
 
-        data = { 'range': wind_down_window }
+        dateTimeList = [datetime.datetime.combine(running_date, range) for range in wind_down_window ]
+
+        #print('dateTimeList ', dateTimeList)
+        data = { 'dateTime': dateTimeList }
         data.update({rvolKey: realised_vol_list})
 
         # Create DataFrame
@@ -136,7 +139,7 @@ class RealisedVol:
 
         #filter 0 values
         rslt_df = df.loc[df[rvolKey] > 0]
-        #print(rslt_df)
 
-        #print(df)
+        #print('rslt_df',  rslt_df)
+
         return rslt_df

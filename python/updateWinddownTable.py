@@ -25,6 +25,7 @@ class PopulateWinddownData:
 
 def runWinddownOnConfig(configurationObj, constants):
     windDownData = {}
+    engineObj = engine.Engine.getInstance().getEngine()
     for config in configurationObj:
         windDownData[config['instrument_token']] = {}
         dfs = []
@@ -37,9 +38,9 @@ def runWinddownOnConfig(configurationObj, constants):
 
         tableKey = 'winddown-' + str(config['instrument_token'])
         try:
-            windDownData[config['instrument_token']].to_sql(tableKey, engine.Engine.getInstance().getEngine(), if_exists='replace')
-        except Exception:
-            pass
+            windDownData[config['instrument_token']].to_sql(tableKey, con=engineObj, if_exists='replace', index=False)
+        except ValueError as e:
+            print(e)
 
     return windDownData
 

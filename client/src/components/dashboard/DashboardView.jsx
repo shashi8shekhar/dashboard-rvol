@@ -49,8 +49,8 @@ export function DashboardView(props) {
         }
     }, [productCount]);
 
-    console.log(defaultProducts, mainTableConfig);
-    console.log(tableDataloading, tableData, currentSubColoumn);
+    // console.log(defaultProducts, mainTableConfig);
+    // console.log(tableDataloading, tableData, currentSubColoumn);
 
     return (
         <div className={css(styles.DashboardWrapper)}>
