@@ -45,7 +45,7 @@ const createConfigTable = function () {
             if (err) {
                 console.log('inside create', err.message);
             } else {
-                console.lof('config table created!')
+                console.log('config table created!')
                 modifyConfig('insert')
             }
         });
