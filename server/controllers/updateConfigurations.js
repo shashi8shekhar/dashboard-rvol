@@ -6,6 +6,21 @@ const pool = require('../sqlConnection');
 const  defaultProducts = require('./../constants/config').defaultProducts;
 
 const createConfigTable = function () {
+    var sqlCreateConfig = "CREATE TABLE if not exists config ("+
+                            " expiry varchar(255),"+
+                            " id int,"+
+                            " instrument_token int NOT NULL primary key,"+
+                            " last_price int,"+
+                            " lot_size int,"+
+                            " segment varchar(255),"+
+                            " strike int,"+
+                            " tradingsymbol varchar(255) NOT NULL,"+
+                            " weight int,"+
+                            " t_start time,"+
+                            " t_end time,"+
+                            " avg_hedge_per_day int,"+
+                            " UNIQUE (id, instrument_token))";
+
     let createConfig = `create table if not exists config(
                           expiry varchar(255), 
                           id int,
@@ -24,10 +39,14 @@ const createConfigTable = function () {
 
     pool.getConnection(function(err, connection) {
         if (err) throw err; // not connected!
-        connection.query(createConfig, function(err, results, fields) {
+        console.log("Connected!");
+        connection.query(sqlCreateConfig, function(err, results, fields) {
             connection.release();
             if (err) {
                 console.log('inside create', err.message);
+            } else {
+                console.lof('config table created!')
+                modifyConfig('insert')
             }
         });
     });
@@ -36,9 +55,12 @@ const createConfigTable = function () {
 exports.checkTableExists = function (table) {
     pool.getConnection(function(err, connection) {
         if (err) throw err; // not connected!
+        console.log("Connected!");
         connection.query(`SHOW TABLES LIKE "${table}"`, (error, results) => {
             connection.release();
-            if(error) {
+            if(results.length === 0) {
+                createConfigTable(table);
+            } else if(error) {
                 console.log('not exist ', table);
                 modifyConfig('insert')
             } else {

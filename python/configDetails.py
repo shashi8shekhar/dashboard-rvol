@@ -15,14 +15,18 @@ class ConfigDetails:
             raise Exception("This class is a singleton!")
         else:
             metadata = MetaData(bind=None)
-            config_table = Table('config', metadata, autoload=True, autoload_with=engine.Engine.getInstance().getEngine())
+            engineObj = engine.Engine.getInstance().getEngine()
+            connection = engineObj.connect()
+            #print('test======', engineObj.dialect.has_table(engineObj, 'config'))
+            if engineObj.dialect.has_table(engineObj, 'config'):
+                print('inside config table')
+                config_table = Table('config', metadata, autoload=True, autoload_with=engineObj)
 
-            config_table_stmt = select([ config_table ])
+                config_table_stmt = select([ config_table ])
 
-            connection = engine.Engine.getInstance().getEngine().connect()
-            self.configuration = connection.execute(config_table_stmt).fetchall()
-            self.configurationKey = connection.execute(config_table_stmt).keys()
-            print ('Got Config')
+                self.configuration = connection.execute(config_table_stmt).fetchall()
+                self.configurationKey = connection.execute(config_table_stmt).keys()
+                print ('Got Config')
             connection.close()
 
             ConfigDetails.__instance = self

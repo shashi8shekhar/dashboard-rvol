@@ -18,8 +18,8 @@ class RVolDetails:
             raise Exception("This class is a singleton!")
         else:
             self.rVolData = {}
-            engineObj = engine.Engine.getInstance()
-            connection = engine.Engine.getInstance().getEngine().connect()
+            engineObj = engine.Engine.getInstance().getEngine()
+            connection = engineObj.connect()
             configDetailsObj = configDetails.ConfigDetails.getInstance()
 
             for config in configDetailsObj.getConfig():
@@ -27,8 +27,8 @@ class RVolDetails:
                 self.rVolData[tableKey] = []
                 #print(config, tableKey)
 
-                if engineObj.getEngine().dialect.has_table(engineObj.getEngine(), tableKey):
-                    config_table = Table(tableKey, metadata, autoload=True, autoload_with=engineObj.getEngine())
+                if engineObj.dialect.has_table(engineObj, tableKey):
+                    config_table = Table(tableKey, metadata, autoload=True, autoload_with=engineObj)
                     config_table_stmt = select([ config_table ])
 
                     configuration = connection.execute(config_table_stmt).fetchall()

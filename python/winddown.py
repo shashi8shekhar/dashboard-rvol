@@ -88,6 +88,6 @@ class Winddown:
         # Create DataFrame
         df = pd.DataFrame(data)
 
-        return df;
+        return df
 
 ############################
