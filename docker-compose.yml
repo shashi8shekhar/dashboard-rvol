@@ -57,9 +57,9 @@ services:
       - 3000:3000
     volumes:
       - ./client/src:/app/src
+      - /app/node_modules
     links:
       - server
-    stdin_open: true
     command: yarn start
   python:
     build: ./python
