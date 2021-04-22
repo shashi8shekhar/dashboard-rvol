@@ -25,9 +25,10 @@ class RVolDetails:
             for config in configDetailsObj.getConfig():
                 tableKey = 'rvol-' + str(config['instrument_token'])
                 self.rVolData[tableKey] = []
+                table_exist = engineObj.has_table(tableKey)
                 #print(config, tableKey)
 
-                if engineObj.dialect.has_table(engineObj, tableKey):
+                if table_exist:
                     config_table = Table(tableKey, metadata, autoload=True, autoload_with=engineObj)
                     config_table_stmt = select([ config_table ])
 

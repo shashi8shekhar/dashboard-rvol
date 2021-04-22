@@ -59,6 +59,7 @@ services:
       - ./client/src:/app/src
     links:
       - server
+    stdin_open: true
     command: yarn start
   python:
     build: ./python

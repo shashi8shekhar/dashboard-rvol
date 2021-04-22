@@ -18,7 +18,11 @@ class ConfigDetails:
             engineObj = engine.Engine.getInstance().getEngine()
             connection = engineObj.connect()
             #print('test======', engineObj.dialect.has_table(engineObj, 'config'))
-            if engineObj.dialect.has_table(engineObj, 'config'):
+            #inspect(some_engine).has_table( < tablename >>)
+            table_exist = engineObj.has_table('config')
+            print('table_exist', table_exist)
+
+            if table_exist:
                 print('inside config table')
                 config_table = Table('config', metadata, autoload=True, autoload_with=engineObj)
 
