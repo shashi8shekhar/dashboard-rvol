@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
     getRvolData,
     getConfig,
+    getRvolContinuousData,
 } from './Actions';
 
 export const useDashboardState = () => {
@@ -20,5 +21,6 @@ export const useDashboardDispatch = () => {
         dispatch: dispatch,
         getRvolData: params => dispatch(getRvolData(params)),
         getConfig: () => dispatch(getConfig()),
+        getRvolContinuousData: params => dispatch(getRvolContinuousData(params)),
     };
 };

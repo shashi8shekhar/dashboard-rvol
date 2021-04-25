@@ -16,6 +16,14 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         height: 300,
         borderBottom: '1px solid #d8d8de',
+    },
+    ReloadButton: {
+        margin: '20px 0',
+        padding: 5,
+        width: 100,
+        textAlign: 'center',
+        cursor: 'pointer',
+        border: '1px solid #d8d8de',
     }
 });
 

@@ -10,6 +10,9 @@ import {
     LOAD_CONFIG_DATA,
     LOAD_CONFIG_DATA_FAIL,
     LOAD_CONFIG_DATA_SUCCESS,
+    LOAD_RVOL_STREAM_DATA,
+    LOAD_RVOL_STREAM_DATA_SUCCESS,
+    LOAD_RVOL_STREAM_DATA_FAIL,
 } from './ActionTypes';
 
 var moment = require('moment');
@@ -19,6 +22,7 @@ const initialState = Map({
         loading: true,
         data: Map({}),
         error: '',
+        streamLoading: false,
     },
     config: {
         loading: true,
@@ -68,6 +72,27 @@ export default function dashboard(state = initialState, action) {
 
                 state.setIn(['rVolData', 'data'], fromJS(result));
                 state.setIn(['rVolData', 'loading'], false);
+                state.setIn(['rVolData', 'error'], error);
+            });
+
+        case LOAD_RVOL_STREAM_DATA:
+            return state.withMutations(state => {
+                state.setIn(['rVolData', 'streamLoading'], true);
+            });
+        case LOAD_RVOL_STREAM_DATA_FAIL:
+            return state.withMutations(state => {
+                const error = fromJS(action.err) ? fromJS(action.err.message) : 'Oops, Something went wrong!';
+
+                state.setIn(['rVolData', 'streamLoading'], false);
+                state.setIn(['rVolData', 'error'], error);
+            });
+        case LOAD_RVOL_STREAM_DATA_SUCCESS:
+            return state.withMutations(state => {
+                const error = fromJS(action.err) ? fromJS(action.err.message) : 'Oops, Something went wrong!';
+                const result = action.result;
+
+                state.setIn(['rVolData', 'data'], fromJS(result));
+                state.setIn(['rVolData', 'streamLoading'], false);
                 state.setIn(['rVolData', 'error'], error);
             });
 

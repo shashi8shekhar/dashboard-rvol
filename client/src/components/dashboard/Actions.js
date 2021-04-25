@@ -19,3 +19,11 @@ export function getConfig() {
         promise: DashboardAPIUtil.getConfig(),
     };
 }
+
+export function getRvolContinuousData(params) {
+    return {
+        types: [types.LOAD_RVOL_STREAM_DATA, types.LOAD_RVOL_STREAM_DATA_SUCCESS, types.LOAD_RVOL_STREAM_DATA_FAIL],
+        promise: DashboardAPIUtil.getRvolData(params),
+        query: params,
+    };
+}

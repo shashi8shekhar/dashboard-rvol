@@ -3,19 +3,22 @@
  */
 
 module.exports = {
+    dayRvols: [
+        1, 3, 5, 10, 30
+    ],
     mainTableConfig : [
-        {
-            key: 'rvol',
-            label: 'RVOL',
-        },
-        {
-            key: 'per',
-            label: '%',
-        },
-        {
-            key: 'perDay',
-            label: '%DAY',
-        },
+        // {
+        //     key: 'rvol',
+        //     label: 'RVOL',
+        // },
+        // {
+        //     key: 'per',
+        //     label: '%',
+        // },
+        // {
+        //     key: 'perDay',
+        //     label: '%DAY',
+        // },
         {
             key: '5min',
             label: '5min',
@@ -29,12 +32,28 @@ module.exports = {
             label: '30min',
         },
         {
-            key: 'gap',
-            label: 'Gap',
+            key: 'today',
+            label: 'Today',
         },
         {
-            key: 'noGap',
-            label: 'NoGap',
+            key: '1day',
+            label: '1 Day',
+        },
+        {
+            key: '3day',
+            label: '3 Day',
+        },
+        {
+            key: '5day',
+            label: '5 Day',
+        },
+        {
+            key: '10day',
+            label: '10 Day',
+        },
+        {
+            key: '30day',
+            label: '30 Day',
         }
     ],
     defaultProducts: [

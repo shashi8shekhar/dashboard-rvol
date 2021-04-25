@@ -30,7 +30,7 @@ export default function TextCell(props) {
     // console.log(colKey, eachCol, data[rowIndex]);
 
     if (colIndex === 0) {
-        const instrument_token =  data[rowIndex]['instrument_token'];
+        const instrument_token =  _.get(data, [rowIndex, 'instrument_token'], null);
         const { tradingsymbol } = _.find(defaultProducts, {instrument_token});
 
         const lastUpdatedDateObj = _.get(data, [rowIndex, 'data', 0, 'dateTime'], '');
@@ -56,7 +56,7 @@ export default function TextCell(props) {
     return (
         <Cell className={css(tableStyles.eachCell)}>
             <div className={classnames( css(tableStyles.cellContent), css(tableStyles.SingleCellValue) )}>
-                {calculatePercentage(data[rowIndex]['data'][0][colKey], 1, 2)}
+                {calculatePercentage(_.get(data, [rowIndex, 'data', 0, colKey], null), 1, 2)}
             </div>
         </Cell>
     );

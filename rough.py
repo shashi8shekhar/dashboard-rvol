@@ -30,3 +30,5 @@ axios.get('http://api.marketstack.com/v1/eod', {params})
   }).catch(error => {
     console.log(error);
   });
+
+resolve({instrument_token: token, data: (results.length > lastNData ? results.slice(-1 * lastNData) : results ) })

@@ -16,6 +16,8 @@ import { useDashboardState, useDashboardDispatch } from './selector';
 
 import '../../style/_fixed-data-table.scss';
 
+// import CachedIcon from '@material-ui/icons/Cached';
+
 const FixedDataTable = require('fixed-data-table-2');
 const { Table, Column, Cell } = FixedDataTable;
 
@@ -26,12 +28,14 @@ export function DashboardView(props) {
     const defaultProducts = _.get(dashboard, 'config.data.defaultProducts', []);
     const productCount = _.get(dashboard, 'config.data.defaultProducts.length', 0);
     const tableDataloading = _.get(dashboard, 'rVolData.loading', true);
+    const tableStreamDataLoading = _.get(dashboard, 'rVolData.streamLoading', false);
     const tableData = _.get(dashboard, 'rVolData.data', []);
     const currentSubColoumn = [...GROUP_ATTR, ...mainTableConfig];
 
     const {
         getRvolData,
         getConfig,
+        getRvolContinuousData,
     } = useDashboardDispatch();
 
     useEffect(() => {
@@ -39,15 +43,28 @@ export function DashboardView(props) {
     }, []);
 
     useEffect(() => {
-
         const products = defaultProducts.map( product => {
             return product.instrument_token;
         });
 
         if (productCount) {
             getRvolData({ type: 'rvol', products});
+            setInterval(getData, 300000);
         }
     }, [productCount]);
+
+    const getData = () => {
+        try {
+            console.log('inside set time interval');
+            const products = defaultProducts.map( product => {
+                return product.instrument_token;
+            });
+
+            getRvolContinuousData({ type: 'rvol', products});
+        } catch(e) {
+            console.log(e);
+        }
+    }
 
     // console.log(defaultProducts, mainTableConfig);
     // console.log(tableDataloading, tableData, currentSubColoumn);
@@ -60,6 +77,11 @@ export function DashboardView(props) {
                 <p className={css(styles.transformCenter)}>No Data found</p>
             ) : (
                 <section>
+                    <div className={css(styles.ReloadButton)} onClick={(e) => { getData() }}>
+                        {
+                            tableStreamDataLoading ? <span>Loading...</span> : <span>Reload</span>
+                        }
+                    </div>
                     <Table
                         className={css(tableStyles.dashboardPivotTableWrapper)}
                         rowsCount={tableData.length}

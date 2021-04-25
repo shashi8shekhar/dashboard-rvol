@@ -78,13 +78,24 @@ class RealisedVol:
     def _calculate_rvol(self, wind_down, running_date):
         self._updateData()
         rvolKey = str(self.sliding_window) + 'min'
+        wind_down_Key = 'winddown_' + str(self.sliding_window) + 'min'
+
         realised_vol_list = [0]
+        winddown_list = []
+        ten_min_rvol = [0]
+        thirty_min_rvol = [0]
+
+        rvol_sq_day = 0
+        wind_down_sum_day = 0
+        today_rvol = [0]
+
         wind_down_window = self.get_window_list()
         #print('inside _calculate_rvol', wind_down_window)
 
         for (i, range) in enumerate(wind_down_window):
             curr_winddown_dict = [wind_down for wind_down in wind_down if wind_down['range'] == range][0]
             curr_winddown = float(curr_winddown_dict[rvolKey])
+            winddown_list.append(curr_winddown)
             #print(curr_winddown)
 
             if i > 0:
@@ -125,14 +136,58 @@ class RealisedVol:
                 realised_vol = self.get_realised_vol(avg_gamma_pnl, curr_winddown)
                 realised_vol_list.append(realised_vol)
 
+                # 10 minute Realized Vol calculation
+                if( i % 2 == 0 ):
+                    itr = -2
+                    rvol_sq = 0
+                    wind_down_sum = 0
+                    while(itr < 0):
+                        rvol_sq += (realised_vol_list[itr]**2) * winddown_list[itr]
+                        wind_down_sum += winddown_list[itr]
+                        # print(itr, rvol_sq, wind_down_sum)
+                        itr += 1
+                    n_min_window_rvol = np.sqrt(rvol_sq / wind_down_sum)
+                    ten_min_rvol.append(n_min_window_rvol)
+                else:
+                    ten_min_rvol.append(ten_min_rvol[-1])
+
+                # print('ten_min_rvol', i%2, ten_min_rvol)
+
+                # 30 minute Realized Vol calculation
+                if (i % 6 == 0):
+                    itr = -6
+                    rvol_sq = 0
+                    wind_down_sum = 0
+                    while (itr < 0):
+                        rvol_sq += (realised_vol_list[itr] ** 2) * winddown_list[itr]
+                        wind_down_sum += winddown_list[itr]
+                        itr += 1
+                        # print(itr, rvol_sq, wind_down_sum)
+                    n_min_window_rvol = np.sqrt(rvol_sq / wind_down_sum)
+                    thirty_min_rvol.append(n_min_window_rvol)
+                else:
+                    thirty_min_rvol.append(thirty_min_rvol[-1])
+
+                # print('thirty_min_rvol', i % 6, thirty_min_rvol)
+
+                # today minute Realized Vol calculation
+                rvol_sq_day += (realised_vol ** 2) * curr_winddown
+                wind_down_sum_day += curr_winddown
+                today_rvol.append( np.sqrt(rvol_sq_day / wind_down_sum_day) )
+
                 # print(range, avg_gamma_pnl, curr_winddown, realised_vol)
                 # print(hedge_points)
 
         dateTimeList = [datetime.datetime.combine(running_date, range) for range in wind_down_window ]
 
         #print('dateTimeList ', dateTimeList)
-        data = { 'dateTime': dateTimeList }
-        data.update({rvolKey: realised_vol_list})
+        data = { 'dateTime': dateTimeList,
+                 wind_down_Key: winddown_list,
+                 rvolKey: realised_vol_list,
+                 '10min': ten_min_rvol,
+                 '30min': thirty_min_rvol,
+                 'today': today_rvol }
+        # data.update({rvolKey: realised_vol_list})
 
         # Create DataFrame
         df = pd.DataFrame(data)
@@ -140,7 +195,7 @@ class RealisedVol:
         #filter 0 values
         rslt_df = df.loc[df[rvolKey] > 0]
 
-        #print('rslt_df',  rslt_df)
+        # print('rslt_df',  rslt_df)
 
         return rslt_df
 
