@@ -58,7 +58,7 @@ const updateDaysRvol = (data) => {
         const instrument_token =  eachScript['instrument_token'];
 
         const result = defaultProducts.find( (instrument) => instrument['instrument_token'] === instrument_token );
-        const t_end = '15:26:00' || result['t_end'];
+        const t_end = result['t_end'];
 
         let filterData = eachScript.data.filter(item => {
 
