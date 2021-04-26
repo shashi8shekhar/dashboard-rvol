@@ -18,7 +18,7 @@ interval_rvol = 'minute'
 
 #slidingWindow = [5, 10, 15, 30, 60]
 slidingWindow = [5]
-min_winddown = 0.04
+min_winddown = 0.01
 dbDateRange = 10
 iterations = 20
 
