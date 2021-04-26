@@ -57,6 +57,20 @@ class Winddown:
         self.data['day'] = pd.to_datetime(self.data['date'], format='%Y:%M:%D').dt.date
         self.data['time'] = pd.to_datetime(self.data['date'], format='%Y:%M:%D').dt.time
 
+    def scaleWinddown(self, winddown):
+        a = (0.6-0)/(1-0)
+        b = 0.6 - a * 1
+        scaled_winddown = a * winddown + b
+
+        if (scaled_winddown < 0):
+            return 0
+        elif (scaled_winddown > 0.6):
+            return 0.6
+
+        return scaled_winddown
+
+
+
     def _calculate_winddown(self):
         self._updateData()
 
@@ -77,7 +91,8 @@ class Winddown:
         cum_winddown = sum(mean_list_updated)
 
         for mean in mean_list_updated:
-            wind_down.append(mean / cum_winddown)
+            scaled_winddown = self.scaleWinddown(mean / cum_winddown)
+            wind_down.append(scaled_winddown)
 
         wind_down_updated = [self.min_winddown if x < 0.00000000001 else x for x in wind_down] #add Min. Winddown for the 1st window
         winddownKey = str(self.sliding_window) + 'min'
