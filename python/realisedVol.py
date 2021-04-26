@@ -118,6 +118,10 @@ class RealisedVol:
                 ten_min_rvol.append(realised_vol)
                 thirty_min_rvol.append(realised_vol)
                 today_rvol.append(realised_vol)
+
+                rvol_sq_day += (realised_vol ** 2) * curr_winddown
+                wind_down_sum_day += curr_winddown
+                # today_rvol.append(np.sqrt(rvol_sq_day / wind_down_sum_day))
             else:
                 avg_gamma_pnl_list = []
                 total_iterations = self.iterations
