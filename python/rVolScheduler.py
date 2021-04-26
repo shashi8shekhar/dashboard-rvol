@@ -75,7 +75,7 @@ class RealTimePopulateRealisedVolData:
             #print( 'rVolMergedDf ', rVolMergedDf.head())
 
             try:
-                print('trying to insert into table', rVolTableKey, config['tradingsymbol'])
+                # print('trying to insert into table', rVolTableKey, config['tradingsymbol'])
                 rVolMergedDf.to_sql(rVolTableKey, con=engineObj, if_exists='replace', index=False)
             except ValueError as e:
                 print(e)

@@ -67,8 +67,8 @@ module.exports = {
             "strike":0,
             "tradingsymbol":"NIFTY 50",
             "weight":0,
-            "t_start":"09:16:00",
-            "t_end":"15:30:00",
+            "t_start":"09:15:00",
+            "t_end":"15:29:00",
             "avg_hedge_per_day":50
         },
         {
@@ -81,8 +81,8 @@ module.exports = {
             "strike":0,
             "tradingsymbol":"NIFTY BANK",
             "weight":1,
-            "t_start":"09:16:00",
-            "t_end":"15:30:00",
+            "t_start":"09:15:00",
+            "t_end":"15:29:00",
             "avg_hedge_per_day":50
         },
         {
@@ -95,8 +95,8 @@ module.exports = {
             "strike":0,
             "tradingsymbol":"RELIANCE",
             "weight":2,
-            "t_start":"09:16:00",
-            "t_end":"15:30:00",
+            "t_start":"09:15:00",
+            "t_end":"15:29:00",
             "avg_hedge_per_day":50
         },
         {
@@ -109,36 +109,8 @@ module.exports = {
             "strike":0,
             "tradingsymbol":"HDFC",
             "weight":3,
-            "t_start":"09:16:00",
-            "t_end":"15:30:00",
-            "avg_hedge_per_day":50
-        },
-        {
-            "expiry":"",
-            "id":2094085370,
-            "instrument_token":2953217,
-            "last_price":0,
-            "lot_size":1,
-            "segment":"NSE",
-            "strike":0,
-            "tradingsymbol":"TCS",
-            "weight":4,
-            "t_start":"09:16:00",
-            "t_end":"15:30:00",
-            "avg_hedge_per_day":50
-        },
-        {
-            expiry: "",
-            id: 1492652190,
-            instrument_token: 341249,
-            last_price: 0,
-            lot_size: 1,
-            segment: "NSE",
-            strike: 0,
-            tradingsymbol: "HDFCBANK",
-            weight: 3,
-            "t_start":"09:16:00",
-            "t_end":"15:30:00",
+            "t_start":"09:15:00",
+            "t_end":"15:29:00",
             "avg_hedge_per_day":50
         }
     ],

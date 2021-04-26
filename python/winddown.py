@@ -97,6 +97,7 @@ class Winddown:
         wind_down_updated = [self.min_winddown if x < 0.00000000001 else x for x in wind_down] #add Min. Winddown for the 1st window
         winddownKey = str(self.sliding_window) + 'min'
 
+        wind_down_updated[0] += 0.4 #gap winddown window update
         data = {'range': windDownTime}
         data.update({winddownKey: wind_down_updated})
 

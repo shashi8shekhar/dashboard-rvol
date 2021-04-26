@@ -8,17 +8,17 @@ import pandas as pd
 from functools import reduce
 
 nan_value = 0
+kiteObj = kite.Kite()
 
 class UpdateWinddownTable:
     #Gets historical data from Kite Connect
     def get_historical_data(self, instrument_token, from_date, to_date, interval):
-        kiteObj = kite.Kite()
         return kiteObj.get_historical_data(instrument_token, from_date, to_date, interval)
 
     def getWinddown(self, instrument_token, tStart, tEnd, from_date, to_date, interval, slidingWindow, min_winddown):
         records = self.get_historical_data(instrument_token, from_date, to_date, interval)
         records_df = pd.DataFrame(records)
-        print('inside getWinddown length', len(records_df))
+        # print('inside getWinddown length', len(records_df))
         winddownObj = winddown.Winddown(records_df, tStart.strftime("%H:%M:%S"), tEnd.strftime("%H:%M:%S"), slidingWindow, min_winddown)
         return winddownObj._calculate_winddown()
 

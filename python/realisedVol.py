@@ -75,19 +75,19 @@ class RealisedVol:
         time_window.append( tEnd_time_obj.time() )
         return time_window
 
-    def _calculate_rvol(self, wind_down, running_date):
+    def _calculate_rvol(self, wind_down, running_date, prev_close_price):
         self._updateData()
         rvolKey = str(self.sliding_window) + 'min'
         wind_down_Key = 'winddown_' + str(self.sliding_window) + 'min'
 
-        realised_vol_list = [0]
+        realised_vol_list = []
         winddown_list = []
-        ten_min_rvol = [0]
-        thirty_min_rvol = [0]
+        ten_min_rvol = []
+        thirty_min_rvol = []
 
         rvol_sq_day = 0
         wind_down_sum_day = 0
-        today_rvol = [0]
+        today_rvol = []
 
         wind_down_window = self.get_window_list()
         #print('inside _calculate_rvol', wind_down_window)
@@ -98,7 +98,27 @@ class RealisedVol:
             winddown_list.append(curr_winddown)
             #print(curr_winddown)
 
-            if i > 0:
+            if (i == 0):
+                filter_row_curr = self.data.loc[self.data['time'] == range]
+                # print('filter_row_curr', filter_row_curr)
+
+                base_price_current = 1
+                if not filter_row_curr.empty:
+                    base_price_current = filter_row_curr.iloc[0]['close']
+
+                # print('base_price_current', base_price_current)
+
+                avg_gamma_pnl =  self.get_gamma_pnl( base_price_current, prev_close_price )
+                realised_vol = self.get_realised_vol(avg_gamma_pnl, curr_winddown)
+
+                # print('avg_gamma_pnl', avg_gamma_pnl)
+                # print('realised_vol', realised_vol)
+
+                realised_vol_list.append(realised_vol)
+                ten_min_rvol.append(realised_vol)
+                thirty_min_rvol.append(realised_vol)
+                today_rvol.append(realised_vol)
+            else:
                 avg_gamma_pnl_list = []
                 total_iterations = self.iterations
                 gamma_pnl_list = []
