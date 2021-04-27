@@ -33,7 +33,11 @@ module.exports = {
         },
         {
             key: 'today',
-            label: 'Today',
+            label: 'Gap',
+        },
+        {
+            key: 'nogap',
+            label: 'NoGap'
         },
         {
             key: '1day',

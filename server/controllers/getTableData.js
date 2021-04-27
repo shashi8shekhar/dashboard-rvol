@@ -59,9 +59,11 @@ const updateDaysRvol = (data) => {
 
         const result = defaultProducts.find( (instrument) => instrument['instrument_token'] === instrument_token );
         const t_end = result['t_end'];
+        const t_start = result['t_start'];
+
+        let dayData = {};
 
         let filterData = eachScript.data.filter(item => {
-
             const lastUpdatedDateObj = item['dateTime'];
             const newMomentObj = moment(moment(lastUpdatedDateObj).toISOString(), "YYYY-MM-DDTHH:mm:ss.SSSSZ", true).utc();
             const lastUpdatedTime =  moment(newMomentObj).format("HH:mm:ss");
@@ -74,7 +76,6 @@ const updateDaysRvol = (data) => {
 
         let count = 0
         let rvolsq = 0;
-        let dayData = {};
 
         filterData.forEach( (item, idx) => {
             rvolsq += Math.pow(item['today'], 2);
@@ -86,9 +87,29 @@ const updateDaysRvol = (data) => {
             }
         });
 
-        let len = eachScript.data.length;
-        // eachScript.data[len - 1] = {...eachScript.data[len - 1], ...result};
+        const len = eachScript.data.length;
 
+        //Calculate Realized vol without gap
+        let rvol_sq_day_nogap = 0;
+        let wind_down_sum_day_nogap = 0;
+
+        for(let i = len-1; i >= 0; i--) {
+            const item = Object.assign({}, eachScript.data[i]);
+            const lastUpdatedDateObj = item['dateTime'];
+            const newMomentObj = moment(moment(lastUpdatedDateObj).toISOString(), "YYYY-MM-DDTHH:mm:ss.SSSSZ", true).utc();
+            const lastUpdatedTime =  moment(newMomentObj).format("HH:mm:ss");
+
+            if(lastUpdatedTime === t_start) {
+                return { instrument_token, data: [{...eachScript.data[len - 1], ...dayData}] };
+            } else {
+                rvol_sq_day_nogap += Math.pow( parseFloat(item['5min']), 2) * parseFloat(item['winddown_5min']);
+                wind_down_sum_day_nogap += parseFloat(item['winddown_5min']);
+
+                dayData['nogap'] = Math.sqrt(rvol_sq_day_nogap / wind_down_sum_day_nogap);
+            }
+        }
+
+        //console.log(eachScript.data[len - 1], dayData);
         return { instrument_token, data: [{...eachScript.data[len - 1], ...dayData}] };
     });
 
