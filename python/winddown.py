@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import datetime
 import math
+import constants
 
 class Winddown:
     def __init__(self, data, tStart, tEnd, sliding_window=5, minWinddown=0.04):
@@ -58,18 +59,17 @@ class Winddown:
         self.data['time'] = pd.to_datetime(self.data['date'], format='%Y:%M:%D').dt.time
 
     def scaleWinddown(self, winddown):
-        a = (0.6-0)/(1-0)
-        b = 0.6 - a * 1
+        day_time_wd = constants.day_time
+        a = (day_time_wd-0)/(1-0)
+        b = day_time_wd - a * 1
         scaled_winddown = a * winddown + b
 
         if (scaled_winddown < 0):
             return 0
         elif (scaled_winddown > 0.6):
-            return 0.6
+            return day_time_wd
 
         return scaled_winddown
-
-
 
     def _calculate_winddown(self):
         self._updateData()
@@ -90,19 +90,24 @@ class Winddown:
         wind_down = []
         cum_winddown = sum(mean_list_updated)
 
-        for mean in mean_list_updated:
-            scaled_winddown = self.scaleWinddown(mean / cum_winddown)
+        # print('mean_list', mean_list)
+        # print('cum mean_list', cum_winddown)
+
+        for (i, mean) in enumerate(mean_list_updated):
+            scaled_winddown = constants.over_night
+            if ( i > 0 ):
+                scaled_winddown = self.scaleWinddown(mean / cum_winddown)
             wind_down.append(scaled_winddown)
 
         wind_down_updated = [self.min_winddown if x < 0.00000000001 else x for x in wind_down] #add Min. Winddown for the 1st window
         winddownKey = str(self.sliding_window) + 'min'
 
-        wind_down_updated[0] += 0.4 #gap winddown window update
         data = {'range': windDownTime}
         data.update({winddownKey: wind_down_updated})
 
         # Create DataFrame
         df = pd.DataFrame(data)
+        # print('df', df)
 
         return df
 

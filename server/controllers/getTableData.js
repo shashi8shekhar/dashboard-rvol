@@ -106,6 +106,8 @@ const updateDaysRvol = (data) => {
                 wind_down_sum_day_nogap += parseFloat(item['winddown_5min']);
 
                 dayData['nogap'] = Math.sqrt(rvol_sq_day_nogap / wind_down_sum_day_nogap);
+
+                //console.log(instrument_token, lastUpdatedTime, '5m Rvol', item['5min'], '5m wd', item['winddown_5min'], 'ng Drv sq', rvol_sq_day_nogap, 'ngDwd +', wind_down_sum_day_nogap, 'ngRV', dayData['nogap'], 'gapRV', item['today'] );
             }
         }
 

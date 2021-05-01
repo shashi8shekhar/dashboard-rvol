@@ -8,9 +8,15 @@ IST = pytz.timezone('Asia/Kolkata')
 # Dates between which we need historical data
 diff = 60
 diff_rvol = 50
+days_per_year = 256
+secs_per_year = days_per_year * 24 * 3600
 to_date = datetime.datetime.now(IST)
-from_date = (to_date - datetime.timedelta(days=diff)).replace(hour=12)
+from_date = (to_date - datetime.timedelta(days=diff)).replace(hour=4)
 from_date_rvol = (to_date - datetime.timedelta(days=diff_rvol)).replace(hour=4)
+
+# Winddown
+over_night = 0.35
+day_time = 1 - over_night
 
 # Interval(minute, day, 3 minute, 5 minute...)
 interval = "minute"

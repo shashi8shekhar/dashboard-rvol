@@ -36,7 +36,7 @@ class UpdateRealisedVol:
             # print('empty Data Frame', emptyDf)
             return emptyDf
 
-        rVolObj = realisedVol.RealisedVol(records_df, config['t_start'].strftime("%H:%M:%S"), config['t_end'].strftime("%H:%M:%S"), window, config['avg_hedge_per_day'], constants.iterations)
+        rVolObj = realisedVol.RealisedVol(records_df, config['t_start'].strftime("%H:%M:%S"), config['t_end'].strftime("%H:%M:%S"), window, config['avg_hedge_per_day'])
         return rVolObj._calculate_rvol(winddown, start_date, prev_close_price)
 
     def runRvolOnEachWindow(self, config, winddown, start_date, end_date ):

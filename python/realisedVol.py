@@ -3,18 +3,22 @@ import pandas as pd
 import numpy as np
 import datetime
 import math
+import constants
 
 class RealisedVol:
-    def __init__(self, data, tStart, tEnd, sliding_window=5, avg_hedge_per_day=6, iterations=100):
+    def __init__(self, data, tStart, tEnd, sliding_window=5, avg_hedge_per_day=6):
         #print(data, tStart, tEnd, sliding_window, avg_hedge_per_day, iterations)
         self.data = data
         self.avg_hedge_per_day = avg_hedge_per_day
-        self.iterations = iterations
+        self.iterations = constants.iterations
         self.sliding_window = sliding_window # n minutes sliding window
         self.min_rolling_periods = sliding_window #(0, sliding_window]
         self.tStart = tStart #market start time
         self.tEnd = tEnd #market end time
         self.data = data
+        self.days_per_year = constants.days_per_year
+        self.secs_per_year = constants.secs_per_year
+        self.mins_per_year = constants.secs_per_year / 60
 
     def exp_pdf( self, x, lam ):
         return lam * np.exp(-lam * x)
@@ -44,8 +48,8 @@ class RealisedVol:
 
         return hedge_points
 
-    def get_realised_vol(self, avg_gamma_pnl, winddown ):
-        return np.sqrt( 2 * avg_gamma_pnl ) / np.sqrt( winddown / 256 )
+    def get_realised_vol(self, avg_gamma_pnl, winddown, period):
+        return np.sqrt( 2 * avg_gamma_pnl ) / np.sqrt( winddown / period )
 
     def get_returns(self, current, previous ):
         return np.log( current / previous )
@@ -109,7 +113,7 @@ class RealisedVol:
                 # print('base_price_current', base_price_current)
 
                 avg_gamma_pnl =  self.get_gamma_pnl( base_price_current, prev_close_price )
-                realised_vol = self.get_realised_vol(avg_gamma_pnl, curr_winddown)
+                realised_vol = self.get_realised_vol(avg_gamma_pnl, curr_winddown, self.days_per_year)
 
                 # print('avg_gamma_pnl', avg_gamma_pnl)
                 # print('realised_vol', realised_vol)
@@ -157,7 +161,7 @@ class RealisedVol:
 
                 # print(range, avg_gamma_pnl)
 
-                realised_vol = self.get_realised_vol(avg_gamma_pnl, curr_winddown)
+                realised_vol = self.get_realised_vol(avg_gamma_pnl, curr_winddown, self.days_per_year)
                 realised_vol_list.append(realised_vol)
 
                 # 10 minute Realized Vol calculation
