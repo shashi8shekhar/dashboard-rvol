@@ -7,6 +7,8 @@ COPY package.json /app
 COPY yarn.lock /app
 COPY . /app
 
+RUN apk --no-cache add curl
+
 RUN yarn install
 
 CMD ["yarn", "start"]

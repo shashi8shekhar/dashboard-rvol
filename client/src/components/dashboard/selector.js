@@ -7,6 +7,7 @@ import {
     getRvolData,
     getConfig,
     getRvolContinuousData,
+    getOptionChainNse,
 } from './Actions';
 
 export const useDashboardState = () => {
@@ -22,5 +23,6 @@ export const useDashboardDispatch = () => {
         getRvolData: params => dispatch(getRvolData(params)),
         getConfig: () => dispatch(getConfig()),
         getRvolContinuousData: params => dispatch(getRvolContinuousData(params)),
+        getOptionChainNse: params => dispatch(getOptionChainNse(params)),
     };
 };

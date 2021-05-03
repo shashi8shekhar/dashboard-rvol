@@ -3,6 +3,8 @@
  */
 
 import { Map, List, fromJS } from 'immutable';
+import _ from 'lodash';
+
 import {
     LOAD_RVOL_DATA,
     LOAD_RVOL_DATA_FAIL,
@@ -13,7 +15,13 @@ import {
     LOAD_RVOL_STREAM_DATA,
     LOAD_RVOL_STREAM_DATA_SUCCESS,
     LOAD_RVOL_STREAM_DATA_FAIL,
+    LOAD_NSE_OC,
+    LOAD_NSE_OC_SUCCESS,
+    LOAD_NSE_OC_FAIL,
 } from './ActionTypes';
+
+import { _getAtmStrikePrice } from './utils';
+
 
 var moment = require('moment');
 
@@ -25,10 +33,12 @@ const initialState = Map({
         streamLoading: false,
     },
     config: {
-        loading: true,
+        loading: false,
         data: Map({}),
         error: '',
     },
+    iVolData: Map({}),
+    expiryDates: List(),
 });
 
 export default function dashboard(state = initialState, action) {
@@ -48,10 +58,15 @@ export default function dashboard(state = initialState, action) {
             return state.withMutations(state => {
                 const error = fromJS(action.result.result) ? '' : 'Oops, Something went wrong!';
                 const result  = action.result;
+                const configFormat = state.get('config');
 
                 state.setIn(['config', 'data'], fromJS(result));
                 state.setIn(['config', 'loading'], false);
                 state.setIn(['config', 'error'], error);
+
+                result['defaultProducts'].forEach(item => {
+                    state.setIn(['iVolData', item.tradingsymbol], configFormat);
+                });
             });
 
         case LOAD_RVOL_DATA:
@@ -94,6 +109,40 @@ export default function dashboard(state = initialState, action) {
                 state.setIn(['rVolData', 'data'], fromJS(result));
                 state.setIn(['rVolData', 'streamLoading'], false);
                 state.setIn(['rVolData', 'error'], error);
+            });
+
+        case LOAD_NSE_OC:
+            return state.withMutations(state => {
+                state.setIn(['iVolData', action.query.body.symbol, 'loading'], true);
+            });
+        case LOAD_NSE_OC_FAIL:
+            return state.withMutations(state => {
+                const error = fromJS(action.err) ? fromJS(action.err.message) : 'Oops, Something went wrong!';
+
+                state.setIn(['iVolData', action.query.body.symbol, 'loading'], false);
+                state.setIn(['iVolData', action.query.body.symbol, 'error'], error);
+            });
+        case LOAD_NSE_OC_SUCCESS:
+            return state.withMutations(state => {
+                const error = fromJS(action.err) ? fromJS(action.err.message) : 'Oops, Something went wrong!';
+                const result = action.result;
+
+                // console.log(action.query.body.symbol, action.result);
+
+                if(action.query.body.symbol === 'NIFTY' && result) {
+                    state.set( 'expiryDates', _.get(result, 'records.expiryDates', []) );
+                }
+
+                const underlyingValue = _.get(result, 'records.underlyingValue', null);
+                const strikePrices = _.get(result, 'records.strikePrices', []);
+
+                const atmStrike = _getAtmStrikePrice(underlyingValue, strikePrices);
+                const filteredData = _.filter(_.get(result, 'records.data', []), function(o) { return o.strikePrice === atmStrike; });
+
+                state.setIn(['iVolData', action.query.body.symbol, 'data'], filteredData);
+                state.setIn(['iVolData', action.query.body.symbol, 'rawData'], result);
+                state.setIn(['iVolData', action.query.body.symbol, 'loading'], false);
+                state.setIn(['iVolData', action.query.body.symbol, 'error'], error);
             });
 
         default:

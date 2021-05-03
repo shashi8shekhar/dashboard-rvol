@@ -8,6 +8,7 @@ const env = process.env.NODE_ENV;
 const domain = window.location.origin;
 
 let apiUrl = domain + '/';
+let nseApi = 'https://www.nseindia.com/api/option-chain-'
 
 export function getConfig() {
   return APICallerUtil.makeCall({
@@ -21,5 +22,13 @@ export function getRvolData(payload) {
     apiType: 'post',
     urlPath: apiUrl + 'loadRvolData',
     body: payload,
+  });
+}
+
+export function getOptionChainNse(params) {
+  return APICallerUtil.makeCall({
+    apiType: 'post',
+    urlPath: apiUrl + 'getNseOptionChain',
+    body: params.body,
   });
 }

@@ -2,9 +2,12 @@ const cors = require('cors');
 const express = require('express');
 const logger = require("./logger");
 const pool = require('./sqlConnection');
+const option_chain = require('./nse_lib');
 
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+
+const axios = require('axios');
 
 // Response Headers: Crossdomain and credentials
 const getResponseHeaders = function (params) {
@@ -49,6 +52,20 @@ app.get('/loadConfig', (req, res) => {
 
 app.post('/loadRvolData', function (req, res) {
     getTableData.getRvolData(req, res);
+});
+
+app.post('/getNseOptionChain', async (req, res) => {
+    try{
+        let params = req.body;
+        let resp = await option_chain(params.symbol, params.type); // can enter NIFTY / BANKNIFTY
+        // console.log('======params======', params);
+
+        res.status(200);
+        res.send(resp);
+
+    }catch(err){
+        res.status(500).send(err);
+    }
 });
 
 app.use(function (err, req, res, next) {

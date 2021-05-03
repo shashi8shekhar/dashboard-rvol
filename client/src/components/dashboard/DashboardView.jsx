@@ -8,6 +8,7 @@ import _ from 'lodash';
 import Popover from '@material-ui/core/Popover';
 import { css } from 'aphrodite';
 import TextCell from './TextCell';
+import {ImpliedVolTable} from './ImpliedVol';
 import CircularProgress from 'components/core/circularProgress/CircularProgress';
 import styles from './DashboardView.styles';
 import tableStyles from './TableStyles.styles';
@@ -27,15 +28,22 @@ export function DashboardView(props) {
     const mainTableConfig = _.get(dashboard, ['config', 'data', 'mainTableConfig'], []);
     const defaultProducts = _.get(dashboard, 'config.data.defaultProducts', []);
     const productCount = _.get(dashboard, 'config.data.defaultProducts.length', 0);
+
     const tableDataloading = _.get(dashboard, 'rVolData.loading', true);
     const tableStreamDataLoading = _.get(dashboard, 'rVolData.streamLoading', false);
     const tableData = _.get(dashboard, 'rVolData.data', []);
     const currentSubColoumn = [...GROUP_ATTR, ...mainTableConfig];
 
+    const expiryDates = _.get(dashboard, 'expiryDates', []);
+    const iVolData = _.get(dashboard, 'iVolData', []);
+
+    // console.log(expiryDates, iVolData);
+
     const {
         getRvolData,
         getConfig,
         getRvolContinuousData,
+        getOptionChainNse,
     } = useDashboardDispatch();
 
     useEffect(() => {
@@ -50,8 +58,29 @@ export function DashboardView(props) {
         if (productCount) {
             getRvolData({ type: 'rvol', products});
             setInterval(getData, 300000);
+
+            getImpliedVolData();
+            setInterval(getImpliedVolData, 500000);
         }
     }, [productCount]);
+
+    const getImpliedVolData = () => {
+        try {
+            defaultProducts.forEach( (item, idx) => {
+                setTimeout(function(product) {
+                    let params = {
+                        body: {
+                            symbol: product.tradingsymbol,
+                            type: product.segment === 'INDICES' ? 'indices' : 'equities',
+                        },
+                    };
+                    getOptionChainNse( params );
+                }, idx * 5000, item);
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    };
 
     const getData = () => {
         try {
@@ -64,7 +93,7 @@ export function DashboardView(props) {
         } catch(e) {
             console.log(e);
         }
-    }
+    };
 
     // console.log(defaultProducts, mainTableConfig);
     // console.log(tableDataloading, tableData, currentSubColoumn);
@@ -77,7 +106,7 @@ export function DashboardView(props) {
                 <p className={css(styles.transformCenter)}>No Data found</p>
             ) : (
                 <section>
-                    <div className={css(styles.ReloadButton)} onClick={(e) => { getData() }}>
+                    <div className={css(styles.ReloadButton)} onClick={(e) => { getData(); getImpliedVolData(); }}>
                         {
                             tableStreamDataLoading ? <span>Loading...</span> : <span>Reload</span>
                         }
@@ -129,6 +158,12 @@ export function DashboardView(props) {
                             )
                         })}
                     </Table>
+
+                    <ImpliedVolTable
+                        defaultProducts={defaultProducts}
+                        expiryDates={expiryDates}
+                        iVolData={iVolData}
+                    />
                 </section>
             )}
         </div>

@@ -27,3 +27,11 @@ export function getRvolContinuousData(params) {
         query: params,
     };
 }
+
+export function getOptionChainNse(params) {
+    return {
+        types: [types.LOAD_NSE_OC, types.LOAD_NSE_OC_SUCCESS, types.LOAD_NSE_OC_FAIL],
+        promise: DashboardAPIUtil.getOptionChainNse(params),
+        query: params,
+    };
+}
