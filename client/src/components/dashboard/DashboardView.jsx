@@ -75,7 +75,7 @@ export function DashboardView(props) {
                         },
                     };
                     getOptionChainNse( params );
-                }, idx * 5000, item);
+                }, idx * 2000, item);
             });
         } catch (e) {
             console.log(e);

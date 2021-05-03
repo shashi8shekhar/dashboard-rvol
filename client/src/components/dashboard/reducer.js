@@ -128,19 +128,24 @@ export default function dashboard(state = initialState, action) {
                 const result = action.result;
 
                 // console.log(action.query.body.symbol, action.result);
+                if(result) {
+                    if( action.query.body.symbol === 'NIFTY' ) {
+                        state.set( 'expiryDates', _.get(result, 'records.expiryDates', []) );
+                    }
 
-                if(action.query.body.symbol === 'NIFTY' && result) {
-                    state.set( 'expiryDates', _.get(result, 'records.expiryDates', []) );
+                    const underlyingValue = _.get(result, 'records.underlyingValue', null);
+                    const strikePrices = _.get(result, 'records.strikePrices', []);
+
+                    const atmStrike = _getAtmStrikePrice(underlyingValue, strikePrices);
+                    const filteredData = _.filter(_.get(result, 'records.data', []), function(o) { return o.strikePrice === atmStrike; });
+
+                    state.setIn(['iVolData', action.query.body.symbol, 'data'], filteredData);
+                    state.setIn(['iVolData', action.query.body.symbol, 'rawData'], result);
+
+                    state.setIn(['iVolData', action.query.body.symbol, 'loaded'], true);
                 }
 
-                const underlyingValue = _.get(result, 'records.underlyingValue', null);
-                const strikePrices = _.get(result, 'records.strikePrices', []);
-
-                const atmStrike = _getAtmStrikePrice(underlyingValue, strikePrices);
-                const filteredData = _.filter(_.get(result, 'records.data', []), function(o) { return o.strikePrice === atmStrike; });
-
-                state.setIn(['iVolData', action.query.body.symbol, 'data'], filteredData);
-                state.setIn(['iVolData', action.query.body.symbol, 'rawData'], result);
+                state.setIn(['iVolData', action.query.body.symbol, 'loaded'], false);
                 state.setIn(['iVolData', action.query.body.symbol, 'loading'], false);
                 state.setIn(['iVolData', action.query.body.symbol, 'error'], error);
             });

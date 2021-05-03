@@ -31,7 +31,7 @@ export function ImpliedVolTable(props) {
 
     return (
         <div className={css(styles.DashboardWrapper)}>
-            {expiryDates.length &&
+            {expiryDates.length > 0 &&
                 <section>
                     {/*<div className={css(styles.ReloadButton)} onClick={(e) => { props.getData() }}>
                         {
