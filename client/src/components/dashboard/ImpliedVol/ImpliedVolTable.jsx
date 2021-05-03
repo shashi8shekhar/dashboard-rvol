@@ -86,7 +86,7 @@ export function ImpliedVolTable(props) {
                         })}
                     </Table>
                 </section>
-            )}
+            }
         </div>
     );
 }
