@@ -4,7 +4,7 @@
 
 import _ from 'lodash';
 
-export function calculatePercentage(number, total, precision) {
+export function calculatePercentage(number, total, precision, hideSign) {
     let percent = '-';
     if (
         isNaN(number) ||
@@ -17,7 +17,8 @@ export function calculatePercentage(number, total, precision) {
     ) {
         percent = '-';
     } else {
-        percent = ((number / total) * 100).toFixed(precision) + '%';
+        percent = ((number / total) * 100).toFixed(precision);
+        percent += hideSign ? '' : '%';
     }
     return percent;
 }

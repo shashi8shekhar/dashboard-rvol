@@ -1,12 +1,21 @@
-FROM node:10-alpine
+# Set the base image.
+FROM node:10
 
-RUN mkdir -p /app
-WORKDIR /app
+# Install app dependencies
+RUN mkdir /build-dir
+WORKDIR /build-dir
+COPY package.json /build-dir
+RUN npm install
 
-COPY package.json /app
-COPY yarn.lock /app
-COPY . /app
+# Create app directory
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+RUN ln -s /build-dir/node_modules node_modules
 
-RUN yarn install
+# Bundle app source
+COPY . /usr/src/app
 
-CMD ["yarn", "start"]
+RUN ["chmod", "+x", "/usr/src/app/entrypoint.sh"]
+ENTRYPOINT ["sh", "/usr/src/app/entrypoint.sh"]
+
+CMD [ "npm", "start" ]

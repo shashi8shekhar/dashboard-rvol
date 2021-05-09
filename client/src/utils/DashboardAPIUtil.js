@@ -32,3 +32,11 @@ export function getOptionChainNse(params) {
     body: params.body,
   });
 }
+
+export function getTimeSeriesData(params) {
+  return APICallerUtil.makeCall({
+    apiType: 'post',
+    urlPath: apiUrl + 'loadTimeSeriesData',
+    body: params,
+  });
+}

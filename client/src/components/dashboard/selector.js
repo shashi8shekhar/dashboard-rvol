@@ -8,6 +8,7 @@ import {
     getConfig,
     getRvolContinuousData,
     getOptionChainNse,
+    getTimeSeriesData,
 } from './Actions';
 
 export const useDashboardState = () => {
@@ -24,5 +25,6 @@ export const useDashboardDispatch = () => {
         getConfig: () => dispatch(getConfig()),
         getRvolContinuousData: params => dispatch(getRvolContinuousData(params)),
         getOptionChainNse: params => dispatch(getOptionChainNse(params)),
+        getTimeSeriesData: params => dispatch(getTimeSeriesData(params)),
     };
 };

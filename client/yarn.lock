@@ -5171,6 +5171,16 @@ hex-color-regex@^1.1.0:
   resolved "https://registry.yarnpkg.com/hex-color-regex/-/hex-color-regex-1.1.0.tgz#4c06fccb4602fe2602b3c93df82d7e7dbf1a8a8e"
   integrity sha512-l9sfDFsuqtOqKDsQdqrMRk0U85RZc0RtOR9yPI7mRVOa4FsR/BVnZ0shmQRM96Ji99kYZP/7hn1cedc1+ApsTQ==
 
+highcharts-react-official@2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/highcharts-react-official/-/highcharts-react-official-2.2.2.tgz#1a83558f4501b73c99e79aa65325f7bd522d6574"
+  integrity sha512-Xj9JOOL20Vmbl8gjgF2jN89Fx5zqbonjaK6SqwiM4vCjC/ZwtwXEquk+LkymzIVcd4H9Wb/9ASKhBJn5fNtN4g==
+
+highcharts@6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-6.0.0.tgz#a3bae99080b443fd43f47bbce2169f4b5b8df6f4"
+  integrity sha1-o7rpkIC0Q/1D9Hu84hafS1uN9vQ=
+
 hmac-drbg@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
@@ -10531,6 +10541,11 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
+
+typescript@^4.2.4:
+  version "4.2.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.2.4.tgz#8610b59747de028fda898a8aef0e103f156d0961"
+  integrity sha512-V+evlYHZnQkaz8TRBuxTA92yZBPotr5H+WhQ7bD3hZUndx5tGOa1fuCgeSjxAzM1RiN5IzvadIXTVefuuwZCRg==
 
 uglify-js@3.4.x:
   version "3.4.10"

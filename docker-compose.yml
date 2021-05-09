@@ -45,7 +45,7 @@ services:
       - /app/node_modules
     links:
       - mysql
-    command: yarn start
+    command: npm start
   client:
     build: ./client
     environment:
@@ -56,11 +56,12 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./client/src:/app/src
-      - /app/node_modules
+      - ./client/:/usr/src/app/
+      - ./client/node_modules:/usr/src/app/node_modules
     links:
       - server
-    command: yarn start
+    command:
+     - /usr/src/app/entrypoint.sh
   python:
     build: ./python
     depends_on:

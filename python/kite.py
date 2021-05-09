@@ -57,9 +57,9 @@ class Kite:
         x = parse_qs(parsed_url.query)
 
         # Initialize all the variables we need
-        api_key = "kejb8tewdr6kk1bn"
+        api_key = constants.apiKey
         request_token = x['request_token'][0]
-        api_secret="fdcl73by8psacinfxszkfhanv7t9ogb7"
+        api_secret = constants.apiSecret
 
         self.kite = KiteConnect(api_key=api_key)
 

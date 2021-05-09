@@ -9,15 +9,22 @@ import {
     LOAD_RVOL_DATA,
     LOAD_RVOL_DATA_FAIL,
     LOAD_RVOL_DATA_SUCCESS,
+
     LOAD_CONFIG_DATA,
     LOAD_CONFIG_DATA_FAIL,
     LOAD_CONFIG_DATA_SUCCESS,
+
     LOAD_RVOL_STREAM_DATA,
     LOAD_RVOL_STREAM_DATA_SUCCESS,
     LOAD_RVOL_STREAM_DATA_FAIL,
+
     LOAD_NSE_OC,
     LOAD_NSE_OC_SUCCESS,
     LOAD_NSE_OC_FAIL,
+
+    LOAD_TIME_SERIES_DATA,
+    LOAD_TIME_SERIES_DATA_SUCCESS,
+    LOAD_TIME_SERIES_DATA_FAIL,
 } from './ActionTypes';
 
 import { _getAtmStrikePrice } from './utils';
@@ -35,6 +42,11 @@ const initialState = Map({
     config: {
         loading: false,
         data: Map({}),
+        error: '',
+    },
+    timeSeriesData: {
+        loading: false,
+        data: List(),
         error: '',
     },
     iVolData: Map({}),
@@ -148,6 +160,27 @@ export default function dashboard(state = initialState, action) {
                 state.setIn(['iVolData', action.query.body.symbol, 'loaded'], false);
                 state.setIn(['iVolData', action.query.body.symbol, 'loading'], false);
                 state.setIn(['iVolData', action.query.body.symbol, 'error'], error);
+            });
+
+        case LOAD_TIME_SERIES_DATA:
+            return state.withMutations(state => {
+                state.setIn(['timeSeriesData', 'loading'], true);
+            });
+        case LOAD_TIME_SERIES_DATA_FAIL:
+            return state.withMutations(state => {
+                const error = fromJS(action.err) ? fromJS(action.err.message) : 'Oops, Something went wrong!';
+
+                state.setIn(['timeSeriesData', 'loading'], false);
+                state.setIn(['timeSeriesData', 'error'], error);
+            });
+        case LOAD_TIME_SERIES_DATA_SUCCESS:
+            return state.withMutations(state => {
+                const error = fromJS(action.err) ? fromJS(action.err.message) : 'Oops, Something went wrong!';
+                const result = action.result;
+
+                state.setIn(['timeSeriesData', 'data'], fromJS(result));
+                state.setIn(['timeSeriesData', 'loading'], false);
+                state.setIn(['timeSeriesData', 'error'], error);
             });
 
         default:

@@ -35,3 +35,11 @@ export function getOptionChainNse(params) {
         query: params,
     };
 }
+
+export function getTimeSeriesData(params) {
+    return {
+        types: [types.LOAD_TIME_SERIES_DATA, types.LOAD_TIME_SERIES_DATA_SUCCESS, types.LOAD_TIME_SERIES_DATA_FAIL],
+        promise: DashboardAPIUtil.getTimeSeriesData(params),
+        query: params,
+    };
+}

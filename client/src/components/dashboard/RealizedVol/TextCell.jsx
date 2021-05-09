@@ -9,8 +9,8 @@ import _ from 'lodash';
 import { css } from 'aphrodite';
 
 import CircularProgress from 'components/core/circularProgress/CircularProgress';
-import { calculatePercentage } from './utils';
-import tableStyles from './TableStyles.styles';
+import { calculatePercentage } from '../utils';
+import tableStyles from '../TableStyles.styles';
 
 const moment = require('moment');
 const FixedDataTable = require('fixed-data-table-2');
@@ -40,7 +40,7 @@ export default function TextCell(props) {
         const lastUpdatedTime =  moment(newMomentObj).format("HH:mm");
 
         return (
-            <Cell className={css(tableStyles.eachCell)}>
+            <Cell className={classnames(css(tableStyles.eachCell), css(tableStyles.linkTextCell))} onClick={ (e) => props._handleColumnClickForGraph(colKey, rowIndex, instrument_token) }>
                 <div className={css(tableStyles.eachCellContentAlignEnd)}>
                     <div
                         className={classnames(css(tableStyles.cellContent), css(tableStyles.SingleCellValue), css(tableStyles.alignLeft), css(tableStyles.symbolCell) )}

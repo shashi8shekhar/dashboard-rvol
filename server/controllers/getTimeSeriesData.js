@@ -1,12 +1,12 @@
 /**
- * Created by shashi.sh on 10/04/21.
+ * Created by shashi.sh on 08/05/21.
  */
 
 const pool = require('../sqlConnection');
 const dayRvols = require('./../constants/config').dayRvols;
 const  defaultProducts = require('./../constants/config').defaultProducts;
 const moment = require('moment');
-// const _ = require('lodash/core');
+const _ = require('lodash');
 
 
 const realisedVolatilityModel = ({type, lastNData, token}) => {
@@ -63,72 +63,57 @@ const updateDaysRvol = (data) => {
 
         let dayData = {};
 
-        let filterData = eachScript.data.filter(item => {
+        const scriptData = JSON.parse(JSON.stringify(eachScript.data));
+
+        let filterData = scriptData.filter((item, idx) => {
             const lastUpdatedDateObj = item['dateTime'];
             const newMomentObj = moment(moment(lastUpdatedDateObj).toISOString(), "YYYY-MM-DDTHH:mm:ss.SSSSZ", true).utc();
             const lastUpdatedTime =  moment(newMomentObj).format("HH:mm:ss");
+
+            if(idx+1 === eachScript.data.length) {
+                return true;
+            }
 
             return t_end === lastUpdatedTime;
         });
 
-        // filterData.splice(-1,1);
-        filterData.reverse();
+        //Get today Time Series data
+        const toDayMap = {
+            key: 'today',
+            data: filterData.slice(Math.max(filterData.length - 10, 0)),
+        };
 
-        let count = 0
-        let rvolsq = 0;
+        //Get 30 Minute Time Series data
+        const filterDataThirtyMin = _.uniqBy(scriptData, '30min');
+        const thirtyMinMap = {
+            key: '30min',
+            data: filterDataThirtyMin.slice(Math.max(filterDataThirtyMin.length - 10, 0)),
+        };
 
-        filterData.forEach( (item, idx) => {
-            rvolsq += Math.pow(item['today'], 2);
+        //Get 10 Minute Time Series data
+        const filterDataTenMin = _.uniqBy(scriptData, '10min');
+        const tenMinMap = {
+            key: '10min',
+            data: filterDataTenMin.slice(Math.max(filterDataTenMin.length - 10, 0)),
+        };
 
-            // console.log('outside if', item,);
-            // console.log('idx', idx, count);
 
-            if ( idx+1 === dayRvols[count] ) {
-                let key = dayRvols[count] + 'day';
-                dayData[key] = Math.sqrt(rvolsq / dayRvols[count]);
+        let dataTimeSeries = [];
 
-                // console.log('inside if', key, dayData[key]);
-                // console.log(idx, count, dayRvols[count]);
+        dataTimeSeries.push(thirtyMinMap);
+        dataTimeSeries.push(tenMinMap);
+        dataTimeSeries.push(toDayMap);
 
-                count++;
-            }
-        });
-
-        const len = eachScript.data.length;
-
-        //Calculate Realized vol without gap
-        let rvol_sq_day_nogap = 0;
-        let wind_down_sum_day_nogap = 0;
-
-        for(let i = len-1; i >= 0; i--) {
-            const item = Object.assign({}, eachScript.data[i]);
-            const lastUpdatedDateObj = item['dateTime'];
-            const newMomentObj = moment(moment(lastUpdatedDateObj).toISOString(), "YYYY-MM-DDTHH:mm:ss.SSSSZ", true).utc();
-            const lastUpdatedTime =  moment(newMomentObj).format("HH:mm:ss");
-
-            if(lastUpdatedTime === t_start) {
-                return { instrument_token, data: [{...eachScript.data[len - 1], ...dayData}] };
-            } else {
-                rvol_sq_day_nogap += Math.pow( parseFloat(item['5min']), 2) * parseFloat(item['winddown_5min']);
-                wind_down_sum_day_nogap += parseFloat(item['winddown_5min']);
-
-                dayData['nogap'] = Math.sqrt(rvol_sq_day_nogap / wind_down_sum_day_nogap);
-
-                //console.log(instrument_token, lastUpdatedTime, '5m Rvol', item['5min'], '5m wd', item['winddown_5min'], 'ng Drv sq', rvol_sq_day_nogap, 'ngDwd +', wind_down_sum_day_nogap, 'ngRV', dayData['nogap'], 'gapRV', item['today'] );
-            }
-        }
-
-        //console.log(eachScript.data[len - 1], dayData);
-        return { instrument_token, data: [{...eachScript.data[len - 1], ...dayData}] };
+        return { instrument_token, data: dataTimeSeries };
     });
 
     return content;
 };
 
-const getDataPrommise = (req, res) => {
+const getDataPromise = (req, res) => {
     try {
         const { type, products } = req.body;
-        const resultMap = {}
+        const resultMap = {};
         const lastNData = 1;
 
         getRVolDataHelper({products, type, lastNData}).then(function (result) {
@@ -150,4 +135,4 @@ const getDataPrommise = (req, res) => {
     }
 };
 
-exports.getRvolData = getDataPrommise;
+exports.getTimeSeriesData = getDataPromise;

@@ -44,6 +44,7 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 const router = require('./routes/data')
 const getConfig = require('./controllers/getConfig');
 const getTableData = require('./controllers/getTableData');
+const getTimeSeriesData = require('./controllers/getTimeSeriesData');
 const checkTableExists = require('./controllers/updateConfigurations').checkTableExists;
 
 app.get('/loadConfig', (req, res) => {
@@ -52,6 +53,10 @@ app.get('/loadConfig', (req, res) => {
 
 app.post('/loadRvolData', function (req, res) {
     getTableData.getRvolData(req, res);
+});
+
+app.post('/loadTimeSeriesData', function (req, res) {
+    getTimeSeriesData.getTimeSeriesData(req, res);
 });
 
 app.post('/getNseOptionChain', async (req, res) => {

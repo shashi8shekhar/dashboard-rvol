@@ -46,6 +46,7 @@ function getOptionChain(instrument, type) {
         -H 'sec-fetch-mode: navigate' \
         -H 'sec-fetch-user: ?1' \
         -H 'sec-fetch-dest: document' \
+        -H 'accept-encoding: gzip, deflate, br' \
         -H 'accept-language: en-IN,en;q=0.9,en-GB;q=0.8,en-US;q=0.7,hi;q=0.6,mr;q=0.5' \
         --compressed`, function (resp) {
                 // console.log('resp ====', resp);
