@@ -41,8 +41,8 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ./server:/app
-      - /app/node_modules
+      - ./server:/usr/src/app/
+      - ./server/node_modules:/usr/src/app/node_modules
     links:
       - mysql
     command: npm start
