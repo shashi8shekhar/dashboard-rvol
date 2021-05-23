@@ -56,12 +56,10 @@ class UpdateImpliedVol:
         # print('expiry_list length', len(expiry_list))
 
         if len(records_df.index) == 0 :
-            rvolKey = str(window) + 'min'
             dataEmp = { 'dateTime': [] }
-            dataEmp.update({ rvolKey: [] })
 
             emptyDf = pd.DataFrame(dataEmp)
-            # print('empty Data Frame', emptyDf)
+            print('empty Data Frame', emptyDf)
             return emptyDf
 
         implied_calc_obj = implied_calc.ImpliedCalc(kiteObj, expiry_list, strike_list, config, instruments, records_df)
@@ -73,13 +71,13 @@ class UpdateImpliedVol:
             for window in constants.slidingWindow:
                 # print('runIvolOnEachWindow', window)
                 iVolDf = self.ivolBackPopulate(kiteObj, expiry_list, strike_list, config, instruments, window, start_date, end_date)
-                #print('ivolBackPopulate', iVolDf);
-                if iVolDf is not None:
+                print('ivolBackPopulate', iVolDf);
+                if iVolDf is not None and len(iVolDf.index) > 0:
                     dfs.append(iVolDf)
 
             return reduce(lambda left,right: pd.merge(left,right,on='dateTime', how='outer'), dfs)
         except:
-            # print('inside except')
+            print('inside except')
             return
 
     def runIvolOnEachDay(self, kiteObj, expiry_list, strike_list, config, instruments, from_date, to_date ):
@@ -91,10 +89,10 @@ class UpdateImpliedVol:
             start_date = end_date
             end_date += datetime.timedelta(days=1)
 
-            # print('runIvolOnEachDay', end_date, to_date, end_date < to_date)
+            print('runIvolOnEachDay', end_date, to_date, end_date < to_date)
             window_data = self.runIvolOnEachWindow(kiteObj, expiry_list, strike_list, config, instruments, start_date, end_date)
-            if window_data is not None:
-                # print('if window_data is not None:', config['tradingsymbol'], start_date, end_date, window_data)
+            if window_data is not None and len(window_data.index) > 0:
+                print('if window_data is not None:', config['tradingsymbol'], start_date, end_date, window_data)
                 window_data.transpose().reset_index(drop=True).transpose()
                 dfs.append(window_data)
 
@@ -115,14 +113,14 @@ class UpdateImpliedVol:
             instruments = instrumentsDetailsObjData[instrumentsTableKey]
 
             instruments_df = pd.DataFrame(instruments)
-            # print(instruments_df.head())
+            print(instruments_df.head())
             expiry_list = self.get_expiry_list(instruments_df)
             strike_list = self.get_strike_list(instruments_df)
 
             iVolData[iVolTableKey] = self.runIvolOnEachDay(kiteObj, expiry_list, strike_list, config, instruments, constants.from_date_ivol, constants.to_date)
-            # print(iVolTableKey, iVolData[iVolTableKey].head())
+            print(iVolTableKey, iVolData[iVolTableKey].head())
             try:
-                # print('runRvolOnConfig inside try', config['tradingsymbol'])
+                print('runRvolOnConfig inside try', config['tradingsymbol'])
                 iVolData[iVolTableKey].to_sql(iVolTableKey, con=engineObj, if_exists='replace', index=False)
             except ValueError as e:
                 # print(e)
