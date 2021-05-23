@@ -7,3 +7,5 @@ pymysql
 sqlalchemy
 selenium
 pytz
+scipy
+mibian

@@ -90,6 +90,8 @@ class Winddown:
         wind_down = []
         cum_winddown = sum(mean_list_updated)
 
+        wind_down_noscale = []
+
         # print('mean_list', mean_list)
         # print('cum mean_list', cum_winddown)
 
@@ -98,12 +100,17 @@ class Winddown:
             if ( i > 0 ):
                 scaled_winddown = self.scaleWinddown(mean / cum_winddown)
             wind_down.append(scaled_winddown)
+            wind_down_noscale.append(mean / cum_winddown)
 
         wind_down_updated = [self.min_winddown if x < 0.00000000001 else x for x in wind_down] #add Min. Winddown for the 1st window
+        wind_down_noscale_updated = [self.min_winddown if x < 0.00000000001 else x for x in
+                             wind_down_noscale]  # add Min. Winddown for the 1st window
         winddownKey = str(self.sliding_window) + 'min'
+        winddownKeyNoScale = '{0}_noscale'.format(str(winddownKey))
 
         data = {'range': windDownTime}
         data.update({winddownKey: wind_down_updated})
+        data.update({winddownKeyNoScale: wind_down_noscale_updated})
 
         # Create DataFrame
         df = pd.DataFrame(data)

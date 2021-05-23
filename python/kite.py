@@ -57,16 +57,41 @@ class Kite:
         x = parse_qs(parsed_url.query)
 
         # Initialize all the variables we need
-        api_key = constants.apiKey
-        request_token = x['request_token'][0]
-        api_secret = constants.apiSecret
+        self.final_wait_time = waitTime * 6
+        self.api_key = constants.apiKey
+        self.request_token = x['request_token'][0]
+        self.api_secret = constants.apiSecret
 
-        self.kite = KiteConnect(api_key=api_key)
+        self.kite = KiteConnect(api_key=self.api_key)
 
-        data = self.kite.generate_session(request_token, api_secret=api_secret)
+    def get_api_key(self):
+        return self.api_key
+
+    def get_request_token(self):
+        time.sleep(self.final_wait_time)
+        return self.request_token
+
+    def get_api_secret(self):
+        return self.api_secret
+
+    def generate_session(self):
+        return self.kite.generate_session(self.request_token, api_secret=self.api_secret)
+
+    def set_access_token(self):
+        data = self.generate_session()
         access_token = data["access_token"]
         self.kite.set_access_token(access_token)
         print('CONNECTED TO KITE')
+        return self.kite
 
     def get_historical_data(self, instrument_token, from_date, to_date, interval):
-	    return self.kite.historical_data(instrument_token, from_date, to_date, interval)
+        print('get_historical_data ', instrument_token, from_date, to_date, interval)
+        return self.kite.historical_data(instrument_token, from_date, to_date, interval)
+
+    def get_instruments(self, id):
+        print('instruments ', id)
+        return self.kite.instruments(id)
+
+    def get_quote(self, contracts):
+        # print('instruments ', id)
+        return self.kite.quote(contracts)

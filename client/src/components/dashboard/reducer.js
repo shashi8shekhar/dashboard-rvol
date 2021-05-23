@@ -25,6 +25,10 @@ import {
     LOAD_TIME_SERIES_DATA,
     LOAD_TIME_SERIES_DATA_SUCCESS,
     LOAD_TIME_SERIES_DATA_FAIL,
+
+    LOAD_IV_TIME_SERIES_DATA,
+    LOAD_IV_TIME_SERIES_DATA_SUCCESS,
+    LOAD_IV_TIME_SERIES_DATA_FAIL,
 } from './ActionTypes';
 
 import { _getAtmStrikePrice } from './utils';
@@ -51,6 +55,11 @@ const initialState = Map({
     },
     iVolData: Map({}),
     expiryDates: List(),
+    ivTimeseries: {
+        loading: false,
+        data: List(),
+        error: '',
+    },
 });
 
 export default function dashboard(state = initialState, action) {
@@ -138,11 +147,15 @@ export default function dashboard(state = initialState, action) {
             return state.withMutations(state => {
                 const error = fromJS(action.err) ? fromJS(action.err.message) : 'Oops, Something went wrong!';
                 const result = action.result;
+                const expiryDates = JSON.parse(localStorage.getItem('expiryDates'));
 
-                // console.log(action.query.body.symbol, action.result);
+
+                // console.log(action.query.body.symbol, expiryDates, action);
                 if(result) {
                     if( action.query.body.symbol === 'NIFTY' ) {
-                        state.set( 'expiryDates', _.get(result, 'records.expiryDates', []) );
+                        localStorage.setItem('expiryDates', JSON.stringify(_.get(result, 'records.expiryDates', expiryDates)));
+
+                        state.set( 'expiryDates', _.get(result, 'records.expiryDates', expiryDates) );
                     }
 
                     const underlyingValue = _.get(result, 'records.underlyingValue', null);
@@ -155,6 +168,10 @@ export default function dashboard(state = initialState, action) {
                     state.setIn(['iVolData', action.query.body.symbol, 'rawData'], result);
 
                     state.setIn(['iVolData', action.query.body.symbol, 'loaded'], true);
+                } else {
+                    if( action.query.body.symbol === 'NIFTY' ) {
+                        state.set( 'expiryDates', expiryDates );
+                    }
                 }
 
                 state.setIn(['iVolData', action.query.body.symbol, 'loaded'], false);
@@ -181,6 +198,27 @@ export default function dashboard(state = initialState, action) {
                 state.setIn(['timeSeriesData', 'data'], fromJS(result));
                 state.setIn(['timeSeriesData', 'loading'], false);
                 state.setIn(['timeSeriesData', 'error'], error);
+            });
+
+        case LOAD_IV_TIME_SERIES_DATA:
+            return state.withMutations(state => {
+                state.setIn(['ivTimeseries', 'loading'], true);
+            });
+        case LOAD_IV_TIME_SERIES_DATA_FAIL:
+            return state.withMutations(state => {
+                const error = fromJS(action.err) ? fromJS(action.err.message) : 'Oops, Something went wrong!';
+
+                state.setIn(['ivTimeseries', 'loading'], false);
+                state.setIn(['ivTimeseries', 'error'], error);
+            });
+        case LOAD_IV_TIME_SERIES_DATA_SUCCESS:
+            return state.withMutations(state => {
+                const error = fromJS(action.err) ? fromJS(action.err.message) : 'Oops, Something went wrong!';
+                const result = action.result;
+
+                state.setIn(['ivTimeseries', 'data'], fromJS(result));
+                state.setIn(['ivTimeseries', 'loading'], false);
+                state.setIn(['ivTimeseries', 'error'], error);
             });
 
         default:

@@ -13,10 +13,12 @@ import { RowGraphView } from '../TimeSeries'
 
 const FixedDataTable = require('fixed-data-table-2');
 const { Table, Column, Cell } = FixedDataTable;
+const moment = require('moment');
 
 export function RealizedVolTable(props) {
     const [onClickedRow, setClickedRow] = useState(-1);
     const [selectedInstrument, setSelectedInstrument] = useState(null);
+    const [selectedColumn, setSelectedColumn] = useState(null);
 
     const { dashboard } = useDashboardState();
 
@@ -47,7 +49,7 @@ export function RealizedVolTable(props) {
 
     const _getTimeSeriesData = () => {
         try {
-            console.log('inside set time interval');
+            // console.log('inside set time interval');
             const products = defaultProducts.map( product => {
                 return product.instrument_token;
             });
@@ -73,14 +75,16 @@ export function RealizedVolTable(props) {
         setClickedRow(-1);
     };
 
-    const _handleColumnClickForGraph = (columnKey, rowIndex, instrument_token) => {
-        if(onClickedRow === rowIndex) {
+    const _handleColumnClickForGraph = (columnKey, colIndex, rowIndex, instrument_token) => {
+        if(onClickedRow === rowIndex && columnKey === selectedColumn) {
             onCloseGraph();
             return;
         }
+
         _getTimeSeriesData();
         setClickedRow(rowIndex);
         setSelectedInstrument(instrument_token);
+        setSelectedColumn(columnKey);
     };
 
     return (
@@ -100,9 +104,11 @@ export function RealizedVolTable(props) {
                     rowExpanded={
                         <RowGraphView
                             onCloseGraph={onCloseGraph}
+                            getTimeSeriesData={_getTimeSeriesData}
                             tableGraphData={timeSeriesData}
                             onClickedRow={onClickedRow}
                             selectedInstrument={selectedInstrument}
+                            selectedColumn={selectedColumn}
                         />
                     }
                 >

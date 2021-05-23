@@ -26,7 +26,7 @@ class RealTimePopulateRealisedVolData:
 
                 return date_time_obj, rVolData
 
-    def runUpdate(self):
+    def runUpdate(self, kiteObj):
         print("inside runUpdate")
         configDetailsObj = configDetails.ConfigDetails.getInstance()
 
@@ -62,7 +62,7 @@ class RealTimePopulateRealisedVolData:
             #print('rVolTrimmedDataFrame', rVolTrimmedDataFrame[-1])
             #print(config['tradingsymbol'], 'last_updated_time', last_updated_time, 'curr_time', curr_time )
 
-            rVolForEachInterval = updateRealisedVolObj.runRvolOnEachDay(config, winddown, last_updated_time, curr_time)
+            rVolForEachInterval = updateRealisedVolObj.runRvolOnEachDay(kiteObj, config, winddown, last_updated_time, curr_time)
 
             #print('rVolForEachInterval', rVolForEachInterval )
 

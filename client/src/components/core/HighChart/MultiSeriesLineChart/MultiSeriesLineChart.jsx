@@ -8,6 +8,8 @@ import HighchartsReact from 'highcharts-react-official';
 import _ from 'lodash';
 import { calculatePercentage } from 'components/dashboard/utils';
 
+const moment = require('moment');
+
 Highcharts.setOptions({
     lang: {
         thousandsSep: ',',
@@ -20,9 +22,16 @@ export function MultiSeriesLineChart({
     graphHeight = 300,
     dates,
     showLegends = true,
+    selectedColumn,
     legendObj = { align: 'right', verticalAlign: 'top', layout: 'vertical', x: 0, y: 100 },
     ...props
 }) {
+    // console.log(graphData);
+    let selectedColumnIndex = _.findIndex(_.get(graphData, ['data'], []), (e) => {
+        return e['key'] === selectedColumn;
+    }, 0);
+    selectedColumnIndex = selectedColumnIndex === -1 ? 0 : selectedColumnIndex;
+
     return (
         <HighchartsReact
             highcharts={Highcharts }
@@ -39,8 +48,10 @@ export function MultiSeriesLineChart({
                     },
                 },
                 xAxis: {
-                    categories: _.get(graphData, ['data', 0, 'data'], []).map( (gd, idx) => {
-                        return ('T-'+ (_.get(graphData, ['data', 0, 'data'], []).length - idx - 1) );
+                    type: 'datetime',
+                    categories: _.get(graphData, ['data', selectedColumnIndex, 'data'], []).map( (gd, idx) => {
+                        let time = moment.utc(gd['dateTime']).format('DD-MMM HH:mm');
+                        return selectedColumn === 'tradingsymbol' ? ('T-'+ (_.get(graphData, ['data', 0, 'data'], []).length - idx - 1) ) : time;
                     }),
                     title: {
                         text: 'T-10 Window',
@@ -59,19 +70,33 @@ export function MultiSeriesLineChart({
                 credits: {
                     enabled: false,
                 },
-                series: _.get(graphData, ['data'], []).map(gd => {
-                    return {
-                        name: gd.key ? gd.key: '',
-                        data: gd.data.map(data => {
-                            const t = calculatePercentage(data[gd.key], 1, 2, true);
-                            return data[gd.key] * 100;
-                        }),
-                        marker: {
-                            symbol: 'circle',
-                        },
-                        color: gd.color,
-                    };
-                }),
+                series: _.filter(_.get(graphData, ['data'], []).map(gd => {
+                    if(selectedColumn != 'tradingsymbol' && gd.key === selectedColumn) {
+                        return {
+                            name: gd.key ? gd.key: '',
+                            data: gd.data.map(data => {
+                                const t = calculatePercentage(data[gd.key], 1, 2, true);
+                                return data[gd.key] * 100;
+                            }),
+                            marker: {
+                                symbol: 'circle',
+                            },
+                            color: gd.color,
+                        };
+                    } else if (selectedColumn === 'tradingsymbol') {
+                        return {
+                            name: gd.key ? gd.key: '',
+                            data: gd.data.map(data => {
+                                const t = calculatePercentage(data[gd.key], 1, 2, true);
+                                return data[gd.key] * 100;
+                            }),
+                            marker: {
+                                symbol: 'circle',
+                            },
+                            color: gd.color,
+                        };
+                    }
+                }), item => { return item }),
                 responsive: {
                     rules: [
                         {

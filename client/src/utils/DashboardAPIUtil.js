@@ -40,3 +40,11 @@ export function getTimeSeriesData(params) {
     body: params,
   });
 }
+
+export function loadIvTimeSeries(params) {
+  return APICallerUtil.makeCall({
+    apiType: 'post',
+    urlPath: apiUrl + 'loadIvTimeSeries',
+    body: params,
+  });
+}

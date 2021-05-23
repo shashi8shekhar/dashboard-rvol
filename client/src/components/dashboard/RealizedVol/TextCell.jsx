@@ -28,9 +28,9 @@ export default function TextCell(props) {
     } = props;
 
     // console.log(colKey, eachCol, data[rowIndex]);
+    const instrument_token =  _.get(data, [rowIndex, 'instrument_token'], null);
 
     if (colIndex === 0) {
-        const instrument_token =  _.get(data, [rowIndex, 'instrument_token'], null);
         const { tradingsymbol } = _.find(defaultProducts, {instrument_token});
 
         const lastUpdatedDateObj = _.get(data, [rowIndex, 'data', 0, 'dateTime'], '');
@@ -40,7 +40,7 @@ export default function TextCell(props) {
         const lastUpdatedTime =  moment(newMomentObj).format("HH:mm");
 
         return (
-            <Cell className={classnames(css(tableStyles.eachCell), css(tableStyles.linkTextCell))} onClick={ (e) => props._handleColumnClickForGraph(colKey, rowIndex, instrument_token) }>
+            <Cell className={classnames(css(tableStyles.eachCell), css(tableStyles.linkTextCell))} onClick={ (e) => props._handleColumnClickForGraph(colKey, colIndex, rowIndex, instrument_token) }>
                 <div className={css(tableStyles.eachCellContentAlignEnd)}>
                     <div
                         className={classnames(css(tableStyles.cellContent), css(tableStyles.SingleCellValue), css(tableStyles.alignLeft), css(tableStyles.symbolCell) )}
@@ -54,8 +54,8 @@ export default function TextCell(props) {
     }
 
     return (
-        <Cell className={css(tableStyles.eachCell)}>
-            <div className={classnames( css(tableStyles.cellContent), css(tableStyles.SingleCellValue) )}>
+        <Cell className={classnames(css(tableStyles.eachCell) )} onClick={ (e) => { props._handleColumnClickForGraph(colKey, colIndex, rowIndex, instrument_token) }}>
+            <div className={classnames( css(tableStyles.cellContent), css(tableStyles.SingleCellValue), css(tableStyles.linkTextCell) )}>
                 {calculatePercentage(_.get(data, [rowIndex, 'data', 0, colKey], null), 1, 2)}
             </div>
         </Cell>

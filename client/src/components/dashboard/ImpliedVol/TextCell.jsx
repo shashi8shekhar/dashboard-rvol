@@ -28,6 +28,7 @@ export default function TextCell(props) {
     } = props;
 
     // console.log(colKey, eachCol, data[rowIndex]);
+    const instrument_token =  _.get(defaultProducts, [rowIndex, 'instrument_token'], null);
 
     if (colIndex === 0) {
 
@@ -41,7 +42,7 @@ export default function TextCell(props) {
         // console.log(lastUpdatedDateObj, newMomentObj, lastUpdatedDate, lastUpdatedTime);
 
         return (
-            <Cell className={css(tableStyles.eachCell)}>
+            <Cell className={classnames(css(tableStyles.eachCell), css(tableStyles.linkTextCell))} onClick={ (e) => { props._handleColumnClickForGraph(colKey, colIndex, rowIndex, instrument_token) }}>
                 <div className={css(tableStyles.eachCellContentAlignEnd)}>
                     <div
                         className={classnames(css(tableStyles.cellContent), css(tableStyles.SingleCellValue), css(tableStyles.alignLeft), css(tableStyles.symbolCell) )}
@@ -60,8 +61,8 @@ export default function TextCell(props) {
     const iv = ivCall || ivPut || '-';
 
     return (
-        <Cell className={css(tableStyles.eachCell)}>
-            <div className={classnames( css(tableStyles.cellContent), css(tableStyles.SingleCellValue) )}>
+        <Cell className={classnames(css(tableStyles.eachCell) )} onClick={ (e) => { props._handleColumnClickForGraph(colKey, colIndex, rowIndex, instrument_token) }}>
+            <div className={classnames( css(tableStyles.cellContent), css(tableStyles.SingleCellValue), css(tableStyles.linkTextCell) )}>
                 { iv }
             </div>
         </Cell>

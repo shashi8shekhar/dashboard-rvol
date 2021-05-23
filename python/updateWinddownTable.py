@@ -1,4 +1,3 @@
-import kite
 import engine
 import configDetails
 import winddownDetails
@@ -8,21 +7,20 @@ import pandas as pd
 from functools import reduce
 
 nan_value = 0
-kiteObj = kite.Kite()
 
 class UpdateWinddownTable:
     #Gets historical data from Kite Connect
-    def get_historical_data(self, instrument_token, from_date, to_date, interval):
+    def get_historical_data(self, kiteObj, instrument_token, from_date, to_date, interval):
         return kiteObj.get_historical_data(instrument_token, from_date, to_date, interval)
 
-    def getWinddown(self, instrument_token, tStart, tEnd, from_date, to_date, interval, slidingWindow, min_winddown):
-        records = self.get_historical_data(instrument_token, from_date, to_date, interval)
+    def getWinddown(self, kiteObj, instrument_token, tStart, tEnd, from_date, to_date, interval, slidingWindow, min_winddown):
+        records = self.get_historical_data(kiteObj, instrument_token, from_date, to_date, interval)
         records_df = pd.DataFrame(records)
         # print('inside getWinddown length', len(records_df))
         winddownObj = winddown.Winddown(records_df, tStart.strftime("%H:%M:%S"), tEnd.strftime("%H:%M:%S"), slidingWindow, min_winddown)
         return winddownObj._calculate_winddown()
 
-    def runWinddownOnConfig(self, configurationObj, constants):
+    def runWinddownOnConfig(self, kiteObj, configurationObj, constants):
         windDownData = {}
         engineObj = engine.Engine.getInstance().getEngine()
         for config in configurationObj:
@@ -30,7 +28,7 @@ class UpdateWinddownTable:
             dfs = []
             for window in constants.slidingWindow:
                 print(config['tradingsymbol'], window, 'min winddown')
-                windDownData[config['instrument_token']][window] = self.getWinddown(config['instrument_token'], config['t_start'], config['t_end'], constants.from_date, constants.to_date, constants.interval, window, constants.min_winddown)
+                windDownData[config['instrument_token']][window] = self.getWinddown(kiteObj, config['instrument_token'], config['t_start'], config['t_end'], constants.from_date, constants.to_date, constants.interval, window, constants.min_winddown)
                 dfs.append(windDownData[config['instrument_token']][window])
             windDownData[config['instrument_token']] = reduce(lambda left,right: pd.merge(left,right,on='range', how='outer'), dfs)
 
@@ -44,16 +42,16 @@ class UpdateWinddownTable:
 
         return windDownData
 
-    def isWinddownPopulated(self, configurationObj, windDownDataObj, constants):
+    def isWinddownPopulated(self, kiteObj, configurationObj, windDownDataObj, constants):
         for config in configurationObj:
             tableKey = 'winddown-' + str(config['instrument_token'])
             if len(windDownDataObj[tableKey]) > 0 :
-                return self.runWinddownOnConfig(configurationObj, constants)
+                return self.runWinddownOnConfig(kiteObj, configurationObj, constants)
                 pass
             else:
-                return self.runWinddownOnConfig(configurationObj, constants)
+                return self.runWinddownOnConfig(kiteObj, configurationObj, constants)
 
-    def updateWinddown(self):
+    def updateWinddown(self, kiteObj):
         configDetailsObj = configDetails.ConfigDetails.getInstance()
         configurationObjData = configDetailsObj.getConfig()
 
@@ -61,4 +59,4 @@ class UpdateWinddownTable:
         windDownDataObj = winddownDetailsObj.getWinddown()
 
         #print('windDownDataObj  === ', windDownDataObj)
-        self.isWinddownPopulated(configurationObjData, windDownDataObj, constants)
+        self.isWinddownPopulated(kiteObj, configurationObjData, windDownDataObj, constants)

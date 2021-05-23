@@ -45,6 +45,7 @@ const router = require('./routes/data')
 const getConfig = require('./controllers/getConfig');
 const getTableData = require('./controllers/getTableData');
 const getTimeSeriesData = require('./controllers/getTimeSeriesData');
+const getIVData = require('./controllers/getIVData');
 const checkTableExists = require('./controllers/updateConfigurations').checkTableExists;
 
 app.get('/loadConfig', (req, res) => {
@@ -59,11 +60,14 @@ app.post('/loadTimeSeriesData', function (req, res) {
     getTimeSeriesData.getTimeSeriesData(req, res);
 });
 
+app.post('/loadIvTimeSeries', function(req, res) {
+    getIVData.getTimeSeriesData(req, res);
+});
+
 app.post('/getNseOptionChain', async (req, res) => {
     try{
         let params = req.body;
-        let resp = await option_chain(params.symbol, params.type); // can enter NIFTY / BANKNIFTY
-        // console.log('======params======', params);
+        let resp = await option_chain(params.symbol, params.type);
 
         res.status(200);
         res.send(resp);

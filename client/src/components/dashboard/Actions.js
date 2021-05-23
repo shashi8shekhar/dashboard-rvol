@@ -43,3 +43,12 @@ export function getTimeSeriesData(params) {
         query: params,
     };
 }
+
+export function loadIvTimeSeries(params) {
+    return {
+        types: [types.LOAD_IV_TIME_SERIES_DATA, types.LOAD_IV_TIME_SERIES_DATA_SUCCESS, types.LOAD_IV_TIME_SERIES_DATA_FAIL],
+        promise: DashboardAPIUtil.loadIvTimeSeries(params),
+        query: params,
+    };
+}
+

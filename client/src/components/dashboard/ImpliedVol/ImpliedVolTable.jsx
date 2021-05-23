@@ -7,14 +7,25 @@ import TextCell from './TextCell';
 import CircularProgress from 'components/core/circularProgress/CircularProgress';
 import styles from './ImpliedVolTable.styles';
 import tableStyles from '../TableStyles.styles';
-import { TABLE_WIDTH_IVOL, TABLE_HEIGHT, GROUP_ATTR } from '../constants';
+import { IV_TABLE_GRAPH_HEIGHT, TABLE_WIDTH_IVOL, TABLE_HEIGHT, GROUP_ATTR } from '../constants';
 import { useDashboardState, useDashboardDispatch } from '../selector';
+import { RowGraphViewIv } from '../TimeSeries';
 
+
+const moment = require('moment');
 const FixedDataTable = require('fixed-data-table-2');
 const { Table, Column, Cell } = FixedDataTable;
 
 export function ImpliedVolTable(props) {
+    const [onClickedRow, setClickedRow] = useState(-1);
+    const [selectedInstrument, setSelectedInstrument] = useState(null);
+    const [selectedColumn, setSelectedColumn] = useState(null);
+    const {
+        getIvTimeSeries,
+    } = useDashboardDispatch();
+    const { dashboard } = useDashboardState();
 
+    const ivTimeseries = _.get(dashboard, 'ivTimeseries', {});
     const {expiryDates, iVolData, defaultProducts} = props;
 
     const expiryDatesColoumn = _.map(expiryDates, date => {
@@ -26,6 +37,54 @@ export function ImpliedVolTable(props) {
         // console.log(obj.data, key);
         return {key, data: obj.data, timestamp: _.get(obj.rawData, ['records', 'timestamp'], ''), underlyingValue: _.get(obj.rawData, ['records', 'underlyingValue'], '')};
     });
+
+    const _getTimeSeriesData = () => {
+        try {
+            // console.log('inside _getTimeSeriesData');
+            const products = defaultProducts.map( product => {
+                return product.instrument_token;
+            });
+
+            getIvTimeSeries({ type: 'ivol', products});
+        } catch(e) {
+            console.log(e);
+        }
+    };
+
+    const _subRowHeightGetter = (index) => {
+        if (
+            onClickedRow !== -1 &&
+            onClickedRow == index
+        ) {
+            return IV_TABLE_GRAPH_HEIGHT;
+        } else {
+            return 0;
+        }
+    };
+
+    const onCloseGraph = () => {
+        setClickedRow(-1);
+    };
+
+    const _handleColumnClickForGraph = (columnKey, colIndex, rowIndex, instrument_token) => {
+        let colKey = '';
+        if (colIndex === 0 ) {
+            colKey = columnKey;
+        } else {
+            const newMomentObj = moment(columnKey, "DD-MMM-YYYY");
+            colKey = moment(newMomentObj).format('YYYY-MM-DD');
+        }
+
+        // console.log(colKey, colIndex, rowIndex, instrument_token);
+        if(onClickedRow === rowIndex && colKey === selectedColumn) {
+            onCloseGraph();
+            return;
+        }
+        _getTimeSeriesData();
+        setClickedRow(rowIndex);
+        setSelectedInstrument(instrument_token);
+        setSelectedColumn(colKey);
+    };
 
     // console.log(expiryDatesColoumn, tableData);
 
@@ -44,11 +103,22 @@ export function ImpliedVolTable(props) {
                         rowHeight={40}
                         headerHeight={60}
                         width={TABLE_WIDTH_IVOL}
-                        height={TABLE_HEIGHT}
+                        height={onClickedRow === -1 ? TABLE_HEIGHT : TABLE_HEIGHT + IV_TABLE_GRAPH_HEIGHT}
                         overflowY="hidden"
                         overflowX="auto"
                         showScrollbarX={true}
                         keyboardScrollEnabled
+                        subRowHeightGetter={_subRowHeightGetter}
+                        rowExpanded={
+                            <RowGraphViewIv
+                                onCloseGraph={onCloseGraph}
+                                getTimeSeriesData={_getTimeSeriesData}
+                                tableGraphData={ivTimeseries}
+                                onClickedRow={onClickedRow}
+                                selectedInstrument={selectedInstrument}
+                                selectedColumn={selectedColumn}
+                            />
+                        }
                     >
                         {currentSubColoumn.map((column, idx) => {
                             return (
@@ -61,11 +131,11 @@ export function ImpliedVolTable(props) {
                                     header={
                                         <Cell className={css(tableStyles.tableHeader)}>
                                             <>
-                                            <div className={css(tableStyles.tableHeaderInnerWrap)}>
-                                                <div>{column.label}</div>
-                                                {idx === 0 && <div className={css(tableStyles.lastUpdatedTimeLabel)}>Last time Updated</div>}
-                                            </div>
-                                        </>
+                                                <div className={css(tableStyles.tableHeaderInnerWrap)}>
+                                                    <div>{column.label}</div>
+                                                    {idx === 0 && <div className={css(tableStyles.lastUpdatedTimeLabel)}>Last time Updated</div>}
+                                                </div>
+                                            </>
                                         </Cell>
                                     }
                                     cell={
@@ -76,6 +146,7 @@ export function ImpliedVolTable(props) {
                                             eachCol={column}
                                             groupingAttribute={GROUP_ATTR}
                                             defaultProducts={defaultProducts}
+                                            _handleColumnClickForGraph={_handleColumnClickForGraph}
                                         />
                                     }
                                     width={100}
