@@ -94,6 +94,9 @@ export function MultiLineStockChart({
                 },
                 plotOptions: {
                     series: {
+                        marker: {
+                            enabled: false,
+                        },
                         compare: 'percent',
                         showInNavigator: true
                     },

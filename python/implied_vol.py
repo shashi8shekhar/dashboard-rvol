@@ -2,6 +2,7 @@ print('implied Vol.')
 import engine
 import configDetails
 import instrument_details
+import implied_Details
 import constants
 import pandas as pd
 import numpy as np
@@ -71,13 +72,16 @@ class UpdateImpliedVol:
             for window in constants.slidingWindow:
                 # print('runIvolOnEachWindow', window)
                 iVolDf = self.ivolBackPopulate(kiteObj, expiry_list, strike_list, config, instruments, window, start_date, end_date)
-                print('ivolBackPopulate', iVolDf);
+                print('return ivolBackPopulate length', len(iVolDf.index), iVolDf);
                 if iVolDf is not None and len(iVolDf.index) > 0:
                     dfs.append(iVolDf)
 
-            return reduce(lambda left,right: pd.merge(left,right,on='dateTime', how='outer'), dfs)
+            if len(dfs) > 0:
+                return reduce(lambda left,right: pd.merge(left,right,on='dateTime', how='outer'), dfs)
+            else:
+                return dfs
         except:
-            print('inside except')
+            print('inside except', dfs)
             return
 
     def runIvolOnEachDay(self, kiteObj, expiry_list, strike_list, config, instruments, from_date, to_date ):
@@ -89,10 +93,11 @@ class UpdateImpliedVol:
             start_date = end_date
             end_date += datetime.timedelta(days=1)
 
-            print('runIvolOnEachDay', end_date, to_date, end_date < to_date)
             window_data = self.runIvolOnEachWindow(kiteObj, expiry_list, strike_list, config, instruments, start_date, end_date)
-            if window_data is not None and len(window_data.index) > 0:
-                print('if window_data is not None:', config['tradingsymbol'], start_date, end_date, window_data)
+            print('runIvolOnEachDay', end_date, to_date, end_date < to_date, window_data)
+
+            if window_data is not None and len(window_data) > 0:
+                # print('if window_data is not None:', config['tradingsymbol'], start_date, end_date, window_data)
                 window_data.transpose().reset_index(drop=True).transpose()
                 dfs.append(window_data)
 
@@ -103,8 +108,8 @@ class UpdateImpliedVol:
             return df
 
     def runIvolOnConfig(self, kiteObj, configurationObj, instrumentsDetailsObjData, constants):
-        iVolData = {}
         engineObj = engine.Engine.getInstance().getEngine()
+        iVolData = {}
 
         for config in configurationObj:
             instrument_token = config['instrument_token']
@@ -120,7 +125,7 @@ class UpdateImpliedVol:
             iVolData[iVolTableKey] = self.runIvolOnEachDay(kiteObj, expiry_list, strike_list, config, instruments, constants.from_date_ivol, constants.to_date)
             print(iVolTableKey, iVolData[iVolTableKey].head())
             try:
-                print('runRvolOnConfig inside try', config['tradingsymbol'])
+                print('runIvolOnConfig inside try', config['tradingsymbol'])
                 iVolData[iVolTableKey].to_sql(iVolTableKey, con=engineObj, if_exists='replace', index=False)
             except ValueError as e:
                 # print(e)
@@ -144,3 +149,78 @@ class UpdateImpliedVol:
         instrumentsDetailsObjData = instrumentsDetailsObj.getInstruments()
 
         self.isInstrumentsPopulated(kiteObj, configurationObjData, instrumentsDetailsObjData, constants)
+
+    def getLastUpdatedRow(self, config, iVolData):
+        for i in reversed(range( len(iVolData) )):
+            currentRowData = iVolData[i]
+            if ( currentRowData['close'] == 0 ):
+                iVolData.pop()
+            else :
+                date_time_str = currentRowData['dateTime'].strftime('%Y-%m-%d') + ' ' + config['t_start'].strftime("%H:%M:%S")
+                date_time_obj = constants.IST.localize( datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S') )
+                # date_time_obj = date_time_obj - datetime.timedelta(hours=1)
+
+                return date_time_obj, iVolData
+
+    def runSchedulerOnConfig(self, kiteObj, configurationObj, instrumentsDetailsObjData, iVolDetailsObjData, constants):
+        iVolData = {}
+        engineObj = engine.Engine.getInstance().getEngine()
+
+        for config in configurationObj:
+            instrument_token = config['instrument_token']
+            iVolTableKey = 'ivol-' + str(instrument_token)
+            instrumentsTableKey = 'instruments-' + str(instrument_token)
+            instruments = instrumentsDetailsObjData[instrumentsTableKey]
+            iVolData = iVolDetailsObjData[iVolTableKey]
+
+            instruments_df = pd.DataFrame(instruments)
+            # print(instruments_df.head())
+            expiry_list = self.get_expiry_list(instruments_df)
+            strike_list = self.get_strike_list(instruments_df)
+
+            last_updated_time, iVolTrimmedData = self.getLastUpdatedRow(config, iVolData)
+
+            print('last_updated_time ========', last_updated_time)
+
+            curr_time = constants.to_date
+            iVolTrimmedDataFrame = pd.DataFrame(iVolTrimmedData)
+
+            iVolMergedDfs = []
+            iVolMergedDf = []
+
+            iVolMergedDfs.append(iVolTrimmedDataFrame)
+
+            iVolForEachInterval = self.runIvolOnEachDay(kiteObj, expiry_list, strike_list, config, instruments,
+                                                           last_updated_time, curr_time)
+            print('iVolTrimmedData', iVolTrimmedData)
+            print('iVolTrimmedDataFrame', iVolTrimmedDataFrame)
+
+
+            print('iVolForEachInterval', iVolForEachInterval)
+
+            if (len(iVolForEachInterval) > 0):
+                iVolForEachInterval.transpose().reset_index(drop=True).transpose()
+                iVolMergedDfs.append(iVolForEachInterval)
+                iVolMergedDf = pd.concat(iVolMergedDfs, axis=0, ignore_index=True).drop_duplicates(subset=['dateTime'], keep='last').reset_index(drop=True)
+                print('iVolForEachInterval after transpose', iVolForEachInterval)
+                print('iVolMergedDfs', iVolMergedDfs)
+                print('iVolMergedDf', iVolMergedDf)
+            try:
+                print('trying to insert into table', iVolTableKey, config['tradingsymbol'])
+                print(iVolMergedDf.head())
+                iVolMergedDf.to_sql(iVolTableKey, con=engineObj, if_exists='replace', index=False)
+            except ValueError as e:
+                print(e)
+                pass
+
+    def runScheduler(self, kiteObj):
+        configDetailsObj = configDetails.ConfigDetails.getInstance()
+        configurationObjData = configDetailsObj.getConfig()
+
+        instrumentsDetailsObj = instrument_details.InstrumentDetails.getInstance()
+        instrumentsDetailsObjData = instrumentsDetailsObj.getInstruments()
+
+        iVolDetailsObj = implied_Details.IVolDetails.getInstance()
+        iVolDetailsObjData = iVolDetailsObj.getIvol()
+
+        self.runSchedulerOnConfig(kiteObj, configurationObjData, instrumentsDetailsObjData, iVolDetailsObjData, constants)

@@ -18,3 +18,4 @@ echo $(python3 --version)
 #which chromedriver
 #ls -lh /app
 python /app/api.py
+python /app/api.py "IV"

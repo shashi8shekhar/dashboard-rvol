@@ -40,6 +40,12 @@ def execute(param):
         iv = implied_vol.UpdateImpliedVol()
         iv.runFullUpdate(kiteObj)
 
+    elif (param == 'IV_UPDATE'):
+        print(param, '  Running Implied Volatility')
+        # Update Implied Volatility Table
+        iv = implied_vol.UpdateImpliedVol()
+        iv.runScheduler(kiteObj)
+
     elif (param == 'IL'):
         print(param, '  Running Update Instruments')
         # Back Populate Instruments Table

@@ -8,13 +8,13 @@ IST = pytz.timezone('Asia/Kolkata')
 # Dates between which we need historical data
 diff = 60
 diff_rvol = 50
-diff_ivol = 2
+diff_ivol = 1
 days_per_year = 256
 secs_per_year = days_per_year * 24 * 3600
 to_date = datetime.datetime.now(IST)
 from_date = (to_date - datetime.timedelta(days=diff)).replace(hour=4)
 from_date_rvol = (to_date - datetime.timedelta(days=diff_rvol)).replace(hour=4)
-from_date_ivol = (to_date - datetime.timedelta(days=diff_ivol)).replace(hour=4)
+from_date_ivol = (to_date - datetime.timedelta(days=diff_ivol)).replace(hour=9).replace(minute=15)
 
 # Winddown
 over_night = 0.35
@@ -35,6 +35,7 @@ interest_rate_india: float = 3.3786 #91 day T-bills
 
 developerUrl = "https://developers.kite.trade/"
 baseLoginUrl = "https://kite.trade/connect/login"
+
 
 
 url = baseLoginUrl + "?api_key=" + apiKey + "&v=3"

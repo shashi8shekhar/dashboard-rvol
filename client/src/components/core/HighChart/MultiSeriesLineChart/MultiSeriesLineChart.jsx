@@ -115,8 +115,10 @@ export function MultiSeriesLineChart({
                 },
                 plotOptions: {
                     series: {
-                        pointPlacement: 'on',
-                    },
+                        marker: {
+                            enabled: false
+                        }
+                    }
                 },
             }}
         />
