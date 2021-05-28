@@ -36,13 +36,6 @@ interest_rate_india: float = 3.3786 #91 day T-bills
 developerUrl = "https://developers.kite.trade/"
 baseLoginUrl = "https://kite.trade/connect/login"
 
-userId = "PS6375"
-password = "Shekhar@kite"
-pin = "796679"
-apiKey = "t42j1n0uwv75obv1"
-apiSecret = "lm38jfc02cqo5nmgqyyn4b1kc1ece27w"
-
-
 url = baseLoginUrl + "?api_key=" + apiKey + "&v=3"
 user_id_xpath = "//*[@id=\"container\"]/div/div/div[2]/form/div[1]/input"
 password_xpath = "//*[@id=\"container\"]/div/div/div[2]/form/div[2]/input"
