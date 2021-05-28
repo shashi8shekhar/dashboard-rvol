@@ -43,6 +43,12 @@ class ImpliedCalc:
         for contract in result:
             token = contract['token']
             day_to_expiry = (constants.IST.localize(datetime.datetime.strptime(contract['expiry'], '%Y-%m-%d')) - constants.to_date).days
+            print('date1',constants.IST.localize(datetime.datetime.strptime(contract['expiry'], '%Y-%m-%d')))
+            print('date2', (constants.to_date))
+            print('day_to_expiry', day_to_expiry)
+            if day_to_expiry == 0 :
+                day_to_expiry = 1
+
             if day_to_expiry < 100:
                 print('expiry = ', contract['expiry'])
                 # data = self.kite.get_quote([contract['token']])

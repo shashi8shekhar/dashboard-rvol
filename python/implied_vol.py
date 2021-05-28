@@ -88,7 +88,8 @@ class UpdateImpliedVol:
         end_date = from_date
         dfs = []
         df = []
-
+        print('from ===', from_date)
+        print('to ===', to_date)
         while end_date < to_date :
             start_date = end_date
             end_date += datetime.timedelta(days=1)
@@ -123,7 +124,7 @@ class UpdateImpliedVol:
             strike_list = self.get_strike_list(instruments_df)
 
             iVolData[iVolTableKey] = self.runIvolOnEachDay(kiteObj, expiry_list, strike_list, config, instruments, constants.from_date_ivol, constants.to_date)
-            print(iVolTableKey, iVolData[iVolTableKey].head())
+            #print(iVolTableKey, iVolData[iVolTableKey].head())
             try:
                 print('runIvolOnConfig inside try', config['tradingsymbol'])
                 iVolData[iVolTableKey].to_sql(iVolTableKey, con=engineObj, if_exists='replace', index=False)
