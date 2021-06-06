@@ -5,7 +5,6 @@ import math
 import mibian
 import constants
 
-
 class ImpliedCalc:
     def __init__(self, kiteObj, expiry_list, strike_list, config, instruments, data):
         self.instruments = instruments
@@ -14,13 +13,21 @@ class ImpliedCalc:
         self.strike = strike_list
         self.data = data
         self.kite = kiteObj
-
+        
     def _updateData(self):
         self.data['day'] = pd.to_datetime(self.data['date'], format='%Y:%M:%D').dt.date
         self.data['time'] = pd.to_datetime(self.data['date'], format='%Y:%M:%D').dt.time
 
     def _getAtmStrikePrice(self, underlyingValue, strikePrices):
         return min(strikePrices, key=lambda x: abs(float(x) - underlyingValue))
+
+    def count_day(self, startdate, enddate):
+        """# Define a function to count the days to expiration
+        """
+        start = datetime.datetime(year=int(startdate[6:10]), month=int(startdate[0:2]), day=int(startdate[3:5]))
+        end = datetime.datetime(year=int(enddate[6:10]), month=int(enddate[0:2]), day=int(enddate[3:5]))
+        delta = end - start
+        return delta.days
 
     def _get_implied_vol_mibian(self, UnderlyingPrice, StrikePrice, InterestRate, Daystoexpiration, callPrice):
         print('inside get iv', UnderlyingPrice, StrikePrice, InterestRate, Daystoexpiration, callPrice)
@@ -40,6 +47,19 @@ class ImpliedCalc:
             filter(lambda x: (float(x['strike']) == float(strike_price) and x['type'] == 'CE'), self.instruments))
         result.sort(key=lambda x: x['expiry'])
 
+        records_kites = self.kite.get_quote(self.instruments['token'])
+        print('records_kites', records_kites)
+
+        for contract in self.instruments:
+            token = contract['token']
+            day_to_expiry = self.count_day(contract['expiry'], constants.to_date)
+
+
+            result = list(
+                filter(lambda x: (float(x['strike']) == float(strike_price) and x['type'] == 'CE'), self.instruments))
+
+
+
         for contract in result:
             token = contract['token']
             day_to_expiry = (constants.IST.localize(datetime.datetime.strptime(contract['expiry'], '%Y-%m-%d')) - constants.to_date).days
@@ -51,9 +71,8 @@ class ImpliedCalc:
 
             if day_to_expiry < 100:
                 print('expiry = ', contract['expiry'])
-                # data = self.kite.get_quote([contract['token']])
-                records = self.kite.get_historical_data(token, from_date_time_obj, to_date_time_obj,
-                                                        constants.interval_ivol)
+                records = self.kite.get_quote([contract['token']])
+                # records = self.kite.get_historical_data(token, from_date_time_obj, to_date_time_obj, constants.interval_ivol)
                 # print('strike_price', float(strike_price), 'expiry', contract['expiry'], 'type', contract['type'])
                 # records_df = pd.DataFrame(records)
                 # print(records_df.head())

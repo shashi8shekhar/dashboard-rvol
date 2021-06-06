@@ -1,15 +1,13 @@
 print('inside rVolScheduler')
+import datetime
+import pandas as pd
+import constants
 import engine
 import configDetails
 import winddownDetails
 import rVolDetails
 
 import updateRealisedVol
-
-import constants
-
-import pandas as pd
-import datetime
 
 print('all imported')
 
@@ -41,6 +39,17 @@ class RealTimePopulateRealisedVolData:
         updateRealisedVolObj = updateRealisedVol.UpdateRealisedVol()
 
         for config in configDetailsObj.getConfig():
+            t_start = config['t_start'].strftime('%H:%M:%S')
+            t_end = config['t_end'].strftime('%H:%M:%S')
+            t_now = constants.to_date.strftime('%H:%M:%S')
+            is_active = t_start <= t_now <= t_end
+
+            if not is_active:
+                print('Market Closed!')
+                return
+
+            rVolMergedDfs = []
+            rVolMergedDf = []
             rVolTableKey = 'rvol-' + str(config['instrument_token'])
             winddownTableKey = 'winddown-' + str(config['instrument_token'])
             winddown = windDownDataObj[winddownTableKey]
@@ -52,9 +61,7 @@ class RealTimePopulateRealisedVolData:
 
             curr_time = constants.to_date
             rVolTrimmedDataFrame = pd.DataFrame(rVolTrimmedData)
-
-            rVolMergedDfs = []
-            rVolMergedDf = []
+            del rVolTrimmedData
 
             #rVolTrimmedDataFrame.transpose().reset_index(drop=True).transpose()
             rVolMergedDfs.append(rVolTrimmedDataFrame)
@@ -70,6 +77,9 @@ class RealTimePopulateRealisedVolData:
                 rVolForEachInterval.transpose().reset_index(drop=True).transpose()
                 rVolMergedDfs.append(rVolForEachInterval)
                 rVolMergedDf = pd.concat( rVolMergedDfs, axis=0, ignore_index=True ).drop_duplicates(subset=['dateTime'], keep='last').reset_index(drop=True)
+
+                # clearing the list
+                del rVolMergedDfs
 
             #print( 'rVolMergedDf ', len(rVolMergedDf), 'rVolForEachInterval', len(rVolForEachInterval),  'rVolMergedDf', len(rVolMergedDf) )
             #print( 'rVolMergedDf ', rVolMergedDf.head())

@@ -3,60 +3,61 @@ import updateWinddownTable
 import updateRealisedVol
 import implied_vol
 import rVolScheduler
+import implied_vol_scheduler
 
 import argparse
 import kite
 
-def execute(param):
-    kiteObj = kite.Kite()
-    kiteObj.set_access_token()
 
-    if(param == 'ALL'):
+def execute(param):
+    kite_obj = kite.Kite()
+    kite_obj.set_access_token()
+
+    if param == 'ALL':
         print(param, '  Running Wind down')
         # Update Winddown Table
-        updateWinddownTableObj = updateWinddownTable.UpdateWinddownTable()
-        updateWinddownTableObj.updateWinddown(kiteObj)
+        update_winddown_table_obj = updateWinddownTable.UpdateWinddownTable()
+        update_winddown_table_obj.updateWinddown(kite_obj)
 
         print('Running Realised Volatility')
         # Update Realised Volatility Table
-        updateRealisedVolObj = updateRealisedVol.UpdateRealisedVol()
-        updateRealisedVolObj.runFullUpdate(kiteObj)
+        update_realised_vol_obj = updateRealisedVol.UpdateRealisedVol()
+        update_realised_vol_obj.runFullUpdate(kite_obj)
 
-    elif(param == 'WIND_DOWN'):
+    elif param == 'WIND_DOWN':
         print(param, '  Running Wind down')
-        #Update Winddown Table
-        updateWinddownTableObj = updateWinddownTable.UpdateWinddownTable()
-        updateWinddownTableObj.updateWinddown(kiteObj)
+        # Update Winddown Table
+        update_winddown_table_obj = updateWinddownTable.UpdateWinddownTable()
+        update_winddown_table_obj.updateWinddown(kite_obj)
 
-    elif(param == 'RVOL_POPULATE'):
+    elif param == 'RVOL_POPULATE':
         print(param, '  Running Realised Volatility')
-        #Back Populate Realised Volatility Table
-        updateRealisedVolObj = updateRealisedVol.UpdateRealisedVol()
-        updateRealisedVolObj.runFullUpdate(kiteObj)
+        # Back Populate Realised Volatility Table
+        update_realised_vol_obj = updateRealisedVol.UpdateRealisedVol()
+        update_realised_vol_obj.runFullUpdate(kite_obj)
 
-    elif (param == 'IV'):
+    elif param == 'IV':
         print(param, '  Running Implied Volatility')
         # Back Populate Implied Volatility Table
         iv = implied_vol.UpdateImpliedVol()
-        iv.runFullUpdate(kiteObj)
+        iv.runFullUpdate(kite_obj)
 
-    elif (param == 'IV_UPDATE'):
-        print(param, '  Running Implied Volatility')
-        # Update Implied Volatility Table
-        iv = implied_vol.UpdateImpliedVol()
-        iv.runScheduler(kiteObj)
-
-    elif (param == 'IL'):
+    elif param == 'IL':
         print(param, '  Running Update Instruments')
         # Back Populate Instruments Table
         instruments = instrument_list.InstrumentList()
-        instruments.runFullUpdate(kiteObj)
+        instruments.runFullUpdate(kite_obj)
 
     else:
-        print(param, '  Running Scheduler')
-        #Update Realised Volatility Table
-        rVolSchedulerObj = rVolScheduler.RealTimePopulateRealisedVolData()
-        rVolSchedulerObj.runUpdate(kiteObj)
+        print(param, 'Running Scheduler')
+        # Update Implied Volatility Table
+        implied_vol_scheduler_obj = implied_vol_scheduler.ImpliedVolScheduler()
+        implied_vol_scheduler_obj.runScheduler(kite_obj)
+
+        # Update Realised Volatility Table
+        realized_vol_scheduler_obj = rVolScheduler.RealTimePopulateRealisedVolData()
+        realized_vol_scheduler_obj.runUpdate(kite_obj)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

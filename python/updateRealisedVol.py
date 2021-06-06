@@ -8,6 +8,7 @@ import constants
 import pandas as pd
 import datetime
 from functools import reduce
+import gc
 
 nan_value = 0
 
@@ -82,10 +83,14 @@ class UpdateRealisedVol:
             winddown = windDownDataObj[winddownTableKey]
 
             rVolData[rVolTableKey] = self.runRvolOnEachDay(kiteObj, config, winddown, constants.from_date_rvol, constants.to_date)
+            del winddown
             # print(rVolTableKey, rVolData[rVolTableKey].head())
             try:
                 # print('runRvolOnConfig inside try', config['tradingsymbol'])
                 rVolData[rVolTableKey].to_sql(rVolTableKey, con=engineObj, if_exists='replace', index=False)
+
+                del rVolData[rVolTableKey]
+                gc.collect()
             except ValueError as e:
                 # print(e)
                 return e

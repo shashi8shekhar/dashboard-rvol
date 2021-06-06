@@ -20,9 +20,7 @@ class InstrumentList:
             contractToken[instrument_token] = []
 
             for contract in instruments:
-                if contract['name'] == tradingsymbol and \
-                        contract['segment'] == 'NFO-OPT' and \
-                        'strike' in contract:
+                if contract['name'] == tradingsymbol:
                     contractToken[instrument_token].append({'strike': contract['strike'],
                                                             'symbol': contract['tradingsymbol'],
                                                             'type': contract['instrument_type'],

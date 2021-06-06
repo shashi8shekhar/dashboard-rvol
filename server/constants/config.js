@@ -72,7 +72,7 @@ module.exports = {
             "tradingsymbol":"NIFTY",
             "weight":0,
             "t_start":"09:15:00",
-            "t_end":"15:29:00",
+            "t_end":"15:29:59",
             "avg_hedge_per_day":15
         },
         {
@@ -86,36 +86,36 @@ module.exports = {
             "tradingsymbol":"BANKNIFTY",
             "weight":1,
             "t_start":"09:15:00",
-            "t_end":"15:29:00",
+            "t_end":"15:29:59",
             "avg_hedge_per_day":15
         },
-        {
-            "expiry":"",
-            "id":2094085249,
-            "instrument_token":738561,
-            "last_price":0,
-            "lot_size":1,
-            "segment":"NSE",
-            "strike":0,
-            "tradingsymbol":"RELIANCE",
-            "weight":2,
-            "t_start":"09:15:00",
-            "t_end":"15:29:00",
-            "avg_hedge_per_day":15
-        },
-        {
-            "expiry":"",
-            "id":2094085280,
-            "instrument_token":340481,
-            "last_price":0,
-            "lot_size":1,
-            "segment":"NSE",
-            "strike":0,
-            "tradingsymbol":"HDFC",
-            "weight":3,
-            "t_start":"09:15:00",
-            "t_end":"15:29:00",
-            "avg_hedge_per_day":50
-        }
+//        {
+//            "expiry":"",
+//            "id":2094085249,
+//            "instrument_token":738561,
+//            "last_price":0,
+//            "lot_size":1,
+//            "segment":"NSE",
+//            "strike":0,
+//            "tradingsymbol":"RELIANCE",
+//            "weight":2,
+//            "t_start":"09:15:00",
+//            "t_end":"15:29:00",
+//            "avg_hedge_per_day":15
+//        },
+//        {
+//            "expiry":"",
+//            "id":2094085280,
+//            "instrument_token":340481,
+//            "last_price":0,
+//            "lot_size":1,
+//            "segment":"NSE",
+//            "strike":0,
+//            "tradingsymbol":"HDFC",
+//            "weight":3,
+//            "t_start":"09:15:00",
+//            "t_end":"15:29:00",
+//            "avg_hedge_per_day":50
+//        }
     ],
-} 
+}

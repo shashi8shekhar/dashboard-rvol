@@ -31,10 +31,14 @@ min_winddown = 0.01
 dbDateRange = 10
 iterations = 5
 
-interest_rate_india: float = 3.3786 #91 day T-bills
+interest_rate_india: float = 0.033786 #91 day T-bills
+days_per_year_iv = 365
+minutes_in_a_yr = 525600
 
 developerUrl = "https://developers.kite.trade/"
 baseLoginUrl = "https://kite.trade/connect/login"
+
+
 
 url = baseLoginUrl + "?api_key=" + apiKey + "&v=3"
 user_id_xpath = "//*[@id=\"container\"]/div/div/div[2]/form/div[1]/input"
