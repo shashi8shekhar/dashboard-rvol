@@ -3,7 +3,7 @@
  */
 
 export const TABLE_WIDTH = 1100;
-export const TABLE_HEIGHT = 240;
+export const TABLE_HEIGHT = 160;
 export const TABLE_GRAPH_HEIGHT = 350;
 export const IV_TABLE_GRAPH_HEIGHT = 550;
 

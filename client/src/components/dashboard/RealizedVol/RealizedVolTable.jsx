@@ -42,7 +42,6 @@ export function RealizedVolTable(props) {
         getRvolData,
         getConfig,
         getRvolContinuousData,
-        getOptionChainNse,
         getTimeSeriesData,
     } = useDashboardDispatch();
 
@@ -89,6 +88,7 @@ export function RealizedVolTable(props) {
 
     return (
             <section>
+                <p>RVOL</p>
                 <Table
                     className={css(tableStyles.dashboardPivotTableWrapper)}
                     rowsCount={tableData.length}

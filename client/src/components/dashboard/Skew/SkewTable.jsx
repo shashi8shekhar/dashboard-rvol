@@ -3,9 +3,9 @@ import classnames from 'classnames';
 import _ from 'lodash';
 import Popover from '@material-ui/core/Popover';
 import { css } from 'aphrodite';
-import TextCell from './TextCell';
+import TextCell from '../ImpliedVol/TextCell';
 import CircularProgress from 'components/core/circularProgress/CircularProgress';
-import styles from './ImpliedVolTable.styles';
+import styles from '../ImpliedVol/ImpliedVolTable.styles';
 import tableStyles from '../TableStyles.styles';
 import { IV_TABLE_GRAPH_HEIGHT, TABLE_WIDTH_IVOL, TABLE_HEIGHT, GROUP_ATTR } from '../constants';
 import { useDashboardState, useDashboardDispatch } from '../selector';
@@ -16,7 +16,7 @@ const moment = require('moment');
 const FixedDataTable = require('fixed-data-table-2');
 const { Table, Column, Cell } = FixedDataTable;
 
-export function ImpliedVolTable(props) {
+export function SkewTable(props) {
     const [onClickedRow, setClickedRow] = useState(-1);
     const [selectedInstrument, setSelectedInstrument] = useState(null);
     const [selectedColumn, setSelectedColumn] = useState(null);
@@ -83,12 +83,7 @@ export function ImpliedVolTable(props) {
         <div>
             { _.get(expiryDates, 'length', 0) > 0 &&
                 <section>
-                    {/*<div className={css(styles.ReloadButton)} onClick={(e) => { props.getData() }}>
-                        {
-                            tableStreamDataLoading ? <span>Loading Implied Vol...</span> : <span>Reload Implied Vol.</span>
-                        }
-                    </div>*/}
-                    <p>IVOL</p>
+                    <p>SKEW</p>
                     <Table
                         className={css(tableStyles.dashboardPivotTableWrapper)}
                         rowsCount={defaultProducts.length}
@@ -108,9 +103,9 @@ export function ImpliedVolTable(props) {
                                 tableGraphData={ivTimeseries}
                                 onClickedRow={onClickedRow}
                                 selectedInstrument={selectedInstrument}
-                                selectedColumn={selectedColumn}
                                 defaultProducts={defaultProducts}
-                                type="iv"
+                                selectedColumn={selectedColumn}
+                                type="skew"
                             />
                         }
                     >
@@ -125,11 +120,11 @@ export function ImpliedVolTable(props) {
                                     header={
                                         <Cell className={css(tableStyles.tableHeader)}>
                                             <>
-                                                <div className={css(tableStyles.tableHeaderInnerWrap)}>
-                                                    <div>{column.label}</div>
-                                                    {idx === 0 && <div className={css(tableStyles.lastUpdatedTimeLabel)}>Last time Updated</div>}
-                                                </div>
-                                            </>
+                                            <div className={css(tableStyles.tableHeaderInnerWrap)}>
+                                                <div>{column.label}</div>
+                                                {idx === 0 && <div className={css(tableStyles.lastUpdatedTimeLabel)}>Last time Updated</div>}
+                                            </div>
+                                        </>
                                         </Cell>
                                     }
                                     cell={
@@ -141,7 +136,7 @@ export function ImpliedVolTable(props) {
                                             groupingAttribute={GROUP_ATTR}
                                             defaultProducts={defaultProducts}
                                             _handleColumnClickForGraph={_handleColumnClickForGraph}
-                                            tableType="iv"
+                                            tableType="skew"
                                         />
                                     }
                                     width={100}

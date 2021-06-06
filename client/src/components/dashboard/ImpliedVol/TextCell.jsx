@@ -25,16 +25,20 @@ export default function TextCell(props) {
         eachCol,
         groupingAttribute,
         defaultProducts,
+        tableType
     } = props;
 
-    // console.log(colKey, eachCol, data[rowIndex]);
-    const instrument_token =  _.get(defaultProducts, [rowIndex, 'instrument_token'], null);
+    const eachRowData =  _.get(data, [rowIndex, 'data'], null);
+    const instrument_token =  _.get(data, [rowIndex, 'instrument_token'], null);
+
+    // console.log(colKey, eachRowData);
 
     if (colIndex === 0) {
+        const tradingObj = _.find(defaultProducts, {instrument_token});
+        const tradingsymbol = _.get(tradingObj, ['tradingsymbol'], '-');
+        const lastUpdatedDateObj = _.get(eachRowData, ['last_updated'], '');
 
-        const lastUpdatedDateObj = _.get(data, [rowIndex, 'timestamp'], '');
-
-        const newMomentObj = moment(lastUpdatedDateObj, "DD-MMM-YYYY HH:mm:ss");
+        const newMomentObj = moment(moment(lastUpdatedDateObj).toISOString(), "YYYY-MM-DDTHH:mm:ss.SSSSZ", true).utc();
 
         const lastUpdatedDate = moment(newMomentObj).format('DD MMM');
         const lastUpdatedTime =  moment(newMomentObj).format("HH:mm");
@@ -42,12 +46,12 @@ export default function TextCell(props) {
         // console.log(lastUpdatedDateObj, newMomentObj, lastUpdatedDate, lastUpdatedTime);
 
         return (
-            <Cell className={classnames(css(tableStyles.eachCell), css(tableStyles.linkTextCell))} onClick={ (e) => { props._handleColumnClickForGraph(colKey, colIndex, rowIndex, instrument_token) }}>
+            <Cell className={classnames(css(tableStyles.eachCell), css(tableStyles.linkTextCell))} onClick={ (e) => { props._handleColumnClickForGraph(colKey, colIndex, rowIndex, instrument_token, tableType) }}>
                 <div className={css(tableStyles.eachCellContentAlignEnd)}>
                     <div
                         className={classnames(css(tableStyles.cellContent), css(tableStyles.SingleCellValue), css(tableStyles.alignLeft), css(tableStyles.symbolCell) )}
                     >
-                        <p className={css(tableStyles.symbolName)}>{_.get(data, [rowIndex, 'key'], '')}</p>
+                        <p className={css(tableStyles.symbolName)}>{tradingsymbol}</p>
                         <p className={css(tableStyles.lastUpdatedTime)}>{lastUpdatedDate}, {lastUpdatedTime}</p>
                     </div>
                 </div>
@@ -55,13 +59,10 @@ export default function TextCell(props) {
         );
     }
 
-    const cellObj = _.find( _.get(data, [rowIndex, 'data'], []), {expiryDate: colKey} );
-    const ivCall = _.get(cellObj, ['CE', 'impliedVolatility'], null);
-    const ivPut = _.get(cellObj, ['PE', 'impliedVolatility'], null);
-    const iv = ivCall || ivPut || '-';
+    const iv = _.get(eachRowData, [colKey, tableType], '-');
 
     return (
-        <Cell className={classnames(css(tableStyles.eachCell) )} onClick={ (e) => { props._handleColumnClickForGraph(colKey, colIndex, rowIndex, instrument_token) }}>
+        <Cell className={classnames(css(tableStyles.eachCell) )} onClick={ (e) => { props._handleColumnClickForGraph(colKey, colIndex, rowIndex, instrument_token, tableType) }}>
             <div className={classnames( css(tableStyles.cellContent), css(tableStyles.SingleCellValue), css(tableStyles.linkTextCell) )}>
                 { iv }
             </div>

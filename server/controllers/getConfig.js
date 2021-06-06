@@ -16,7 +16,7 @@ const instrumentsModel = ({type, token}) => {
     try {
         const collectionName = type + '-' + token;
         const query = 'select distinct expiry from `' + collectionName + '`';
-        console.log('inside instrumentsModel  try', collectionName);
+        // console.log('inside instrumentsModel  try', collectionName);
 
         return new Promise((resolve, reject) => {
             pool.getConnection(function(err, connection) {
@@ -36,12 +36,12 @@ const instrumentsModel = ({type, token}) => {
 
 const getExpiryListHelper = async (params) => {
     try {
-        console.log('inside getExpiryListHelper ', params);
+        // console.log('inside getExpiryListHelper ', params);
 
         const results = instrumentsModel( params );
 
         const contents = await Promise.all([results]);
-        console.log('contents', contents);
+        // console.log('contents', contents);
 
         return contents[0]['data'].map(item => { return item.expiry; });
     }

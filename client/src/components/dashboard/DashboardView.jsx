@@ -7,6 +7,7 @@ import classnames from 'classnames';
 import _ from 'lodash';
 import { css } from 'aphrodite';
 import { ImpliedVolTable } from './ImpliedVol';
+import { SkewTable } from './Skew';
 import { RealizedVolTable } from './RealizedVol';
 import CircularProgress from 'components/core/circularProgress/CircularProgress';
 import styles from './DashboardView.styles';
@@ -28,11 +29,14 @@ export function DashboardView(props) {
     const expiryDates = _.get(dashboard, 'expiryDates', []);
     const iVolData = _.get(dashboard, 'iVolData', []);
 
+    const ivTimeseries = _.get(dashboard, 'ivTimeseries', {});
+    // console.log('IV data new = ', ivTimeseries);
+
     const {
         getRvolData,
         getConfig,
         getRvolContinuousData,
-        getOptionChainNse,
+        getIvTimeSeries,
     } = useDashboardDispatch();
 
     useEffect(() => {
@@ -49,23 +53,17 @@ export function DashboardView(props) {
             setInterval(getData, 300000);
 
             getImpliedVolData();
-            setInterval(getImpliedVolData, 500000);
+            setInterval(getImpliedVolData, 150000);
         }
     }, [productCount]);
 
     const getImpliedVolData = () => {
         try {
-            defaultProducts.forEach( (item, idx) => {
-                setTimeout(function(product) {
-                    let params = {
-                        body: {
-                            symbol: product.tradingsymbol,
-                            type: product.segment === 'INDICES' ? 'indices' : 'equities',
-                        },
-                    };
-                    getOptionChainNse( params );
-                }, idx * 5000, item);
+            console.log('inside set time interval getImpliedVolData');
+            const products = defaultProducts.map( product => {
+                return product.instrument_token;
             });
+            getIvTimeSeries({ type: 'ivol', products, expiryDates});
         } catch (e) {
             console.log(e);
         }
@@ -73,7 +71,7 @@ export function DashboardView(props) {
 
     const getData = () => {
         try {
-            console.log('inside set time interval');
+            // console.log('inside set time interval');
             const products = defaultProducts.map( product => {
                 return product.instrument_token;
             });
@@ -104,7 +102,15 @@ export function DashboardView(props) {
                     <ImpliedVolTable
                         defaultProducts={defaultProducts}
                         expiryDates={expiryDates}
-                        iVolData={iVolData}
+                        iVolData={ivTimeseries}
+                        getImpliedVolData={getImpliedVolData}
+                    />
+
+                    <SkewTable
+                        defaultProducts={defaultProducts}
+                        expiryDates={expiryDates}
+                        iVolData={ivTimeseries}
+                        getImpliedVolData={getImpliedVolData}
                     />
                 </section>
             )}

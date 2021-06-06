@@ -40,20 +40,11 @@ export function MultiLineStockChart({
                 yAxis: [{
                     lineWidth: 1,
                     title: {
-                        text: 'Price'
+                        text: yAxis.text
                     },
                     endOnTick: false,
                     startOnTick: false,
                     showLastLabel: false,
-                }, {
-                    lineWidth: 1,
-                    opposite: true,
-                    endOnTick: false,
-                    startOnTick: false,
-                    showLastLabel: false,
-                    title: {
-                        text: 'IV'
-                    }
                 }],
                 xAxis: {
                     type: 'datetime',

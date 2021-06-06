@@ -80,11 +80,13 @@ export default function dashboard(state = initialState, action) {
                 const error = fromJS(action.result.result) ? '' : 'Oops, Something went wrong!';
                 const result  = action.result;
                 const configFormat = state.get('config');
+                const expiryDates = _.get(result, 'expiryDates', []);
+                expiryDates.sort();
 
                 state.setIn(['config', 'data'], fromJS(result));
                 state.setIn(['config', 'loading'], false);
                 state.setIn(['config', 'error'], error);
-                state.set( 'expiryDates', _.get(result, 'expiryDates', []) );
+                state.set( 'expiryDates', expiryDates );
 
                 result['defaultProducts'].forEach(item => {
                     state.setIn(['iVolData', item.tradingsymbol], configFormat);

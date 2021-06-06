@@ -17,67 +17,43 @@ const moment = require('moment');
 
 
 export function RowGraphViewIv(props) {
+    const { selectedColumn, selectedInstrument, onClickedRow, tableGraphData, type, defaultProducts } = props;
+    const currentData = _.get(tableGraphData, ['data', onClickedRow, 'data', selectedColumn, 'data'], [])
 
-    const activeData = _.find(props.tableGraphData.data, {instrument_token: props.selectedInstrument});
-    let keys = Object.keys( _.get(activeData, ['data', 0], {}) );
-    let keyMap = {};
+    const tradingObj = _.find(defaultProducts, {instrument_token: selectedInstrument});
+    const tradingsymbol = _.get(tradingObj, ['tradingsymbol'], '-');
 
-    const { selectedColumn } = props;
-    if(selectedColumn !== 'tradingsymbol') {
-        keys = keys.filter(key => {
-                    return key === (selectedColumn + '_iv');
-                });
-    }
+    const newMomentObj = moment(selectedColumn, "YYYY-MM-DD");
+    const dateFormat = moment(newMomentObj).format('DD-MMM-YYYY');
 
-    keys.forEach(key => {
-        let keySplit = key.split('_');
-        if(keySplit.indexOf('iv') !== -1) {
-            let len = (_.get(activeData, ['data'], [])).length;
-            let isZeroIndex = _.findIndex(_.get(activeData, ['data'], []), (e) => {
-                return parseInt( e[key] ) === 0;
-            }, 0);
-
-            let day = moment(keySplit[0]).format('DD-MMM-YYYY ');
-            keyMap[day] = {
-                val: key,
-                type: 'iv',
-                isActive: isZeroIndex === -1 || selectedColumn !== 'tradingsymbol' ? true : false,
-            };
-        } else if (keySplit.length === 1 && (key !== 'dateTime' && key !== 'strike') ) {
-            keyMap[key] = {
-                val: key,
-                type: 'price',
-                isActive: true,
-            };
-        }
-    });
+    // console.log(selectedColumn, selectedInstrument, onClickedRow, tableGraphData, type , currentData);
     // console.log('tableGraphData = ', props.selectedInstrument, activeData, keys, keyMap);
 
-    const title = 'IV using CE price of closest strike(5 Min).',
+    const title = type + ' time series. ( ' + tradingsymbol + ', ' + dateFormat + ' )',
         subtitle = '',
-        series = _.filter(Object.keys(keyMap).map(gd => {
-            if( keyMap[gd]['isActive'] ) {
-                return {
-                    name: gd,
-                    data: _.get(activeData, ['data'], []).map(data => {
-                        return parseFloat( data[ keyMap[gd]['val'] ] );
-                    }),
-                    yAxis: keyMap[gd]['type'] === 'iv' ? 1 : 0,
-                    lineWidth: keyMap[gd]['type'] === 'iv' ? 2 : 1,
-                };
+        series = [
+            {
+                name: type,
+                data: currentData.map(data => {
+                    const atm_strike = data['atm_strike'];
+
+                    const iv = data[atm_strike + '-iv'];
+                    const skew = data['skew'];
+                    return type === 'iv' ? iv : skew;
+                }),
+                yAxis: 0,
+                lineWidth: 2,
             }
-        }), item => { return item}),
+        ],
         xAxis = {
             text: 'Time',
-            categories: _.get(activeData, ['data'], []).map(data => {
+            categories: currentData.map(data => {
                 // const newMomentObj = moment(data['dateTime'], "DD-MMM-YYYY HH:mm:ss");
-                const newMomentObj = moment.utc(data['dateTime']).format('DD-MMM HH:mm');
-
-                // const lastUpdatedDate = moment(newMomentObj).format('DD MMM');
-                return newMomentObj;
+                let time = moment.utc(data['dateTime']).format('DD-MMM HH:mm');
+                return time;
             }),
         },
-        yAxis = { text: 'Time', categories: []};
+        yAxis = { text: type, categories: []};
 
     // console.log(title, series, xAxis);
 

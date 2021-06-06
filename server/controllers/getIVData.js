@@ -9,18 +9,18 @@ const moment = require('moment');
 const _ = require('lodash');
 
 
-const impliedVolatilityModel = ({type, lastNData, token}) => {
+const impliedVolatilityModel = ({type, lastNData, token, expiry}) => {
     try {
-        const collectionName = type + '-' + token;
+        const collectionName = type + '-' + expiry + '-' + token;
         const query = 'select * from `' + collectionName + '`';
-        console.log('inside impliedVolatilityModel try', collectionName);
+        // console.log('inside impliedVolatilityModel try', collectionName);
 
         return new Promise((resolve, reject) => {
             pool.getConnection(function(err, connection) {
                 if (err) throw err; // not connected!
                 connection.query(query, function (error, results, fields) {
                     connection.release();
-                    return err ? reject(err) : resolve({instrument_token: token, data: results });
+                    return err ? reject(err) : resolve({instrument_token: token, expiry, data: results });
                 });
             });
         });
@@ -59,19 +59,42 @@ const updateDaysIvol = (data) => {
 const getIVolDataHelper = async (params) => {
     try {
         const results = [];
-        console.log('inside getIVolDataHelper', params);
+        // console.log('inside getIVolDataHelper', params);
 
         params.products.forEach((token) => {
-            results.push( impliedVolatilityModel( {...{token}, ...params} ) );
+            params.expiryDates.forEach(expiry => {
+                results.push( impliedVolatilityModel( {...{token, expiry}, ...params} ) );
+            });
         });
-        console.log('results', results);
+        // console.log('results', results);
 
         const contents = await Promise.all(results);
-        console.log('contents', contents[0]['data'].length);
+        // console.log('contents', contents[0].length);
 
         // const updateDaysIvol = updateDaysIvol(contents);
         //const updateDaysIvol = updateOtherTimeFrameRvol(contents);
-        return contents;
+        let data = {};
+        contents.forEach(eachExpiry => {
+            data[eachExpiry.instrument_token] = data[eachExpiry.instrument_token] || {};
+            if (eachExpiry.data && eachExpiry.data.length) {
+                const lastIndex = eachExpiry.data.length - 1;
+                const atm_strike = eachExpiry['data'][lastIndex]['atm_strike'];
+
+                eachExpiry['iv'] = eachExpiry['data'][lastIndex][atm_strike + '-iv'];
+                eachExpiry['skew'] = eachExpiry['data'][lastIndex]['skew'];
+
+                data[eachExpiry.instrument_token][eachExpiry.expiry] = eachExpiry;
+                data[eachExpiry.instrument_token]['last_updated'] = eachExpiry.data[lastIndex]['dateTime'];
+            }
+        });
+
+        let dataList = []
+        params.products.forEach((token) => {
+            dataList.push( {instrument_token: token, data: data[token]} );
+        });
+
+
+        return dataList;
     }
     catch (ex) {
         throw ex;
@@ -80,11 +103,11 @@ const getIVolDataHelper = async (params) => {
 
 const getDataPromise = (req, res) => {
     try {
-        const { type, products } = req.body;
+        const { type, products, expiryDates } = req.body;
         const resultMap = {};
         const lastNData = 1;
 
-        getIVolDataHelper({products, type, lastNData}).then(function (result) {
+        getIVolDataHelper({products, type, expiryDates, lastNData}).then(function (result) {
             // close all connections
             // pool.end();
             res.status(200);
