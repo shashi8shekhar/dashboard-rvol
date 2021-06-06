@@ -84,6 +84,7 @@ export default function dashboard(state = initialState, action) {
                 state.setIn(['config', 'data'], fromJS(result));
                 state.setIn(['config', 'loading'], false);
                 state.setIn(['config', 'error'], error);
+                state.set( 'expiryDates', _.get(result, 'expiryDates', []) );
 
                 result['defaultProducts'].forEach(item => {
                     state.setIn(['iVolData', item.tradingsymbol], configFormat);
@@ -147,16 +148,9 @@ export default function dashboard(state = initialState, action) {
             return state.withMutations(state => {
                 const error = fromJS(action.err) ? fromJS(action.err.message) : 'Oops, Something went wrong!';
                 const result = action.result;
-                const expiryDates = JSON.parse(localStorage.getItem('expiryDates'));
-
 
                 // console.log(action.query.body.symbol, expiryDates, action);
                 if(result) {
-                    if( action.query.body.symbol === 'NIFTY' ) {
-                        localStorage.setItem('expiryDates', JSON.stringify(_.get(result, 'records.expiryDates', expiryDates)));
-
-                        state.set( 'expiryDates', _.get(result, 'records.expiryDates', expiryDates) );
-                    }
 
                     const underlyingValue = _.get(result, 'records.underlyingValue', null);
                     const strikePrices = _.get(result, 'records.strikePrices', []);
@@ -168,10 +162,6 @@ export default function dashboard(state = initialState, action) {
                     state.setIn(['iVolData', action.query.body.symbol, 'rawData'], result);
 
                     state.setIn(['iVolData', action.query.body.symbol, 'loaded'], true);
-                } else {
-                    if( action.query.body.symbol === 'NIFTY' ) {
-                        state.set( 'expiryDates', expiryDates );
-                    }
                 }
 
                 state.setIn(['iVolData', action.query.body.symbol, 'loaded'], false);
