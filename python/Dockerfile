@@ -37,6 +37,9 @@ RUN apt-get update && apt-get -y install cron vim
 COPY cron_job.sh /app/cron_job.sh
 RUN ["chmod", "+x", "/app/cron_job.sh"]
 
+COPY cron_job_1.sh /app/cron_job_1.sh
+RUN ["chmod", "+x", "/app/cron_job_1.sh"]
+
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT /entrypoint.sh
