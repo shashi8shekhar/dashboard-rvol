@@ -8,7 +8,6 @@ import constants
 import pandas as pd
 import datetime
 from functools import reduce
-import gc
 
 nan_value = 0
 
@@ -88,9 +87,6 @@ class UpdateRealisedVol:
             try:
                 # print('runRvolOnConfig inside try', config['tradingsymbol'])
                 rVolData[rVolTableKey].to_sql(rVolTableKey, con=engineObj, if_exists='replace', index=False)
-
-                del rVolData[rVolTableKey]
-                gc.collect()
             except ValueError as e:
                 # print(e)
                 return e
