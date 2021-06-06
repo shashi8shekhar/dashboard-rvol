@@ -72,7 +72,7 @@ module.exports = {
             "tradingsymbol":"NIFTY",
             "weight":0,
             "t_start":"09:15:00",
-            "t_end":"15:29:59",
+            "t_end":"15:29:00",
             "avg_hedge_per_day":15
         },
         {
@@ -86,7 +86,7 @@ module.exports = {
             "tradingsymbol":"BANKNIFTY",
             "weight":1,
             "t_start":"09:15:00",
-            "t_end":"15:29:59",
+            "t_end":"15:29:00",
             "avg_hedge_per_day":15
         },
 //        {
