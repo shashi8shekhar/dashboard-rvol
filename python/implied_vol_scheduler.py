@@ -44,6 +44,10 @@ class ImpliedVolScheduler:
         # print(startdate, end_date_time_obj, minutes, minutes / minutes_in_a_yr)
         return minutes / minutes_in_a_yr
 
+    @staticmethod
+    def get_avg_bid_ask(tokenData):
+        return (tokenData['depth']['buy'][0]['price'] + tokenData['depth']['sell'][0]['price']) / 2
+
     def runSchedulerOnConfig(self, kiteObj, configurationObj, instrumentsDetailsObjData, constants):
         engine_obj = engine.Engine.getInstance().getEngine()
 
@@ -156,7 +160,7 @@ class ImpliedVolScheduler:
                 if last_price_future > atm_strike:
                     atm_index = 1
                     option_type = 'p'
-                last_price_atm = full_detail[str(atm_df.iloc[atm_index]['token'])]['last_price']
+                last_price_atm = self.get_avg_bid_ask( full_detail[str(atm_df.iloc[atm_index]['token'])] )
                 iv, delta, gamma, theta, vega, rho = implied_vol_model.euro_implied_vol_76(option_type,
                                                                                            float(last_price_future),
                                                                                            float(atm_strike),
@@ -178,7 +182,7 @@ class ImpliedVolScheduler:
                 for index, row in call_otm_df.iterrows():
                     current_strike = round(row['strike'], 2)
 
-                    last_price = full_detail[str(row['token'])]['last_price']
+                    last_price = self.get_avg_bid_ask( full_detail[str(row['token'])] )
                     iv, delta, gamma, theta, vega, rho = implied_vol_model.euro_implied_vol_76('c',
                                                                                                float(last_price_future),
                                                                                                float(row['strike']),
@@ -202,7 +206,7 @@ class ImpliedVolScheduler:
                 for index, row in put_otm_df.iterrows():
                     current_strike = round(row['strike'], 2)
 
-                    last_price = full_detail[str(row['token'])]['last_price']
+                    last_price = self.get_avg_bid_ask(full_detail[str(row['token'])])
                     iv, delta, gamma, theta, vega, rho = implied_vol_model.euro_implied_vol_76('p',
                                                                                                float(last_price_future),
                                                                                                float(row['strike']),
