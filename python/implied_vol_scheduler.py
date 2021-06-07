@@ -171,10 +171,8 @@ class ImpliedVolScheduler:
                 each_row_data[get_key(atm_strike, 'vega')] = vega
                 skew_param['atm_iv'] = round(iv * 100, 2)
 
-                print('ATM ===== ', 'expiry', 'avg c/p price', 'atm_strike', 'IV', 'delta', 'gamma', 'theta', 'vega',
-                      'rho')
-                print('ATM ===== ', expiry, last_price_atm, atm_strike, round(iv * 100, 2), delta, gamma, theta, vega,
-                      rho)
+                #print('ATM ===== ', 'expiry', 'avg c/p price', 'atm_strike', 'IV', 'delta', 'gamma', 'theta', 'vega', 'rho')
+                #print('ATM ===== ', expiry, last_price_atm, atm_strike, round(iv * 100, 2), delta, gamma, theta, vega, rho)
 
                 # calculate OTM CALL IV
                 for index, row in call_otm_df.iterrows():
@@ -197,10 +195,8 @@ class ImpliedVolScheduler:
                     if 0.23 <= delta <= 0.26 :
                         skew_param['call_iv'] = round(iv * 100, 2)
 
-                    print('OTM CALL ===== ', 'expiry', 'call price', 'strike', 'IV', 'delta', 'gamma', 'theta', 'vega',
-                          'rho')
-                    print('OTM CALL ===== ', expiry, last_price, row['strike'], round(iv * 100, 2), delta, gamma, theta,
-                          vega, rho)
+                    #print('OTM CALL ===== ', 'expiry', 'call price', 'strike', 'IV', 'delta', 'gamma', 'theta', 'vega', 'rho')
+                    #print('OTM CALL ===== ', expiry, last_price, row['strike'], round(iv * 100, 2), delta, gamma, theta, vega, rho)
 
                 # calculate OTM PUT IV
                 for index, row in put_otm_df.iterrows():
@@ -222,10 +218,8 @@ class ImpliedVolScheduler:
                     if -0.26 <= delta <= -0.23 :
                         skew_param['put_iv'] = round(iv * 100, 2)
 
-                    print('OTM PUT ===== ', 'expiry', 'put price', 'strike', 'IV', 'delta', 'gamma', 'theta', 'vega',
-                          'rho')
-                    print('OTM PUT ===== ', expiry, last_price, row['strike'], round(iv * 100, 2), delta, gamma, theta,
-                          vega, rho)
+                    #print('OTM PUT ===== ', 'expiry', 'put price', 'strike', 'IV', 'delta', 'gamma', 'theta', 'vega', 'rho')
+                    #print('OTM PUT ===== ', expiry, last_price, row['strike'], round(iv * 100, 2), delta, gamma, theta, vega, rho)
 
                 each_row_data['skew'] = implied_vol_model.skew_25_delta(skew_param)
                 each_row_data_list.append(each_row_data)
@@ -235,9 +229,14 @@ class ImpliedVolScheduler:
                     print('trying to insert into IVol Table', i_vol_table_key, config['tradingsymbol'], 'dateTime')
                     # print(each_row_data_list_df.head())
                     each_row_data_list_df.to_sql(i_vol_table_key, con=engine_obj, if_exists='append', index=False)
-                except ValueError as e:
-                    print(e)
-                    pass
+                except:
+                    print('inside exception')
+                    query = 'select * from `' + i_vol_table_key + '`'
+                    #query = 'SELECT * FROM ' + i_vol_table_key
+                    data = pd.read_sql(query, engine_obj)
+                    df2 = pd.concat([data, each_row_data_list_df])
+                    print(df2.head())
+                    df2.to_sql(name=i_vol_table_key, con=engine_obj, if_exists='replace', index=False)
 
     def runScheduler(self, kiteObj):
         config_details_obj = configDetails.ConfigDetails.getInstance()

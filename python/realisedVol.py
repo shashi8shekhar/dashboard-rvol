@@ -104,19 +104,19 @@ class RealisedVol:
 
             if (i == 0):
                 filter_row_curr = self.data.loc[self.data['time'] == range]
-                # print('filter_row_curr', filter_row_curr)
+                #print('filter_row_curr', filter_row_curr)
 
                 base_price_current = 1
                 if not filter_row_curr.empty:
                     base_price_current = filter_row_curr.iloc[0]['close']
 
-                # print('base_price_current', base_price_current)
+                #print('base_price_current', base_price_current)
 
                 avg_gamma_pnl =  self.get_gamma_pnl( base_price_current, prev_close_price )
                 realised_vol = self.get_realised_vol(avg_gamma_pnl, curr_winddown, self.days_per_year)
 
                 # print('avg_gamma_pnl', avg_gamma_pnl)
-                # print('realised_vol', realised_vol)
+                #print('realised_vol', realised_vol)
 
                 realised_vol_list.append(realised_vol)
                 ten_min_rvol.append(realised_vol)
@@ -141,7 +141,7 @@ class RealisedVol:
                         base_price_previous = 1
                         previous_hedge_time = self.sub_minute_from_time(range.strftime("%H:%M:%S"), hp)
 
-                        # print(range, previous_hedge_time)
+                        #print(range, previous_hedge_time)
 
                         filter_row_curr = self.data.loc[self.data['time'] == range]
                         filter_row_prev = self.data.loc[self.data['time'] == previous_hedge_time]
@@ -150,7 +150,7 @@ class RealisedVol:
                             base_price_current = filter_row_curr.iloc[0]['close']
                             base_price_previous = filter_row_prev.iloc[0]['close']
 
-                            # print(base_price_current, base_price_previous, range, hp, self.sub_minute_from_time(range.strftime("%H:%M:%S"), hp) )
+                            #print(base_price_current, base_price_previous, range, hp, self.sub_minute_from_time(range.strftime("%H:%M:%S"), hp) )
 
                         gamma_pnl = gamma_pnl + self.get_gamma_pnl(base_price_current, base_price_previous)
                     gamma_pnl_list.append(gamma_pnl)
@@ -159,7 +159,7 @@ class RealisedVol:
 
                 avg_gamma_pnl = sum(gamma_pnl_list) / len(gamma_pnl_list)
 
-                # print(range, avg_gamma_pnl)
+                #print(range, avg_gamma_pnl)
 
                 realised_vol = self.get_realised_vol(avg_gamma_pnl, curr_winddown, self.days_per_year)
                 realised_vol_list.append(realised_vol)
@@ -172,14 +172,14 @@ class RealisedVol:
                     while(itr < 0):
                         rvol_sq += (realised_vol_list[itr]**2) * winddown_list[itr]
                         wind_down_sum += winddown_list[itr]
-                        # print(itr, rvol_sq, wind_down_sum)
+                        #print(itr, rvol_sq, wind_down_sum)
                         itr += 1
                     n_min_window_rvol = np.sqrt(rvol_sq / wind_down_sum)
                     ten_min_rvol.append(n_min_window_rvol)
                 else:
                     ten_min_rvol.append(ten_min_rvol[-1])
 
-                # print('ten_min_rvol', i%2, ten_min_rvol)
+                #print('ten_min_rvol', i%2, ten_min_rvol)
 
                 # 30 minute Realized Vol calculation
                 if (i % 6 == 0):
@@ -190,20 +190,20 @@ class RealisedVol:
                         rvol_sq += (realised_vol_list[itr] ** 2) * winddown_list[itr]
                         wind_down_sum += winddown_list[itr]
                         itr += 1
-                        # print(itr, rvol_sq, wind_down_sum)
+                        #print(itr, rvol_sq, wind_down_sum)
                     n_min_window_rvol = np.sqrt(rvol_sq / wind_down_sum)
                     thirty_min_rvol.append(n_min_window_rvol)
                 else:
                     thirty_min_rvol.append(thirty_min_rvol[-1])
 
-                # print('thirty_min_rvol', i % 6, thirty_min_rvol)
+                #print('thirty_min_rvol', i % 6, thirty_min_rvol)
 
                 # today minute Realized Vol calculation
                 rvol_sq_day += (realised_vol ** 2) * curr_winddown
                 wind_down_sum_day += curr_winddown
                 today_rvol.append( np.sqrt(rvol_sq_day / wind_down_sum_day) )
 
-                # print(range, avg_gamma_pnl, curr_winddown, realised_vol)
+                #print(range, avg_gamma_pnl, curr_winddown, realised_vol)
                 # print(hedge_points)
 
         dateTimeList = [datetime.datetime.combine(running_date, range) for range in wind_down_window ]
@@ -223,7 +223,7 @@ class RealisedVol:
         #filter 0 values
         rslt_df = df.loc[df[rvolKey] > 0]
 
-        # print('rslt_df',  rslt_df)
+        #print('inside RealizedVol main, rslt_df',  rslt_df)
 
         return rslt_df
 
