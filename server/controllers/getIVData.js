@@ -77,6 +77,9 @@ const getIVolDataHelper = async (params) => {
         contents.forEach(eachExpiry => {
             data[eachExpiry.instrument_token] = data[eachExpiry.instrument_token] || {};
             if (eachExpiry.data && eachExpiry.data.length) {
+
+                eachExpiry.data = eachExpiry.data.slice(-120);
+
                 const lastIndex = eachExpiry.data.length - 1;
                 const atm_strike = eachExpiry['data'][lastIndex]['atm_strike'];
 

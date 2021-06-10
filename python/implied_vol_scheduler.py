@@ -54,8 +54,14 @@ class ImpliedVolScheduler:
         for config in configurationObj:
             t_start = config['t_start'].strftime('%H:%M:%S')
             t_end = config['t_end'].strftime('%H:%M:%S')
+
+            date_time_str = constants.to_date.strftime('%Y-%m-%d') + ' ' + t_end
+            date_time_obj = constants.IST.localize(datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S'))
+            date_time_obj = date_time_obj + datetime.timedelta(minutes=3)
+            end_time = date_time_obj.strftime("%H:%M:%S")
+
             t_now = constants.to_date.strftime('%H:%M:%S')
-            is_active = t_start <= t_now <= t_end
+            is_active = t_start <= t_now <= end_time
 
             if not is_active:
                 print('Market Closed!')

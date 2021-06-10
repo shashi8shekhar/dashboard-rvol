@@ -68,11 +68,14 @@ const updateDaysRvol = (data) => {
             const newMomentObj = moment(moment(lastUpdatedDateObj).toISOString(), "YYYY-MM-DDTHH:mm:ss.SSSSZ", true).utc();
             const lastUpdatedTime =  moment(newMomentObj).format("HH:mm:ss");
 
+            // console.log(t_end, lastUpdatedTime);
             return t_end === lastUpdatedTime;
         });
 
         // filterData.splice(-1,1);
         filterData.reverse();
+
+        // console.log(t_end, filterData);
 
         let count = 0
         let rvolsq = 0;

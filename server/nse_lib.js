@@ -8,16 +8,16 @@ const {
 } = require('child_process');
 
 function execute(command, callback) {
-    console.log('command: ', command)
+    // console.log('command: ', command)
     exec(command, {
         maxBuffer: 1024 * 1000 * 10
     }, function (error, stdout, stderr) {
         // console.log('stdout: ' + stdout);
-        console.log('stderr: ' + stderr);
+        // console.log('stderr: ' + stderr);
 
         if(error !== null)
         {
-            console.log('exec error: ' + error);
+            // console.log('exec error: ' + error);
         }
         callback(stdout);
     });

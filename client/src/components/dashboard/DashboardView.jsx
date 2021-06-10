@@ -59,7 +59,7 @@ export function DashboardView(props) {
 
     const getImpliedVolData = () => {
         try {
-            console.log('inside set time interval getImpliedVolData');
+            // console.log('inside set time interval getImpliedVolData');
             const products = defaultProducts.map( product => {
                 return product.instrument_token;
             });
