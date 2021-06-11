@@ -11,7 +11,7 @@ const  defaultProducts = require('./../constants/config').defaultProducts;
 
 const pool = require('../sqlConnection');
 const moment = require('moment');
-const hadleSqlConnection = require('../utils');
+const hadleSqlConnection = require('../utils').hadleSqlConnection;
 
 const instrumentsModel = ({type, token}) => {
     try {

@@ -8,7 +8,7 @@ const  defaultProducts = require('./../constants/config').defaultProducts;
 const moment = require('moment');
 const _ = require('lodash');
 
-const hadleSqlConnection = require('../utils');
+const hadleSqlConnection = require('../utils').hadleSqlConnection;
 
 const impliedVolatilityModel = ({type, lastNData, token, expiry}) => {
     try {
