@@ -1,4 +1,4 @@
-const hadleSqlConnection = (err, connection) => {
+exports.hadleSqlConnection = function (err, connection) {
     if (err) {
         console.error('error connecting: ' + err.stack);
         return;
@@ -8,5 +8,3 @@ const hadleSqlConnection = (err, connection) => {
         console.log('connected as id ' + connection.threadId);
     }
 };
-
-exports.hadleSqlConnection = hadleSqlConnection;
