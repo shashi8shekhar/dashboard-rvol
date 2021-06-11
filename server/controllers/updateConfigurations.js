@@ -4,6 +4,7 @@
 
 const pool = require('../sqlConnection');
 const  defaultProducts = require('./../constants/config').defaultProducts;
+const hadleSqlConnection = require('../utils').hadleSqlConnection.hadleSqlConnection;
 
 const createConfigTable = function () {
     var sqlCreateConfig = "CREATE TABLE if not exists config ("+
@@ -38,7 +39,7 @@ const createConfigTable = function () {
                       )`;
 
     pool.getConnection(function(err, connection) {
-        if (err) throw err; // not connected!
+        hadleSqlConnection(err, connection); // not connected!
         console.log("Connected!");
         connection.query(sqlCreateConfig, function(err, results, fields) {
             connection.release();
@@ -54,7 +55,7 @@ const createConfigTable = function () {
 
 exports.checkTableExists = function (table) {
     pool.getConnection(function(err, connection) {
-        if (err) throw err; // not connected!
+        hadleSqlConnection(err, connection); // not connected!
         console.log("Connected!");
         connection.query(`SHOW TABLES LIKE "${table}"`, (error, results) => {
             connection.release();
@@ -85,7 +86,7 @@ const modifyConfig = function (param) {
         if (param === 'insert') {
             var sql = "INSERT IGNORE INTO config (" + columnsList.join(",") +") VALUES ?";
             pool.getConnection(function(err, connection) {
-                if (err) throw err; // not connected!
+                hadleSqlConnection(err, connection); // not connected!
                 connection.query(sql, [valuesList], function(err, result) {
                     connection.release();
                     if(err) throw err;
@@ -95,7 +96,7 @@ const modifyConfig = function (param) {
             var sql = "UPDATE config SET '" + columns.join("' = ? ,'") +"' = ?";
 
             pool.getConnection(function(err, connection) {
-                if (err) throw err; // not connected!
+                hadleSqlConnection(err, connection); // not connected!
                 connection.query(sql, valuesList, (error, result, fields) => {
                     connection.release();
                     if(err) throw err;
