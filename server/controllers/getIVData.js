@@ -8,6 +8,7 @@ const  defaultProducts = require('./../constants/config').defaultProducts;
 const moment = require('moment');
 const _ = require('lodash');
 
+const hadleSqlConnection = require('../utils');
 
 const impliedVolatilityModel = ({type, lastNData, token, expiry}) => {
     try {
@@ -17,7 +18,7 @@ const impliedVolatilityModel = ({type, lastNData, token, expiry}) => {
 
         return new Promise((resolve, reject) => {
             pool.getConnection(function(err, connection) {
-                if (err) throw err; // not connected!
+                hadleSqlConnection(err, connection); // not connected!
                 connection.query(query, function (error, results, fields) {
                     connection.release();
                     return err ? reject(err) : resolve({instrument_token: token, expiry, data: results });

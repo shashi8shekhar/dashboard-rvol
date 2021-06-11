@@ -11,6 +11,7 @@ const  defaultProducts = require('./../constants/config').defaultProducts;
 
 const pool = require('../sqlConnection');
 const moment = require('moment');
+const hadleSqlConnection = require('../utils');
 
 const instrumentsModel = ({type, token}) => {
     try {
@@ -20,7 +21,7 @@ const instrumentsModel = ({type, token}) => {
 
         return new Promise((resolve, reject) => {
             pool.getConnection(function(err, connection) {
-                if (err) throw err; // not connected!
+                hadleSqlConnection(err, connection); // not connected!
                 connection.query(query, function (error, results, fields) {
                     connection.release();
                     return err ? reject(err) : resolve({instrument_token: token, data: results });
