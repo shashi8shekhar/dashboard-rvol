@@ -4,7 +4,7 @@
 
 const pool = require('../sqlConnection');
 const  defaultProducts = require('./../constants/config').defaultProducts;
-const hadleSqlConnection = require('../utils').hadleSqlConnection.hadleSqlConnection;
+const hadleSqlConnection = require('../utils').hadleSqlConnection;
 
 const createConfigTable = function () {
     var sqlCreateConfig = "CREATE TABLE if not exists config ("+

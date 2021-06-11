@@ -7,4 +7,4 @@ exports.hadleSqlConnection = function (err, connection) {
     if (connection) {
         console.log('connected as id ' + connection.threadId);
     }
-};
+}
