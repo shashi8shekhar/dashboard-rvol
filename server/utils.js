@@ -1,10 +1,10 @@
 exports.hadleSqlConnection = function (err, connection) {
     if (err) {
-        console.error('error connecting: ' + err.stack);
+        console.error('error connecting: --------------- ' + err.stack);
         return;
     }
 
     if (connection) {
-        console.log('connected as id ' + connection.threadId);
+        console.log('connected as id --------------------' + connection.threadId);
     }
 }
