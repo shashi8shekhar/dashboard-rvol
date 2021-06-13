@@ -1,12 +1,12 @@
 version: "3.4"
 
 x-common-variables: &common-variables
-  MYSQL_USER: doadmin
-  MYSQL_PORT: 25060
-  MYSQL_PASSWORD: whej5edxdyubz1xe
-  MYSQL_DATABASE: defaultdb
+  MYSQL_USER: voltrade
+  MYSQL_PORT: 3306
+  MYSQL_PASSWORD: VolTrade_|546
+  MYSQL_DATABASE: voltrade
   REACT_APP_SERVER_PORT: 8000
-  MYSQL_HOST_IP: db-mysql-blr1-07157-do-user-9121984-0.b.db.ondigitalocean.com
+  MYSQL_HOST_IP: 143.110.186.53
   MYSQL_SSLMODE: REQUIRED
 
 services:

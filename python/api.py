@@ -30,7 +30,7 @@ def execute(param):
         update_winddown_table_obj = updateWinddownTable.UpdateWinddownTable()
         update_winddown_table_obj.updateWinddown(kite_obj)
 
-    elif param == 'RVOL_POPULATE':
+    elif param == 'RVOL':
         print(param, '  Running Realised Volatility')
         # Back Populate Realised Volatility Table
         update_realised_vol_obj = updateRealisedVol.UpdateRealisedVol()

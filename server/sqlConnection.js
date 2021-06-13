@@ -2,7 +2,7 @@
  * Created by shashi.sh on 11/04/21.
  */
 
-const mysql = require('mysql');
+// const mysql = require('mysql');
 const mysql2 = require('mysql2');
 
 const pool = mysql2.createPool({
