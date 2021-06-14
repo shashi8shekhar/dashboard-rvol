@@ -1,3 +1,7 @@
+import time
+from datetime import timedelta
+
+start_time = time.time()
 import instrument_list
 import updateWinddownTable
 import updateRealisedVol
@@ -67,3 +71,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args.a)
     execute(args.a)
+
+    elapsed_time_secs = time.time() - start_time
+
+    msg = "Execution took: %s secs (Wall clock time)" % timedelta(seconds=round(elapsed_time_secs))
+    print("--- %s seconds ---" % (time.time() - start_time))
+    print(msg)
