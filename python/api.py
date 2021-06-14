@@ -15,7 +15,8 @@ import kite
 
 def execute(param):
     kite_obj = kite.Kite()
-    if not kite_obj.is_connected():
+    check_con = kite_obj.is_connected()
+    if not check_con:
         print('Inside not connected!!!')
         kite_obj.set_access_token()
 

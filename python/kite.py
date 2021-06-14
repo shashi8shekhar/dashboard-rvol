@@ -107,27 +107,30 @@ class Kite:
 
         tableKey = 'kite'
         query = 'select * from kite'
-        engine_obj = engine.Engine.getInstance().getEngine()
 
-        table_exist = engine_obj.has_table(tableKey)
-        if not table_exist:
+        try:
+            engine_obj = engine.Engine.getInstance().getEngine()
+            table_exist = engine_obj.has_table(tableKey)
+
+            if not table_exist:
+                return False
+
+            data = pd.read_sql(query, engine_obj)
+            access_token = data.iloc[0]['access_token']
+            # print(access_token)
+
+            self.kite.set_access_token(access_token)
+            profile = self.get_profile()
+            # print('api ------ profile ==========', profile)
+
+            success = profile and profile["user_id"] == constants.userId
+            # print(success)
+
+            if success:
+                print('CONNECTED TO KITE Old TOKEN!')
+                is_connected_kite = True
+        except:
             return False
-        data = pd.read_sql(query, engine_obj)
-
-        access_token = data.iloc[0]['access_token']
-        # print(access_token)
-
-        self.kite.set_access_token(access_token)
-
-        profile = self.get_profile()
-        # print('api ------ profile ==========', profile)
-
-        success = profile and profile["user_id"] == constants.userId
-        # print(success)
-
-        if success:
-            print('CONNECTED TO KITE Old TOKEN!')
-            is_connected_kite = True
 
         return is_connected_kite
 

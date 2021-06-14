@@ -2,7 +2,7 @@
  * Created by shashi.sh on 08/05/21.
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import classnames from 'classnames';
 import _ from 'lodash';
@@ -11,14 +11,18 @@ import { css } from 'aphrodite';
 import CircularProgress from 'components/core/circularProgress/CircularProgress';
 import { MultiLineStockChart } from 'components/core/HighChart';
 import { calculatePercentage } from 'utils/helper';
+import { graphTypeKeys } from '../../constants';
 import Button, { ButtonTypes } from 'components/core/button/Button';
 import styles from './RowGraphView.styles';
+import '../../../../style/_common.scss'
 const moment = require('moment');
 
 
 export function RowGraphViewIv(props) {
-    const { selectedColumn, selectedInstrument, onClickedRow, tableGraphData, type, defaultProducts } = props;
-    const currentData = _.get(tableGraphData, ['data', onClickedRow, 'data', selectedColumn, 'data'], [])
+    const { selectedColumn, selectedInstrument, onClickedRow, tableGraphData, type, defaultProducts, expiryDatesColoumn } = props;
+    const currentData = _.get(tableGraphData, ['data', onClickedRow, 'data', selectedColumn, 'data'], []);
+    const [graphType, setGraphType] = useState(type);
+
 
     const tradingObj = _.find(defaultProducts, {instrument_token: selectedInstrument});
     const tradingsymbol = _.get(tradingObj, ['tradingsymbol'], '-');
@@ -26,11 +30,86 @@ export function RowGraphViewIv(props) {
     const newMomentObj = moment(selectedColumn, "YYYY-MM-DD");
     const dateFormat = moment(newMomentObj).format('DD-MMM-YYYY');
 
+    const getStrikes = (data) => {
+        const lastData = _.get(data, [data.length - 1], {});
+        const keys = Object.keys(lastData);
+
+        const strikeList = _.filter(keys.map( item => {
+            const splitKey = item.split('-');
+            return splitKey.length > 1 ? splitKey[0] : null;
+        }), (item) => {return item});
+
+        strikeList.sort();
+        const sortedStrikes = _.sortedUniq(strikeList);
+
+        return sortedStrikes;
+    };
+
+    const strikeList = getStrikes(currentData);
+
+    const changeGraphType = (type) => {
+        setGraphType(type);
+    };
+
     // console.log(selectedColumn, selectedInstrument, onClickedRow, tableGraphData, type , currentData);
     // console.log('tableGraphData = ', props.selectedInstrument, activeData, keys, keyMap);
 
-    const title = type + ' time series. ( ' + tradingsymbol + ', ' + dateFormat + ' )',
+    var title = type + ' time series. ( ' + tradingsymbol + ', ' + dateFormat + ' )',
         subtitle = '',
+        series = [],
+        xAxis = {},
+        yAxis = { text: type, categories: []};
+
+    if (graphType == 'skew') {
+        if(selectedColumn === 'tradingsymbol') {
+            const currentData = _.get(tableGraphData, ['data', onClickedRow, 'data'], []);
+            const filterExpiryDatesColoumn = expiryDatesColoumn.filter( item => {
+                return currentData[item.key];
+            });
+            let strikeListXAxis = [];
+
+            series = filterExpiryDatesColoumn.map(item => {
+                let expiryData = _.get(currentData, [item.key, 'data'], []);
+                let lastData = _.get(expiryData, [expiryData.length - 1], {});
+                let strikeList = getStrikes(expiryData);
+                strikeListXAxis = [...strikeListXAxis, ...strikeList]
+
+                let data = _.filter(strikeList.map(strike => {
+                    let iv = lastData[strike + '-iv'];
+                    return iv > 0 ? iv : null;
+                }), (d) => {return d});
+
+                return {
+                    name: item.label,
+                    data,
+                    yAxis: 0,
+                    lineWidth: 2,
+                };
+            });
+            strikeListXAxis.sort();
+            xAxis = {
+                text: 'Strike',
+                categories: _.sortedUniq(strikeListXAxis),
+            };
+        } else {
+            const lastData = _.get(currentData, [currentData.length - 1], {});
+            series = [
+                {
+                    name: dateFormat,
+                    data: _.filter(strikeList.map(strike => {
+                        let iv = lastData[strike + '-iv'];
+                        return iv > 0 ? iv : null;
+                    }), (item) => {return item}),
+                    yAxis: 0,
+                    lineWidth: 2,
+                }
+            ];
+            xAxis = {
+                text: 'Strike',
+                categories: strikeList,
+            };
+        }
+    } else {
         series = [
             {
                 name: type,
@@ -44,7 +123,7 @@ export function RowGraphViewIv(props) {
                 yAxis: 0,
                 lineWidth: 2,
             }
-        ],
+        ];
         xAxis = {
             text: 'Time',
             categories: currentData.map(data => {
@@ -52,8 +131,8 @@ export function RowGraphViewIv(props) {
                 let time = moment.utc(data['dateTime']).format('DD-MMM HH:mm');
                 return time;
             }),
-        },
-        yAxis = { text: type, categories: []};
+        };
+    }
 
     // console.log(title, series, xAxis);
 
@@ -61,23 +140,43 @@ export function RowGraphViewIv(props) {
         return (
             <div className={css(styles.RowGraphWrapper)}>
                 <div className={css(styles.TableGraphActions)}>
-                    <div className="tabActionButtonLeft">
-                        <div>
+                    {
+                        type === 'skew' && (
+                            <div className='skewToggleActionWrapper'>
+                                <ul>
+                                    {_.map(graphTypeKeys, item => {
+                                        return (
+                                            <li
+                                                key={item.key}
+                                                className={graphType === item.key ? 'active' : ''}
+                                                onClick={e => {
+                                                    changeGraphType(item.key);
+                                                }}
+                                            >
+                                                <span>{item.label}</span>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        )
+                    }
+
+                    <div className={css(styles.TabActionButton)}>
                             <Button
                                 className={'status-btn'}
                                 text={'Reload'}
                                 type={ButtonTypes.PRIMARY}
                                 onClick={props.getTimeSeriesData}
                             ></Button>
-                        </div>
-                    </div>
 
-                    <Button
-                        text={'Close'}
-                        type={ButtonTypes.LIGHT}
-                        className="status-btn"
-                        onClick={props.onCloseGraph}
-                    ></Button>
+                            <Button
+                                text={'Close'}
+                                type={ButtonTypes.LIGHT}
+                                className="status-btn"
+                                onClick={props.onCloseGraph}
+                            ></Button>
+                    </div>
                 </div>
                 <div className="mainGraph">
                     <MultiLineStockChart

@@ -1,0 +1,51 @@
+.skewToggleActionWrapper {
+  display: flex;
+
+  ul {
+    display: flex;
+    margin: 10px;
+    padding: 0;
+
+    li {
+      padding: 5px 10px;
+
+      border: 1px solid #d8d8de;
+      background-color: #ffffff;
+      color: #8e8caa;
+      cursor: pointer;
+
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 18px;
+
+      display: flex;
+      align-items: center;
+
+      &:first-child {
+        border-radius: 2px 0 0 2px;
+      }
+
+      &:last-child {
+        border-radius: 0 2px 2px 0;
+      }
+
+      &.active {
+        color: #f9f9f9;
+        border: none;
+        background-color: #3477f8;
+
+        cursor: default;
+
+        .icon-help:before {
+          color: #ffffff;
+        }
+      }
+
+      transition: border-color 0.2s ease-in-out;
+    }
+
+    li:hover:not(.active) {
+      border-color: darkgray;
+    }
+  }
+}

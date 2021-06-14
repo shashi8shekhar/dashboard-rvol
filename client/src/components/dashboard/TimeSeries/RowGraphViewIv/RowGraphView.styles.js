@@ -9,6 +9,10 @@ const styles = StyleSheet.create({
         gap: 10,
         padding: 10,
         background: '#FFF',
+    },
+    TabActionButton: {
+        display: 'flex',
+        gap: 5,
     }
 });
 

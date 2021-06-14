@@ -105,6 +105,7 @@ export function SkewTable(props) {
                                 selectedInstrument={selectedInstrument}
                                 defaultProducts={defaultProducts}
                                 selectedColumn={selectedColumn}
+                                expiryDatesColoumn={expiryDatesColoumn}
                                 type="skew"
                             />
                         }
