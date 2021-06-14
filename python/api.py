@@ -11,7 +11,9 @@ import kite
 
 def execute(param):
     kite_obj = kite.Kite()
-    kite_obj.set_access_token()
+    if not kite_obj.is_connected():
+        print('Inside not connected!!!')
+        kite_obj.set_access_token()
 
     if param == 'ALL':
         print(param, '  Running Wind down')
