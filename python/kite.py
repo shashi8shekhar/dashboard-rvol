@@ -115,14 +115,15 @@ class Kite:
         data = pd.read_sql(query, engine_obj)
 
         access_token = data.iloc[0]['access_token']
-        print(access_token)
+        # print(access_token)
 
         self.kite.set_access_token(access_token)
 
         profile = self.get_profile()
-        print('api ------ profile ==========', profile)
+        # print('api ------ profile ==========', profile)
 
-        success = profile["user_id"] == constants.userId
+        success = profile and profile["user_id"] == constants.userId
+        # print(success)
 
         if success:
             print('CONNECTED TO KITE Old TOKEN!')
