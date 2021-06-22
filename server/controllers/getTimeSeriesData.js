@@ -82,21 +82,21 @@ const updateDaysRvol = (data) => {
         //Get today Time Series data
         const toDayMap = {
             key: 'today',
-            data: filterData.slice(Math.max(filterData.length - 10, 0)),
+            data: filterData.slice(Math.max(filterData.length - 15, 0)),
         };
 
         //Get 30 Minute Time Series data
         const filterDataThirtyMin = _.uniqBy(scriptData, '30min');
         const thirtyMinMap = {
             key: '30min',
-            data: filterDataThirtyMin.slice(Math.max(filterDataThirtyMin.length - 10, 0)),
+            data: filterDataThirtyMin.slice(Math.max(filterDataThirtyMin.length - 30, 0)),
         };
 
         //Get 10 Minute Time Series data
         const filterDataTenMin = _.uniqBy(scriptData, '10min');
         const tenMinMap = {
             key: '10min',
-            data: filterDataTenMin.slice(Math.max(filterDataTenMin.length - 10, 0)),
+            data: filterDataTenMin.slice(Math.max(filterDataTenMin.length - 40, 0)),
         };
 
 
