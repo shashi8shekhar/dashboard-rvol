@@ -15,6 +15,8 @@ import styles from './DashboardView.styles';
 import { useDashboardState, useDashboardDispatch } from './selector';
 
 import '../../style/_fixed-data-table.scss';
+const moment = require('moment');
+
 
 export function DashboardView(props) {
     const { dashboard } = useDashboardState();
@@ -50,12 +52,41 @@ export function DashboardView(props) {
 
         if (productCount) {
             getRvolData({ type: 'rvol', products});
-            setInterval(getData, 300000);
+            // clearCacheData();
+            // setInterval(getData, 300000);
 
             getImpliedVolData();
-            setInterval(getImpliedVolData, 150000);
+
+            let currentDateObj = moment().utcOffset(330);
+            let CurrentDate = moment().utcOffset(330).format();
+            let momentTime = moment(CurrentDate).format("HH:mm:ss");
+            let time = currentDateObj.hour();
+            let dayOfWeek = currentDateObj.isoWeekday();
+            let isWeekend = (dayOfWeek === 6) || (dayOfWeek  === 7); // 6 = Saturday, 7 = Sunday
+
+            // console.log(momentTime, dayOfWeek, isWeekend, CurrentDate, time, currentDateObj.minutes())
+
+            if ((time >= 9) && (time < 16 )) {
+                let setIntervalId = setInterval(() => {
+                    // make api call;
+                    clearCacheData();
+                    getData();
+                    getImpliedVolData();
+                }, 300000);
+            }
+
+            // setInterval(getImpliedVolData, 150000);
         }
     }, [productCount]);
+
+    // Function to clear complete cache data
+    const clearCacheData = () => {
+        caches.keys().then((names) => {
+            names.forEach((name) => {
+                caches.delete(name);
+            });
+        });
+    };
 
     const getImpliedVolData = () => {
         try {
