@@ -85,6 +85,58 @@ const updateDaysRvol = (data) => {
             data: filterData.slice(Math.max(filterData.length - 15, 0)),
         };
 
+        //Get 30day Time Series data
+        let rvolsq = [];
+        let time = 30;
+        filterData.forEach( (item, idx) => {
+            rvolsq.push( Math.pow(item['today'], 2) );
+
+            // console.log('outside if', item,);
+            // console.log('idx', idx, count);
+
+            if ( idx+1 >= 3 ) {
+                let key = '30day';
+                let threeDaySum = 0,
+                    fiveDaySum = 0,
+                    tenDaySum = 0,
+                    thirtyDaySum = 0;
+
+                for(let i = rvolsq.length -1; i >= 0; i-- ) {
+                    threeDaySum = (rvolsq.length - i <= 3) ? threeDaySum + rvolsq[i] : threeDaySum;
+                    fiveDaySum = (rvolsq.length - i <= 5) ? fiveDaySum + rvolsq[i] : fiveDaySum;
+                    tenDaySum = (rvolsq.length - i <= 10) ? tenDaySum + rvolsq[i] : tenDaySum;
+                    thirtyDaySum = (rvolsq.length - i <= 30) ? thirtyDaySum + rvolsq[i] : thirtyDaySum;
+                }
+                filterData[idx]['3day'] = Math.sqrt(threeDaySum / 3);
+                filterData[idx]['5day'] = Math.sqrt(fiveDaySum / 5);
+                filterData[idx]['10day'] = Math.sqrt(tenDaySum / 10);
+                filterData[idx]['30day'] = Math.sqrt(thirtyDaySum / 30);
+
+                // console.log('inside if', key, dayData[key]);
+                // console.log(idx, count, dayRvols[count]);
+            }
+        });
+
+        const threeDayMap = {
+            key: '3day',
+            data: filterData.slice(Math.max(filterData.length - 30, 0)),
+        };
+
+        const fiveDayMap = {
+            key: '5day',
+            data: filterData.slice(Math.max(filterData.length - 30, 0)),
+        };
+
+        const tenDayMap = {
+            key: '10day',
+            data: filterData.slice(Math.max(filterData.length - 30, 0)),
+        };
+
+        const thirtyDayMap = {
+            key: '30day',
+            data: filterData.slice(Math.max(filterData.length - 30, 0)),
+        };
+
         //Get 30 Minute Time Series data
         const filterDataThirtyMin = _.uniqBy(scriptData, '30min');
         const thirtyMinMap = {
@@ -99,12 +151,15 @@ const updateDaysRvol = (data) => {
             data: filterDataTenMin.slice(Math.max(filterDataTenMin.length - 40, 0)),
         };
 
-
         let dataTimeSeries = [];
 
         dataTimeSeries.push(thirtyMinMap);
         dataTimeSeries.push(tenMinMap);
         dataTimeSeries.push(toDayMap);
+        dataTimeSeries.push(threeDayMap);
+        dataTimeSeries.push(fiveDayMap);
+        dataTimeSeries.push(tenDayMap);
+        dataTimeSeries.push(thirtyDayMap);
 
         return { instrument_token, data: dataTimeSeries };
     });

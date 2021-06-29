@@ -69,7 +69,7 @@ export function DashboardView(props) {
             if ((time >= 9) && (time < 16 )) {
                 let setIntervalId = setInterval(() => {
                     // make api call;
-                    clearCacheData();
+                    //clearCacheData();
                     getData();
                     getImpliedVolData();
                 }, 300000);
