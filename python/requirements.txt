@@ -9,3 +9,6 @@ selenium
 pytz
 scipy
 mibian
+
+nsepython
+sympy

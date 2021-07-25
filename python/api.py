@@ -8,6 +8,7 @@ import updateRealisedVol
 import implied_vol
 import rVolScheduler
 import implied_vol_scheduler
+from estimation import estimate_vol
 
 import argparse
 import kite
@@ -54,6 +55,12 @@ def execute(param):
         # Back Populate Instruments Table
         instruments = instrument_list.InstrumentList()
         instruments.runFullUpdate(kite_obj)
+
+    elif param == 'EST':
+        print(param, '  Running Vol. Estimates')
+        # Run Estimate
+        vol_curve_obj = estimate_vol.EstimateVolData()
+        vol_curve = vol_curve_obj.runFullUpdate(kite_obj)
 
     else:
         print(param, 'Running Scheduler')
