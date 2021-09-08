@@ -9,6 +9,7 @@ import datetime
 import json
 import implied_vol_model
 from sqlalchemy.types import String, Date, DateTime
+import winddownDetails
 
 
 def get_key(strike, id):
@@ -31,24 +32,36 @@ class ImpliedVolScheduler:
         return min(strikePrices, key=lambda x: abs(float(x) - underlyingValue))
 
     @staticmethod
-    def count_time(startdate, enddate, tEnd, minutes_in_a_yr=525600):
+    def count_time(wind_down_sum, startdate, enddate, tEnd, minutes_in_a_yr=525600):
         """# Define a function to count the time to expiration in Year
         """
+
         date_time_str = enddate + ' ' + tEnd.strftime("%H:%M:%S")
         end_date_time_obj = constants.IST.localize(datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S'))
+
+        # curr_winddown_dict = [wind_down for wind_down in wind_down if wind_down['range'] == range][0]
+            # curr_winddown = float(curr_winddown_dict[rvolKey])
 
         # convert the timedelta to datetime and then extract minute
         duration_in_s = (end_date_time_obj - startdate).total_seconds()
         minutes = divmod(duration_in_s, 60)[0]  # Seconds in a minute = 60
 
+        today_min = ( minutes % 1440 ) * wind_down_sum
+        extra_min = ( minutes // 1440 ) * 1440
+
+        # print('wind_down_sum', wind_down_sum, today_min, extra_min, (today_min + extra_min) / minutes_in_a_yr)
+
         # print(startdate, end_date_time_obj, minutes, minutes / minutes_in_a_yr)
-        return minutes / minutes_in_a_yr
+        return (today_min + extra_min) / minutes_in_a_yr
 
     @staticmethod
     def get_avg_bid_ask(tokenData):
-        return (tokenData['depth']['buy'][0]['price'] + tokenData['depth']['sell'][0]['price']) / 2
+        if (tokenData['depth']['buy'][0]['price'] == 0 or tokenData['depth']['sell'][0]['price'] == 0):
+            return tokenData['last_price']
+        else:
+            return (tokenData['depth']['buy'][0]['price'] + tokenData['depth']['sell'][0]['price']) / 2
 
-    def runSchedulerOnConfig(self, kiteObj, configurationObj, instrumentsDetailsObjData, constants):
+    def runSchedulerOnConfig(self, kiteObj, configurationObj, instrumentsDetailsObjData, constants, windDownDataObj):
         engine_obj = engine.Engine.getInstance().getEngine()
 
         for config in configurationObj:
@@ -67,6 +80,13 @@ class ImpliedVolScheduler:
                 print('Market Closed!')
                 return
 
+            winddownTableKey = 'winddown-' + str(config['instrument_token'])
+            winddown = windDownDataObj[winddownTableKey]
+            wind_down_sum = 0.0
+
+            for (i, range) in enumerate(winddown):
+                if constants.to_date.strftime("%H:%M:%S") < str(winddown[i]['range']):
+                    wind_down_sum = wind_down_sum + float(winddown[i]['5min'])
 
             instrument_token = config['instrument_token']
             instruments_table_key = 'instruments-' + str(instrument_token)
@@ -134,7 +154,7 @@ class ImpliedVolScheduler:
                 # print(put_otm_df, len(put_otm_df.index))
 
                 # time in year
-                time_to_expiry = self.count_time(constants.to_date, expiry, config['t_end'], constants.minutes_in_a_yr)
+                time_to_expiry = self.count_time(wind_down_sum, constants.to_date, expiry, config['t_end'], constants.minutes_in_a_yr)
 
                 atm_ce = full_detail[str(atm_df.iloc[0]['token'])]['last_price']
                 atm_pe = full_detail[str(atm_df.iloc[1]['token'])]['last_price']
@@ -254,7 +274,11 @@ class ImpliedVolScheduler:
 
         instruments_details_obj = instrument_details.InstrumentDetails.getInstance()
         instruments_details_obj_data = instruments_details_obj.getInstruments()
-        self.runSchedulerOnConfig(kiteObj, configuration_obj_data, instruments_details_obj_data, constants)
+
+        winddownDetailsObj = winddownDetails.WinddownDetails.getInstance()
+        windDownDataObj = winddownDetailsObj.getWinddown()
+
+        self.runSchedulerOnConfig(kiteObj, configuration_obj_data, instruments_details_obj_data, constants, windDownDataObj)
 
 
 
