@@ -43,7 +43,7 @@ class ImpliedVolScheduler:
             # curr_winddown = float(curr_winddown_dict[rvolKey])
 
         # convert the timedelta to datetime and then extract minute
-        duration_in_s = (end_date_time_obj - startdate).total_seconds()
+        duration_in_s = (end_date_time_obj - startdate).total_seconds() if end_date_time_obj > startdate else 1
         minutes = divmod(duration_in_s, 60)[0]  # Seconds in a minute = 60
 
         # today_min = ( minutes % 1440 ) * wind_down_sum
