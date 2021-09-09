@@ -488,12 +488,12 @@ def _approx_implied_vol(option_type, fs, x, t, r, b, cp):
     # print(ebrt, ert)
 
     try:
-        v = (a * (b + sqrt(b ** 2 + c))) / sqrt(t)
+        v = (a * (b + sqrt(b ** 2 + c))) / sqrt(t) if t else 0
     except ValueError:
         print('implied ValueError')
     # print(v)
 
-    return v
+    return v.real
 
 
 # ----------
