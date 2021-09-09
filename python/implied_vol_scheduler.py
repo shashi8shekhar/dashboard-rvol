@@ -46,10 +46,11 @@ class ImpliedVolScheduler:
         duration_in_s = (end_date_time_obj - startdate).total_seconds()
         minutes = divmod(duration_in_s, 60)[0]  # Seconds in a minute = 60
 
-        today_min = ( minutes % 1440 ) * wind_down_sum
-        extra_min = ( minutes // 1440 ) * 1440
+        # today_min = ( minutes % 1440 ) * wind_down_sum
+        today_min = wind_down_sum * 1440.0
+        extra_min = ( minutes // 1440 ) * 1440.0
 
-        # print('wind_down_sum', wind_down_sum, today_min, extra_min, (today_min + extra_min) / minutes_in_a_yr)
+        # print('wind_down_sum', wind_down_sum, minutes, wind_down_sum * 1440, today_min, extra_min, (today_min + extra_min) / 60, (today_min + extra_min) / minutes_in_a_yr)
 
         # print(startdate, end_date_time_obj, minutes, minutes / minutes_in_a_yr)
         return (today_min + extra_min) / minutes_in_a_yr
@@ -87,6 +88,11 @@ class ImpliedVolScheduler:
             for (i, range) in enumerate(winddown):
                 if constants.to_date.strftime("%H:%M:%S") < str(winddown[i]['range']):
                     wind_down_sum = wind_down_sum + float(winddown[i]['5min'])
+
+                    print(constants.to_date.strftime("%H:%M:%S"))
+                    print(str(winddown[i]['range']))
+                    print(float(winddown[i]['5min']))
+                    print(wind_down_sum)
 
             instrument_token = config['instrument_token']
             instruments_table_key = 'instruments-' + str(instrument_token)
