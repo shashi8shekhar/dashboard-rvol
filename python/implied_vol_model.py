@@ -12,6 +12,8 @@ import math
 import numpy as np
 from scipy.stats import mvn, norm
 
+from cmath import sqrt
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -470,7 +472,7 @@ def _approx_implied_vol(option_type, fs, x, t, r, b, cp):
     ebrt = math.exp((b - r) * t)
     ert = math.exp(-r * t)
 
-    a = math.sqrt(2 * math.pi) / (fs * ebrt + x * ert)
+    a = sqrt(2 * math.pi) / (fs * ebrt + x * ert)
 
     # print('inside _approx_implied_vol')
     # print(option_type, fs, x, t, r, b, cp)
@@ -485,8 +487,10 @@ def _approx_implied_vol(option_type, fs, x, t, r, b, cp):
     # print(a, b, c, payoff)
     # print(ebrt, ert)
 
-    v = (a * (b + math.sqrt(b ** 2 + c))) / math.sqrt(t)
-
+    try:
+        v = (a * (b + sqrt(b ** 2 + c))) / sqrt(t)
+    except ValueError:
+        print('implied ValueError')
     # print(v)
 
     return v
