@@ -89,11 +89,6 @@ class ImpliedVolScheduler:
                 if constants.to_date.strftime("%H:%M:%S") < str(winddown[i]['range']):
                     wind_down_sum = wind_down_sum + float(winddown[i]['5min'])
 
-                    print(constants.to_date.strftime("%H:%M:%S"))
-                    print(str(winddown[i]['range']))
-                    print(float(winddown[i]['5min']))
-                    print(wind_down_sum)
-
             instrument_token = config['instrument_token']
             instruments_table_key = 'instruments-' + str(instrument_token)
             instruments = instrumentsDetailsObjData[instruments_table_key]

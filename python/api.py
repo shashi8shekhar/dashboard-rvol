@@ -9,6 +9,7 @@ import implied_vol
 import rVolScheduler
 import implied_vol_scheduler
 from estimation import estimate_vol
+from nse_holidays import trading_day
 
 import argparse
 import kite
@@ -63,14 +64,18 @@ def execute(param):
         vol_curve = vol_curve_obj.runFullUpdate(kite_obj)
 
     else:
+        is_trading_day = trading_day()
+        print('Is Trading Day = ', is_trading_day)
         print(param, 'Running Scheduler')
-        # Update Implied Volatility Table
-        implied_vol_scheduler_obj = implied_vol_scheduler.ImpliedVolScheduler()
-        implied_vol_scheduler_obj.runScheduler(kite_obj)
 
-        # Update Realised Volatility Table
-        realized_vol_scheduler_obj = rVolScheduler.RealTimePopulateRealisedVolData()
-        realized_vol_scheduler_obj.runUpdate(kite_obj)
+        if is_trading_day:
+            # Update Implied Volatility Table
+            implied_vol_scheduler_obj = implied_vol_scheduler.ImpliedVolScheduler()
+            implied_vol_scheduler_obj.runScheduler(kite_obj)
+
+            # Update Realised Volatility Table
+            realized_vol_scheduler_obj = rVolScheduler.RealTimePopulateRealisedVolData()
+            realized_vol_scheduler_obj.runUpdate(kite_obj)
 
 
 if __name__ == "__main__":

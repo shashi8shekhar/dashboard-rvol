@@ -46,3 +46,20 @@ password_xpath = "//*[@id=\"container\"]/div/div/div[2]/form/div[2]/input"
 submit_xpath = "//*[@id=\"container\"]/div/div/div[2]/form/div[4]/button"
 pin_xpath = "//*[@id=\"container\"]/div/div/div[2]/form/div[2]/div/input"
 continue_xpath = "//*[@id=\"container\"]/div/div/div[2]/form/div[3]/button"
+
+nse_holiday = [
+            "2021-01-26",
+            "2021-03-11",
+            "2021-03-29",
+            "2021-04-02",
+            "2021-04-14",
+            "2021-04-21",
+            "2021-05-13",
+            "2021-07-21",
+            "2021-08-19",
+            "2021-09-10",
+            "2021-10-15",
+            "2021-11-04",
+            "2021-11-05",
+            "2021-11-19"
+            ]
