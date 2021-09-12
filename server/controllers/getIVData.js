@@ -81,6 +81,18 @@ const getIVolDataHelper = async (params) => {
 
                 eachExpiry.data = eachExpiry.data.slice(-120);
 
+                eachExpiry.data.forEach(function(part, index) {
+                    // let obj = new Object();
+                    for (var key in part) {
+                        if ( (!this[index][key] || key.endsWith('-delta') || key.endsWith('-gamma') || key.endsWith('-theta') || key.endsWith('-vega')) ) {
+                            delete this[index][key];
+                            // obj[key] = this[index][key]
+                        }
+                    }
+
+                    // this[index] = obj;
+                }, eachExpiry.data);
+
                 const lastIndex = eachExpiry.data.length - 1;
                 const atm_strike = eachExpiry['data'][lastIndex]['atm_strike'];
 

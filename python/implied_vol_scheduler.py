@@ -206,6 +206,8 @@ class ImpliedVolScheduler:
                 each_row_data[get_key(atm_strike, 'theta')] = theta
                 each_row_data[get_key(atm_strike, 'vega')] = vega
                 skew_param['atm_iv'] = round(iv * 100, 2)
+                skew_param['diff_ce'] = 0.3
+                skew_param['diff_pe'] = 0.3
 
                 #print('ATM ===== ', 'expiry', 'avg c/p price', 'atm_strike', 'IV', 'delta', 'gamma', 'theta', 'vega', 'rho')
                 #print('ATM ===== ', expiry, last_price_atm, atm_strike, round(iv * 100, 2), delta, gamma, theta, vega, rho)
@@ -228,8 +230,9 @@ class ImpliedVolScheduler:
                     each_row_data[get_key(current_strike, 'theta')] = theta
                     each_row_data[get_key(current_strike, 'vega')] = vega
                     skew_param['call_iv'] = round(iv * 100, 2)
-                    if 0.23 <= delta <= 0.26 :
+                    if abs(delta - 0.25) < skew_param['diff_ce'] :
                         skew_param['call_iv'] = round(iv * 100, 2)
+                        skew_param['diff_ce'] = abs(delta - 0.25)
 
                     #print('OTM CALL ===== ', 'expiry', 'call price', 'strike', 'IV', 'delta', 'gamma', 'theta', 'vega', 'rho')
                     #print('OTM CALL ===== ', expiry, last_price, row['strike'], round(iv * 100, 2), delta, gamma, theta, vega, rho)
@@ -251,8 +254,9 @@ class ImpliedVolScheduler:
                     each_row_data[get_key(current_strike, 'theta')] = theta
                     each_row_data[get_key(current_strike, 'vega')] = vega
                     skew_param['put_iv'] = round(iv * 100, 2)
-                    if -0.26 <= delta <= -0.23 :
+                    if abs(delta - 0.25) < skew_param['diff_pe'] :
                         skew_param['put_iv'] = round(iv * 100, 2)
+                        skew_param['diff_pe'] = abs(delta - 0.25)
 
                     #print('OTM PUT ===== ', 'expiry', 'put price', 'strike', 'IV', 'delta', 'gamma', 'theta', 'vega', 'rho')
                     #print('OTM PUT ===== ', expiry, last_price, row['strike'], round(iv * 100, 2), delta, gamma, theta, vega, rho)

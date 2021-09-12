@@ -47,6 +47,8 @@ export function RowGraphViewIv(props) {
 
     const strikeList = getStrikes(currentData);
 
+    // console.log(currentData, strikeList);
+
     const changeGraphType = (type) => {
         setGraphType(type);
     };
@@ -72,7 +74,9 @@ export function RowGraphViewIv(props) {
                 let expiryData = _.get(currentData, [item.key, 'data'], []);
                 let lastData = _.get(expiryData, [expiryData.length - 1], {});
                 let strikeList = getStrikes(expiryData);
-                strikeListXAxis = [...strikeListXAxis, ...strikeList]
+                strikeListXAxis = _.uniq([...strikeListXAxis, ...strikeList]);
+
+                // console.log(expiryData, strikeList, strikeListXAxis.sort());
 
                 let data = _.filter(strikeList.map(strike => {
                     let iv = lastData[strike + '-iv'];
