@@ -48,12 +48,15 @@ class ImpliedVolScheduler:
 
         # today_min = ( minutes % 1440 ) * wind_down_sum
         today_min = wind_down_sum * 1440.0
-        extra_min = ( minutes // 1440 ) * 1440.0
+        if today_min == 0:
+            extra_min = minutes
+        else:
+            extra_min = ( minutes // 1440 ) * 1440.0
 
         # print('wind_down_sum', wind_down_sum, minutes, wind_down_sum * 1440, today_min, extra_min, (today_min + extra_min) / 60, (today_min + extra_min) / minutes_in_a_yr)
 
         # print(startdate, end_date_time_obj, minutes, minutes / minutes_in_a_yr)
-        return (today_min + extra_min) / minutes_in_a_yr if end_date_time_obj > startdate else 0.00001
+        return (today_min + extra_min) / minutes_in_a_yr if end_date_time_obj > startdate else 0.000000000000001
 
     @staticmethod
     def get_avg_bid_ask(tokenData):
