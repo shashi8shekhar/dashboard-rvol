@@ -25,7 +25,7 @@ class _GBS_Limits:
     # An GBS model will return an error if an out-of-bound input is input
     MAX32 = 2147483248.0
 
-    MIN_T = 1.0 / 100000.0  # requires some time left before expiration
+    MIN_T = 1.0 / 100000000000000000000000.0  # requires some time left before expiration
     MIN_X = 0.01
     MIN_FS = 0.01
 
