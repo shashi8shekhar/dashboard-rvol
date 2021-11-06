@@ -60,11 +60,17 @@ export default function TextCell(props) {
     }
 
     const iv = _.get(eachRowData, [colKey, tableType], '-');
+    const ivChange = _.get(eachRowData, [colKey, (tableType + 'Change')], '-');
 
     return (
         <Cell className={classnames(css(tableStyles.eachCell) )} onClick={ (e) => { props._handleColumnClickForGraph(colKey, colIndex, rowIndex, instrument_token, tableType) }}>
-            <div className={classnames( css(tableStyles.cellContent), css(tableStyles.SingleCellValue), css(tableStyles.linkTextCell) )}>
-                { iv }
+            <div className={classnames( css(tableStyles.cellContent), css(tableStyles.SingleCellValue), css(tableStyles.valueCell) )}>
+                <span className={classnames(css(tableStyles.linkTextCell) )}>
+                    { iv }
+                </span>
+                <span>
+                    { (isNaN(ivChange) || ivChange === null) ? '-' : parseFloat(ivChange).toFixed(2) }
+                </span>
             </div>
         </Cell>
     );

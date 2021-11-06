@@ -85,6 +85,11 @@ const tableStyles = StyleSheet.create({
         textAlign: 'right',
         verticalAlign: 'middle',
     },
+    valueCell: {
+        display: 'flex !important',
+        justifyContent: 'space-between',
+        gap: 20,
+    },
     groupedCellValue: {
         fontWeight: 'bold',
         width: 'calc(100% - 26px)',

@@ -57,6 +57,13 @@ const updateDaysIvol = (data) => {
     return content;
 };
 
+const convertDate = date => {
+    const newMomentObj = moment(moment(date).toISOString(), "YYYY-MM-DDTHH:mm:ss.SSSSZ", true).utc();
+
+    const lastUpdatedDate = moment(newMomentObj).format('YYYY-MM-DD');
+    return lastUpdatedDate;
+};
+
 const getIVolDataHelper = async (params) => {
     try {
         const results = [];
@@ -75,6 +82,8 @@ const getIVolDataHelper = async (params) => {
         // const updateDaysIvol = updateDaysIvol(contents);
         //const updateDaysIvol = updateOtherTimeFrameRvol(contents);
         let data = {};
+        let prevDayIV = 0;
+        let prevDaySkew = 0;
         contents.forEach(eachExpiry => {
             data[eachExpiry.instrument_token] = data[eachExpiry.instrument_token] || {};
             if (eachExpiry.data && eachExpiry.data.length) {
@@ -82,6 +91,8 @@ const getIVolDataHelper = async (params) => {
                 eachExpiry.data = eachExpiry.data.slice(-120);
 
                 eachExpiry.data.forEach(function(part, index) {
+                    prevDayIV = convertDate(eachExpiry.data[eachExpiry.data.length - 1]['dateTime']) > convertDate(part['dateTime']) ? part[part['atm_strike'] + '-iv'] : prevDayIV;
+                    prevDaySkew = convertDate(eachExpiry.data[eachExpiry.data.length - 1]['dateTime']) > convertDate(part['dateTime']) ? part['skew'] : prevDaySkew;
                     // let obj = new Object();
                     for (var key in part) {
                         if ( (!this[index][key] || key.endsWith('-delta') || key.endsWith('-gamma') || key.endsWith('-theta') || key.endsWith('-vega')) ) {
@@ -98,6 +109,8 @@ const getIVolDataHelper = async (params) => {
 
                 eachExpiry['iv'] = eachExpiry['data'][lastIndex][atm_strike + '-iv'];
                 eachExpiry['skew'] = eachExpiry['data'][lastIndex]['skew'];
+                eachExpiry['ivChange'] = eachExpiry['iv'] - prevDayIV;
+                eachExpiry['skewChange'] = eachExpiry['skew'] - prevDaySkew;
 
                 data[eachExpiry.instrument_token][eachExpiry.expiry] = eachExpiry;
                 data[eachExpiry.instrument_token]['last_updated'] = eachExpiry.data[lastIndex]['dateTime'];
