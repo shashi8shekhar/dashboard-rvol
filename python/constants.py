@@ -38,7 +38,11 @@ minutes_in_a_yr = 525600
 developerUrl = "https://developers.kite.trade/"
 baseLoginUrl = "https://kite.trade/connect/login"
 
-
+userId = "PS6375"
+password = "Shekhar@kite"
+pin = "796679"
+apiKey = "t42j1n0uwv75obv1"
+apiSecret = "lm38jfc02cqo5nmgqyyn4b1kc1ece27w"
 
 url = baseLoginUrl + "?api_key=" + apiKey + "&v=3"
 user_id_xpath = "//*[@id=\"container\"]/div/div/div[2]/form/div[1]/input"
@@ -48,18 +52,17 @@ pin_xpath = "//*[@id=\"container\"]/div/div/div[2]/form/div[2]/div/input"
 continue_xpath = "//*[@id=\"container\"]/div/div/div[2]/form/div[3]/button"
 
 nse_holiday = [
-            "2021-01-26",
-            "2021-03-11",
-            "2021-03-29",
-            "2021-04-02",
-            "2021-04-14",
-            "2021-04-21",
-            "2021-05-13",
-            "2021-07-21",
-            "2021-08-19",
-            "2021-09-10",
-            "2021-10-15",
-            "2021-11-04",
-            "2021-11-05",
-            "2021-11-19"
+            "2022-01-26",
+            "2022-03-01",
+            "2022-03-18",
+            "2022-04-14",
+            "2022-04-15",
+            "2022-05-03",
+            "2022-08-09",
+            "2022-08-15",
+            "2022-08-31",
+            "2022-10-05",
+            "2022-10-24",
+            "2022-10-26",
+            "2022-11-08"
             ]
