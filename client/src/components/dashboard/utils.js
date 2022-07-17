@@ -26,3 +26,18 @@ export function calculatePercentage(number, total, precision, hideSign) {
 export function _getAtmStrikePrice(underlyingValue, strikePrices) {
     return strikePrices.sort( (a,b) => Math.abs(underlyingValue - a) - Math.abs(underlyingValue - b) )[0];
 }
+
+export const getStrikes = (data) => {
+    const lastData = _.get(data, [data.length - 1], {});
+    const keys = Object.keys(lastData);
+
+    const strikeList = _.filter(keys.map( item => {
+        const splitKey = item.split('-');
+        return splitKey.length > 1 ? splitKey[0] : null;
+    }), (item) => {return item});
+
+    strikeList.sort();
+    const sortedStrikes = _.sortedUniq(strikeList);
+
+    return sortedStrikes;
+};

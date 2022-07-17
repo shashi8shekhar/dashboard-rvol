@@ -147,6 +147,9 @@ const tableStyles = StyleSheet.create({
         position: 'relative',
         left: '-5px',
     },
+    isAtm:  {
+        borderBottom: '8px solid #454B1B',
+    }
 });
 
 export default tableStyles;

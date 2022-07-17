@@ -18,17 +18,12 @@ const styles = StyleSheet.create({
         borderBottom: '1px solid #d8d8de',
     },
     ReloadButton: {
-        lineHeight: '22px',
+        margin: '20px 0',
         padding: 5,
         width: 100,
+        textAlign: 'center',
         cursor: 'pointer',
         border: '1px solid #d8d8de',
-        textAlign: 'center',
-    },
-    mainActionWrapper: {
-        display: 'flex',
-        margin: '20px 0',
-        gap: 20,
     }
 });
 

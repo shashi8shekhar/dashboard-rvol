@@ -113,6 +113,28 @@ export function RowGraphViewIv(props) {
                 categories: strikeList,
             };
         }
+    } else if(graphType === 'fixedStrikeVol') {
+        series = [
+            {
+                name: type,
+                data: _.get(tableGraphData, [onClickedRow, 'data'], []).map(data => {
+                    const iv = data[selectedColumn + '-iv'];
+                    return iv;
+                }),
+                yAxis: 0,
+                lineWidth: 2,
+            }
+        ];
+        xAxis = {
+            text: 'Time',
+            categories: _.get(tableGraphData, [onClickedRow, 'data'], []).map(data => {
+                let time = moment.utc(data['dateTime']).format('DD-MMM HH:mm');
+                return time;
+            }),
+        };
+        title = type + ' time series. ( ' + tradingsymbol + ', ' + parseInt(selectedColumn) + ' )';
+
+        // console.log(series, xAxis, tableGraphData);
     } else {
         series = [
             {

@@ -9,7 +9,10 @@ import { css } from 'aphrodite';
 import { ImpliedVolTable } from './ImpliedVol';
 import { SkewTable } from './Skew';
 import { RealizedVolTable } from './RealizedVol';
+import { FixedStrikeVol } from './FixedStrikeVol';
 import CircularProgress from 'components/core/circularProgress/CircularProgress';
+import ItraDropdown from 'components/core/react-itra-dropdown';
+
 import styles from './DashboardView.styles';
 
 import { useDashboardState, useDashboardDispatch } from './selector';
@@ -23,6 +26,7 @@ export function DashboardView(props) {
 
     const defaultProducts = _.get(dashboard, 'config.data.defaultProducts', []);
     const productCount = _.get(dashboard, 'config.data.defaultProducts.length', 0);
+    const defaultSelectedInstrument = productCount ? [defaultProducts[0]] : [];
 
     const tableDataloading = _.get(dashboard, 'rVolData.loading', true);
     const tableStreamDataLoading = _.get(dashboard, 'rVolData.streamLoading', false);
@@ -32,7 +36,10 @@ export function DashboardView(props) {
     const iVolData = _.get(dashboard, 'iVolData', []);
 
     const ivTimeseries = _.get(dashboard, 'ivTimeseries', {});
-    // console.log('IV data new = ', ivTimeseries);
+
+    const [selectedInstrument, setSelectedInstrument] = useState(defaultSelectedInstrument);
+
+    // console.log('IV data new = ', selectedInstrument, defaultSelectedInstrument, defaultProducts);
 
     const {
         getRvolData,
@@ -46,7 +53,8 @@ export function DashboardView(props) {
     }, []);
 
     useEffect(() => {
-        const products = defaultProducts.map( product => {
+        setSelectedInstrument(defaultSelectedInstrument)
+        const products = defaultSelectedInstrument.map( product => {
             return product.instrument_token;
         });
 
@@ -55,7 +63,7 @@ export function DashboardView(props) {
             // clearCacheData();
             // setInterval(getData, 300000);
 
-            getImpliedVolData();
+            getImpliedVolData(defaultSelectedInstrument);
 
             let currentDateObj = moment().utcOffset(330);
             let CurrentDate = moment().utcOffset(330).format();
@@ -72,7 +80,7 @@ export function DashboardView(props) {
                     //clearCacheData();
                     getData();
                     getImpliedVolData();
-                }, 300000);
+                }, 120000);
             }
 
             // setInterval(getImpliedVolData, 150000);
@@ -88,10 +96,11 @@ export function DashboardView(props) {
         });
     };
 
-    const getImpliedVolData = () => {
+    const getImpliedVolData = (instrument) => {
+        let list = instrument ? instrument : selectedInstrument;
         try {
             // console.log('inside set time interval getImpliedVolData');
-            const products = defaultProducts.map( product => {
+            const products = list.map( product => {
                 return product.instrument_token;
             });
             getIvTimeSeries({ type: 'ivol', products, expiryDates});
@@ -100,10 +109,11 @@ export function DashboardView(props) {
         }
     };
 
-    const getData = () => {
+    const getData = (instrument) => {
+        let list = instrument ? instrument : selectedInstrument;
         try {
             // console.log('inside set time interval');
-            const products = defaultProducts.map( product => {
+            const products = list.map( product => {
                 return product.instrument_token;
             });
 
@@ -113,6 +123,23 @@ export function DashboardView(props) {
         }
     };
 
+    const getSelectedInstrument = instrument => {
+        return {
+            id: _.get(instrument, [0, 'instrument_token'], null),
+            name: _.get(instrument, [0, 'tradingsymbol'], null),
+        };
+    };
+
+    const onChangeInstrument = (item) => {
+        const instrument = [_.find(defaultProducts, {instrument_token: item.id})];
+
+        setSelectedInstrument( instrument );
+        getData(instrument);
+        getImpliedVolData(instrument);
+    };
+
+    // console.log(selectedInstrument);
+
     return (
         <div className={css(styles.DashboardWrapper)}>
             {tableDataloading ? (
@@ -121,24 +148,48 @@ export function DashboardView(props) {
                 <p className={css(styles.transformCenter)}>No Data found</p>
             ) : (
                 <section>
-                    <div className={css(styles.ReloadButton)} onClick={(e) => { getData(); getImpliedVolData(); }}>
-                        {
-                            tableStreamDataLoading ? <span>Loading...</span> : <span>Reload</span>
-                        }
+                    <div className={css(styles.mainActionWrapper)}>
+                        <div className={css(styles.ReloadButton)} onClick={(e) => { getData(); getImpliedVolData(); }}>
+                            {
+                                tableStreamDataLoading ? <span>Loading...</span> : <span>Reload</span>
+                            }
+                        </div>
+
+                        <ItraDropdown
+                            dataSource={defaultProducts.map(item => {
+                                return {
+                                    id: item.instrument_token,
+                                    name: item.tradingsymbol,
+                                };
+                            })}
+                            selectedValue={getSelectedInstrument(selectedInstrument)}
+                            onTagSelection={ onChangeInstrument}
+                            showSearchBar={false}
+                            placeholder={'Select Metric'}
+                            dropdownWidth={200}
+                            labelWidth={150}
+                        />
                     </div>
 
                     <RealizedVolTable
                     />
 
                     <ImpliedVolTable
-                        defaultProducts={defaultProducts}
+                        defaultProducts={selectedInstrument}
                         expiryDates={expiryDates}
                         iVolData={ivTimeseries}
                         getImpliedVolData={getImpliedVolData}
                     />
 
                     <SkewTable
-                        defaultProducts={defaultProducts}
+                        defaultProducts={selectedInstrument}
+                        expiryDates={expiryDates}
+                        iVolData={ivTimeseries}
+                        getImpliedVolData={getImpliedVolData}
+                    />
+
+                    <FixedStrikeVol
+                        defaultProducts={selectedInstrument}
                         expiryDates={expiryDates}
                         iVolData={ivTimeseries}
                         getImpliedVolData={getImpliedVolData}
