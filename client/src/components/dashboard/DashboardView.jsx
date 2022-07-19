@@ -48,9 +48,44 @@ export function DashboardView(props) {
         getIvTimeSeries,
     } = useDashboardDispatch();
 
+    const [intervalID, setIntervalID] = useState(0);
+    const [shouldIntervalBeCancelled, setShouldIntervalBeCancelled] = useState(false);
+
     useEffect(() => {
         getConfig();
     }, []);
+
+    useEffect(() => {
+        clearInterval(intervalID);
+        let myIntervalID = setInterval(myFunction, 240000);
+        setIntervalID(myIntervalID);
+    }, [_.get(selectedInstrument, [0, 'instrument_token'],  '')]);
+
+    useEffect(() => {
+        if (shouldIntervalBeCancelled) {
+                 // this being inside a useEffect makes sure that it gets the fresh value of state
+        }
+    }, [shouldIntervalBeCancelled]);
+
+    const myFunction = () => {
+        // make the call and get back the result
+
+        let currentDateObj = moment().utcOffset(330);
+        let CurrentDate = moment().utcOffset(330).format();
+        let momentTime = moment(CurrentDate).format("HH:mm:ss");
+        let time = currentDateObj.hour();
+
+        if ((time >= 9) && (time < 16 )) {
+            getData();
+            getImpliedVolData();
+        }
+
+        // if(result === "someValue"){
+            // Here, I want to clear the interval, I just set shouldIntervalBeCancelled to be true
+            // setShouldIntervalBeCancelled(true);
+            // Navigate the user to other screen after the interval is cleared
+        // }
+    };
 
     useEffect(() => {
         setSelectedInstrument(defaultSelectedInstrument)
@@ -66,24 +101,10 @@ export function DashboardView(props) {
             getImpliedVolData(defaultSelectedInstrument);
 
             let currentDateObj = moment().utcOffset(330);
-            let CurrentDate = moment().utcOffset(330).format();
-            let momentTime = moment(CurrentDate).format("HH:mm:ss");
-            let time = currentDateObj.hour();
             let dayOfWeek = currentDateObj.isoWeekday();
             let isWeekend = (dayOfWeek === 6) || (dayOfWeek  === 7); // 6 = Saturday, 7 = Sunday
 
             // console.log(momentTime, dayOfWeek, isWeekend, CurrentDate, time, currentDateObj.minutes())
-
-            if ((time >= 9) && (time < 16 )) {
-                let setIntervalId = setInterval(() => {
-                    // make api call;
-                    //clearCacheData();
-                    getData();
-                    getImpliedVolData();
-                }, 120000);
-            }
-
-            // setInterval(getImpliedVolData, 150000);
         }
     }, [productCount]);
 
@@ -97,7 +118,7 @@ export function DashboardView(props) {
     };
 
     const getImpliedVolData = (instrument) => {
-        let list = instrument ? instrument : selectedInstrument;
+        let list = instrument && instrument.length ? instrument : selectedInstrument;
         try {
             // console.log('inside set time interval getImpliedVolData');
             const products = list.map( product => {
@@ -110,7 +131,9 @@ export function DashboardView(props) {
     };
 
     const getData = (instrument) => {
-        let list = instrument ? instrument : selectedInstrument;
+        let list = instrument && instrument.length ? instrument : selectedInstrument;
+
+        console.log()
         try {
             // console.log('inside set time interval');
             const products = list.map( product => {
