@@ -28,7 +28,7 @@ export function _getAtmStrikePrice(underlyingValue, strikePrices) {
 }
 
 export const getStrikes = (data) => {
-    const lastData = _.get(data, [data.length - 1], {});
+    const lastData = _.get(data, [data.length - 5], {});
     const keys = Object.keys(lastData);
 
     const strikeList = _.filter(keys.map( item => {

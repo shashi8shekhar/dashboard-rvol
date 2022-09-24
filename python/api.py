@@ -21,6 +21,8 @@ def execute(param):
     if not check_con:
         print('Inside not connected!!!')
         kite_obj.set_access_token()
+        inst_list = instrument_list.InstrumentList()
+        inst_list.runFullUpdate(kite_obj)
 
     if param == 'ALL':
         print(param, '  Running Wind down')
